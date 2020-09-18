@@ -35,7 +35,7 @@
         />
 
         <ImageButton
-            android:id="@+id/like"
+            android:id="@+id/btn_like"
             android:layout_width="80dp"
             android:layout_height="60dp"
             android:background="@color/White"

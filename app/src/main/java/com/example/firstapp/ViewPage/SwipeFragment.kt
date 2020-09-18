@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.firstapp.Card.Card
@@ -33,16 +34,31 @@ class SwipeFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+
+        val btnAnim = AnimationUtils.loadAnimation(context!!, R.anim.anim_btn)
+        //dislike 버튼 눌렀을때
+        btn_dislike.setOnClickListener {
+            swipeView.topCardListener.selectLeft()
+            it.startAnimation(btnAnim)
+        }
+        //like 버튼 눌렀을때
+        btn_like.setOnClickListener {
+            swipeView.topCardListener.selectRight();
+            it.startAnimation(btnAnim)
+        }
+
+
         //make cards
-        val cards = arrayListOf<Card>( Card("Lena", R.drawable.face), Card("manta", R.drawable.fire))
+        val cards = arrayListOf<Card>(Card("Lena", R.drawable.face), Card("manta", R.drawable.fire))
 
-
-        if (null == context)
+        if (null == context) {
+            Log.d("SwipeFragment", "Context is null")
             return
+        }
+
 
         //craete cardAdapter
-        var arrayAdapter = CardAdapter(context!!, R.layout.swipe_item,  cards)
-
+        var arrayAdapter = CardAdapter(context!!, R.layout.swipe_item, cards)
 
         //set the listener and the adapter
         swipeView.adapter = arrayAdapter
@@ -59,11 +75,9 @@ class SwipeFragment : Fragment() {
                 //Do something on the left!
                 //You also have access to the original object.
                 //If you want to use it just cast it (String) dataObject
-                Toast.makeText(context!!, "Left!", Toast.LENGTH_SHORT).show()
             }
 
             override fun onRightCardExit(dataObject: Any) {
-                Toast.makeText(context!!, "Right!", Toast.LENGTH_SHORT).show()
             }
 
             override fun onAdapterAboutToEmpty(itemsInAdapter: Int) {
