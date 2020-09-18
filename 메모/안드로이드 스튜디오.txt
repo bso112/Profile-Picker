@@ -1,0 +1,261 @@
+! 안드로이드 스튜디오
+
+ctrl alt L : 자동정렬
+함수인자보기 control + P
+
+Shift + F9 :디버깅 시작
+F9 : 다음 중단점 만날 때까지 실행
+F7 : 멈춘 라인의 메서드 상세히 보기
+Shift + F8 : 현제 메서드 빠져나갈 때까지 실행
+F8 : 소스 코드 한줄 실행
+Alt + F9 : 마우스 커서 위치까지 실행
+
+드로어블 리소스
+https://developer.android.com/guide/topics/resources/drawable-resource#Id
+
+@ 액티비티
+An activity represents a single screen with a user interface
+ just like window or frame of Java.Android activity is the
+ subclass of ContextThemeWrapper class.
+ 
+하나의 스크린.
+
+@ 프래그먼트
+reusable 한 모듈식 액티비티.
+
+프래그먼트는 항상 액티비티 내에서 호스팅되어야 하며
+ 해당 프래그먼트의 수명 주기는 호스트 액티비티의 수명
+ 주기에 직접적으로 영향을 받습니다. 예를 들어 액티비티가
+일시정지되는 경우, 그 안의 모든 프래그먼트도 일시정지되며
+ 액티비티가 소멸되면 모든 프래그먼트도 마찬가지로 소멸됩니다.
+
+OnCreateView에서 자신과 연결할 XML을 infalte해서 리턴한다.
+그 리턴된 객체는 어댑터가 받아서 데이터를 채운뒤 리턴한다.
+그 리턴된 객체는 그려지게된다.
+
+이러한 어댑터는 뷰(이미지뷰, 버튼 등)에 셋팅되어 자동으로 사용된다.
+즉, 이미지뷰에 그릴 이미지를 동적으로 바꾸거나 텍스트뷰의 텍스트를 동적으로\
+바꾸거나 할 수 있다.
+
+* 의문점. 뷰는 언제 객체화 된건가?
+MainActivity 에서 setContentView(R.layout.activity_main) 를 하면
+xml이 파싱되어서 뷰 하이라키가 만들어지고, 그렇게 만들어진 뷰는
+자바에서는 findViewById로, 코틀린에서는 그냥 id로 접근가능.
+findViewById가 하는 일은 계층구조에 접근해서 이미 있는
+뷰 객체를 가지고 오는것 뿐이다.
+
+ xml문서의 레이아웃은 뷰를 담는 컨테이너 역할을 하는
+ 부분으로 그 내부에 실제 화면에 나타날 View 
+객체들의 목록과 구조, 속성들이 정의되어있다. 
+이러한 xml문서를 실제 안드로이드 프로그램이 실행될 때
+메모리에 올리는 과정은 ADT에 포함된 
+aapt(Android Asset Packaging Tool)에 의해 수행된다.
+바로 이러한 수행을 하도록 코드상에 존재하는  
+메소드가 setContentView() 인 것이다. 
+이러한 동작을 Inflation(전개)이라고 한다. 
+
+XML은 그냥 뷰들의 정보를 담은 문서일뿐이다.
+
+
+
+@ 어댑터
+
+정적인 UI가 아니라, 상황에 따라서 정보가 바뀌는 UI를 구현하거나
+동적으로 UI를 추가하기 위해 사용한다.
+이때 어댑터를 통하는 View를 Adapter View라고 부른다.
+
+XML을 객체화해서 적절히 데이터를 뿌려준다음에 화면에 그릴 수 있도록 리턴해주는
+중간다리역할.
+
+getView 메서드에서
+XML을 Inflater를 통해 inflate (XML을 메모리에 적재하고, 메모리에 올린 객체를 리턴)
+해서 받아온 객체의 정보를 채운다음 그렇게 완성한 뷰를 리턴한다.
+
+class CardAdapter (context : Context, resourceID : Int, items : List<Card>):
+    ArrayAdapter<Card>(context, resourceID, items) {
+
+
+    //getView는 view가 필요할때 즉, 화면에 view가 보여야할때 불린다.
+    //view마다 불리기 때문에 여러번 불린다.
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        val card : Card? = getItem(position)
+
+        /*
+        Inflater는 XML을 실제로 메모리에 올리는 역할을 한다. inflate을 통해 메모리에 올리고,
+        그렇게 생성한 객체를 반환한다.
+         */
+        val cardView : View = LayoutInflater.from(context).inflate(R.layout.swipe_item, parent, false)
+
+        //생성된 카드뷰에서 객체를 이미지뷰를 받아온다.
+        val swipeImg : ImageView = cardView.findViewById(R.id.swipImg)
+        // 이미지뷰에 이미지를 셋팅한다.
+        swipeImg.setImageResource(card?.resourceID ?: R.drawable.face)
+
+        //만든 카드뷰를 리턴한다.
+        return cardView
+    }
+
+
+}
+
+
+
+@ 번들
+string key값을 가진 pair (액티비티 전환시 사용)
+ 
+@ 레이아웃
+레이아웃은 UI를 위한 구조를 정의한다.
+레이아웃은 ViewGrop과 View 객체의 계층을 사용하여 빌드됨.
+ViewGroup은 View를 묶는 투명한 컨테이너다. 실제 표시되는 UI는 View(예를들어 버튼, 텍스트뷰)이다.
+
+레이아웃은 XML이나 GUI로도 생성할수도 있고, 코드로 동적으로 생성할수도 있다.
+만약 레이아웃을 동적으로 생성하는경우 디버깅을 위해 Layout Inspector를 사용할 수 있다.
+(참고 https://developer.android.com/studio/debug/layout-inspector)
+
+
+
+@ FragmentPagerAdapter
+프래그먼트 페이지가 화면에 보이지 않아도, 프래그먼트 페이지들을 메모리에 상주시켜놓는다.
+프래그먼트 페이지 전환에 있어서 빠르지만, 페이지가 많을시 메모리소비가 심하다.
+
+@ FragmentStatePagerAdapter
+FragmentPagerAdapter 와는 달리, 프래그먼트 페이지들이 보이지 않을때
+페이지들에 대한 상태만 저장하고 모두 지운다.
+그러나 삭제와 생성이 빈번히 일어나기 때문에 페이지를 바꿀때 오버헤드가 있다.
+
+@ FragmentStateAdapter
+FragmentPagerAdapter 와 FragmentStatePagerAdapter는 
+deprecated 다. 
+FragmentStateAdapter는 아마 그 둘의 절충이 아닐까..
+공식문서에서는 FragmentStatePagerAdapter와 비슷하다고 나와있다.
+
+@ Drawable 가져오기
+tab.icon = ResourcesCompat.getDrawable(resources, R.drawable.fire, null)
+
+
+
+
+
+-XML쓰기
+
+각 레이아웃 파일에는 반드시 딱 하나의 루트 요소만 있어야 하며, 이는 View 또는 ViewGroup 객체여야 합니다. 
+(레이아웃이 중접이 안된다는 말이 아니다)
+
+-XML 리소스 로드
+앱을 컴파일하는 경우, 각 XML 레이아웃 파일이 View 리소스 안에 컴파일됩니다. 
+Activity.onCreate() 콜백 구현에서 앱 코드로부터 레이아웃 리소스를 로드해야 합니다. 
+setContentView()를 호출하고 R.layout.layout_file_name의 형태로 레이아웃 리소스에 대한 참조로 전달합니다. 
+예를 들어 XML 레이아웃이 main_layout.xml로 저장된다면 다음과 같이 액티비티에 대해 로드합니다.
+
+	
+//R은 자바클래스. 거기에 있는 레이아웃 목록에서 activity_main을 AppCompatActivity()를 상속받은 액티비티 클래스에 셋팅한다는 작업임.
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+    }
+}
+
+
+
+@ id
+
+
+View 객체는 트리 내에서 뷰를 고유하게 식별할 수 있는 정수 ID가 연결될 수 있습니다. 앱을 컴파일할 때 이 ID는 정수로 참조되지만, 일반적으로 레이아웃 XML 파일의 id 특성에서 문자열로 할당됩니다. 이는 모든 View 객체에 공통적인 XML 특성이며(View 클래스에서 정의), 매우 자주 사용하게 될 것입니다. XML 태그 내에서 ID의 구문은 다음과 같습니다.
+
+android:id="@+id/my_button"
+
+문자열 시작 부분에 있는 앳 기호(@)는 XML 파서가 ID 문자열의 나머지를 파싱하고 확장하여 ID 리소스로 식별해야 한다는 것을 나타냅니다. 
+더하기(+) 기호는 이것이 새 리소스 이름이며, 이것을 반드시 생성하여 리소스에 추가해야 한다는 것을 뜻합니다(R.java 파일에서). 
+Android 프레임워크는 다른 ID 리소스도 아주 많이 제공합니다. Android 리소스 ID를 참조할 때에는 더하기 기호는 필요하지 않지만 
+android 패키지 네임스페이스를 다음과 같이 반드시 추가해야 합니다.
+
+android:id="@android:id/empty"
+
+ID 값의 경우 일반적으로 "@+id/name" 구문 형식을 사용해야 합니다.
+더하기 기호(+)는 새 리소스 ID를 나타내며 리소스 정수가 아직 존재하지 않는다면 aapt 도구는 R.java 클래스에 새 리소스 정수를 만듭니다. 예:
+
+    <TextView android:id="@+id/nameTextbox"/>
+
+이제 nameTextbox 이름은 이 요소에 연결된 리소스 ID입니다. 그런 다음 자바에서 ID에 연결된 TextView를 참조할 수 있습니다.
+
+val textView: TextView? = findViewById(R.id.nameTextbox)
+
+ID는 트리 전체를 통틀어 고유할 필요는 없지만, 트리에서 검색하고 있는 부분 내에서는 고유해야 합니다(이것이 트리 전체인 경우가 잦으므로 가급적이면 완전히 고유한 것을 쓰는 것이 가장 좋습니다).
+
+@ 레이아웃 매개변수
+
+트리구조로, 상위 뷰 그룹이 하위 뷰 그룹의 레이아웃 매개변수(layout_width 등..)를 정의하고, 하위에서 확장한다.
+https://developer.android.com/guide/topics/ui/declaring-layout
+
+모든 뷰 그룹에는 너비와 높이가 포함되며(layout_width 및 layout_height), 각 뷰는 이들을 반드시 정의해야 합니다. 선택 사항으로 여백과 테두리도 포함하는 LayoutParams도 많습니다.
+
+너비와 높이는 정확한 치수로 지정할 수 있습니다. 다만 이것은 자주 하지 않는 것이 좋습니다. 그보다는 다음과 같은 상수 중 하나를 사용하여 너비 또는 높이를 설정하는 경우가 더 많습니다.
+
+wrap_content는 콘텐츠에 필요한 치수대로 자동으로 크기를 조정하도록 뷰에 지시합니다.
+match_parent는 상위 뷰 그룹이 허용하는 한 최대한으로 커지도록 뷰에 지시합니다.
+일반적으로 픽셀과 같이 절대적인 단위를 사용하여 레이아웃 너비와 높이를 지정하는 것은 권장하지 않습니다. 
+그 대신, 밀도 독립적인 픽셀 단위(dp), wrap_content 또는 match_parent와 같이 상대적인 측정치를 사용하는 것이 더 낫습니다. 
+이렇게 하면 앱이 다양한 기기 화면 크기에 걸쳐서도 적절하게 표시되도록 보장하는 데 도움이 되기 때문입니다. 
+허용된 측정 유형은 사용 가능한 리소스 문서에 정의되어 있습니다.
+
+@ 레이아웃 위치
+
+뷰의 모양은 직사각형입니다. 뷰에는 위치가 있으며, 이는 한 쌍의 왼쪽 및 상단 좌표, 그리고 두 개의 치수가 너비와 높이를 나타내는 형식으로 표현됩니다. 위치와 치수의 단위는 픽셀입니다.
+
+뷰의 위치를 검색할 수 있습니다. getLeft() 및 getTop() 메서드를 호출하면 됩니다. 
+
+이들 메서드는 둘 다 해당 뷰의 상위에 상대적인 뷰의 위치를 반환합니다. 예를 들어, getLeft()가 20을 반환하는 경우
+ 이는 해당 뷰가 그 뷰의 바로 상위의 왼쪽 가장자리에서 오른쪽으로 20픽셀 떨어진 곳에 있다는 뜻입니다.
+
+
+@ 이미지파일 사용할때 주의사항
+비트맵 이미지. Android는 .png(권장), .jpg(허용), .gif(권장 안 함) 등 세 가지 형식의 비트맵 파일을 지원합니다.
+
+비트맵 파일은 빌드 프로세스 과정에서 aapt 도구에 의해 무손실 이미지 압축을 사용하여 자동으로 최적화될 수 있습니다. 
+예를 들어, 256색을 초과하는 색상을 필요로 하지 않는 트루 컬러 PNG는 색상 팔레트를 사용하여 8비트 PNG로 변환될 수 있습니다. 
+이 경우 품질은 동일하지만 더 적은 메모리를 필요로 하는 이미지가 생성됩니다. 따라서 빌드 과정에서 이 디렉토리에 위치한 
+이미지 바이너리가 변경될 수 있다는 점에 유의해야 합니다. 이미지를 비트맵으로 변환하기 위해 비트 스트림으로 읽으려는 경우 
+이미지를 res/raw/ 폴더에 대신 저장하십시오. 이 폴더에서는 이미지가 최적화되지 않습니다.
+
+@ 일반 레이아웃
+
+ViewGroup 클래스의 각 하위 클래스는 각기 고유한 방식으로 자신 안에 중첩된 뷰를 표시합니다. 아래는 Android 플랫폼에서 기본 제공되는, 보다 보편적인 레이아웃 유형을 몇 가지 나타낸 것입니다.
+
+참고: 하나 이상의 레이아웃을 또 다른 레이아웃에 중첩하여 UI 디자인을 이룰 수도 있지만, 레이아웃 계층을 가능한 한 얕게 유지하도록 애써야 합니다. 
+중첩된 레이아웃이 적을수록 레이아웃이 더욱 빠르게 그려집니다(가로로 넓은 뷰 계층이 깊은 뷰 계층보다 낫습니다).
+
+
+@ 안드로이드 콜백클래스
+
+콜백이 워낙 많다보니 클래스로 만들고,
+그 클래스 안에 콜백을 실행할 상황을 가진 주체인 레이아웃을 가진다.
+그리고 레이아웃의 상태를 점검해 적절한 상황이면 콜백을 실행하는 느낌인듯.
+
+
+@  안드로이드 스튜디오가 제공하는 어댑터
+https://developer.android.com/guide/topics/ui/declaring-layout#AdapterViews
+
+1. ArrayAdapter
+데이터 소스가 배열인 경우에 이 어댑터를 사용합니다. 기본적으로 ArrayAdapter가 각 배열 항목에서 toString()을 호출하고 그 콘텐츠를 TextView에 배치함으로써 각 항목에 대한 뷰를 생성합니다.
+예를 들어 ListView로 문자열 배열을 표시하고자 하는 경우, 생성자를 사용하여 새로운 ArrayAdapter를 초기화해서 각 문자열과 문자열 배열에 대한 레이아웃을 지정하면 됩니다.
+
+val adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, myStringArray)
+
+각 항목의 외관을 사용자 지정하려면 배열의 객체에 대한 toString() 메서드를 재정의하면 됩니다.
+ 아니면, 각 항목에 대하여 TextView가 아닌 
+다른 뷰를 생성하고자 하는 경우(예를 들어 각 배열 항목에 ImageView를 
+원하는 경우), ArrayAdapter 클래스를 확장하고 getView()를 재정의하여 
+각 항목에 대해 원하는 유형의 뷰를 반환하도록 할 수 있습니다.
+
+디버그해본 결과,
+ArrayAdapter의 getView는 한번에 최대 4개의 view를 생성한다.
+getView는 처음 실행시와 notifyDataSetChanged 를 명시적으로 호출해줬을때 호출된다.
+
+
+-생성자
+ArrayAdapter(Context context, int resource, T[] objects)
+objects 를 toString 해서 텍스트뷰에 표시한다??
+== T는 반드시 toString을 가지고 있어야한다는 거겠지?
+
+
