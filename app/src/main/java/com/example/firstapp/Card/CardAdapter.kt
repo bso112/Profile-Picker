@@ -14,6 +14,7 @@ class CardAdapter (context : Context, resourceID : Int, items : List<Card>):
 
     //getView는 view가 필요할때 즉, 화면에 view가 보여야할때 불린다.
     //view마다 불리기 때문에 여러번 불린다.
+    //position 은 어떤 포지션이지?
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val card : Card? = getItem(position)
 

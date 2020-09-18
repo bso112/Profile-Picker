@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.firstapp.Card.Card
 import com.example.firstapp.Card.CardAdapter
@@ -49,7 +48,9 @@ class SwipeFragment : Fragment() {
 
 
         //make cards
-        val cards = arrayListOf<Card>(Card("Lena", R.drawable.face), Card("manta", R.drawable.fire))
+        val cards = arrayListOf<Card>(Card("Lena", R.drawable.face), Card("Lena", R.drawable.face2),
+            Card("Lena", R.drawable.face3),Card("Lena", R.drawable.face4),Card("Lena", R.drawable.face5),
+            Card("Lena", R.drawable.face6), Card("Lena", R.drawable.face7))
 
         if (null == context) {
             Log.d("SwipeFragment", "Context is null")
@@ -58,17 +59,23 @@ class SwipeFragment : Fragment() {
 
 
         //craete cardAdapter
-        var arrayAdapter = CardAdapter(context!!, R.layout.swipe_item, cards)
+        var cardAdapter = CardAdapter(context!!, R.layout.swipe_item, cards)
 
         //set the listener and the adapter
-        swipeView.adapter = arrayAdapter
+        swipeView.adapter = cardAdapter
         swipeView.setFlingListener(object : SwipeFlingAdapterView.onFlingListener {
 
             override fun removeFirstObjectInAdapter() {
                 // this is the simplest way to delete an object from the Adapter (/AdapterView)
                 Log.d("LIST", "removed object!")
                 cards.removeAt(0)
-                arrayAdapter.notifyDataSetChanged()
+             /*
+             사진이 하나 remove됬을때 어댑터에게 그 사실을 알린다.
+             그러면 CardAdapter의 부모클래스의 내부에 있는 옵저버들에게(이 옵저버들은 화면을 갱신하기 위해서 설정된 다른 오브젝트들일듯?)
+             그 사실이 알려진다.
+             그러면서 CardAdapter의 getView가 불리면서 4개의 뷰를 생성한다. (디버그해본 결과 한번에 최대 4개를 생성하는듯)
+              */
+                cardAdapter.notifyDataSetChanged()
             }
 
             override fun onLeftCardExit(dataObject: Any) {
@@ -82,6 +89,7 @@ class SwipeFragment : Fragment() {
 
             override fun onAdapterAboutToEmpty(itemsInAdapter: Int) {
                 // Ask for more data here
+                // 여기서 더 많은 데이터를 가져온다.
 
             }
 
