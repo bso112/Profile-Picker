@@ -252,10 +252,63 @@ val adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, my
 ArrayAdapter의 getView는 한번에 최대 4개의 view를 생성한다.
 getView는 처음 실행시와 notifyDataSetChanged 를 명시적으로 호출해줬을때 호출된다.
 
+notifyDataSetChanged() 는
+mDataSetObservable.notifyChanged(); 를 부르고
+이는 또 mDataSetObservable.notifyChanged(); 를 부른다.
+(mDataSetObservable는 BaseAdapter에 있는 멤버변수다. 즉,
+BaseAdapter는 Observable 하다. 다른말로는 옵저버패턴의 'subject'에 해당한다.
+Observable 을 상속받아 subject가 된것이 아니라 DataSetObservable를
+멤버변수로 가짐으로써 subject가 된것이다 (컴포넌트패턴))
+
+
+Observable<T>은 mDataSetObservable의 타입인 DataSetObservable의
+최상위클래스이고, 
+
+ protected final ArrayList<T> mObservers = new ArrayList<T>();
+
+이런 필드와
+
+    public void registerObserver(T observer) {
+        if (observer == null) {
+            throw new IllegalArgumentException("The observer is null.");
+        }
+        synchronized(mObservers) {
+            if (mObservers.contains(observer)) {
+                throw new IllegalStateException("Observer " + observer + " is already registered.");
+            }
+            mObservers.add(observer);
+        }
+    }
+
+public void unregisterObserver(T observer)  //생략
+
+ public void unregisterAll() // 생략
+
+이런 메소드들을 가지고있다.
+
+DataSetObservable은 
+
+    public void notifyChanged() {
+        synchronized(mObservers) {
+            // since onChanged() is implemented by the app, it could do anything, including
+            // removing itself from {@link mObservers} - and that could cause problems if
+            // an iterator is used on the ArrayList {@link mObservers}.
+            // to avoid such problems, just march thru the list in the reverse order.
+            for (int i = mObservers.size() - 1; i >= 0; i--) {
+                mObservers.get(i).onChanged();
+            }
+        }
+    }
+
+이런 메소드를 가지고 있다.
+onChanged()의 주체는 T로, 탬플릿 클래스이다.
+
 
 -생성자
 ArrayAdapter(Context context, int resource, T[] objects)
 objects 를 toString 해서 텍스트뷰에 표시한다??
 == T는 반드시 toString을 가지고 있어야한다는 거겠지?
+
+
 
 

@@ -7,14 +7,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.example.firstapp.Card.Card
 import com.example.firstapp.Card.CardAdapter
 import com.example.firstapp.R
 import com.lorentzos.flingswipe.SwipeFlingAdapterView
 import kotlinx.android.synthetic.main.frag_swipe.*
+import kotlin.math.log
 
 
 class SwipeFragment : Fragment() {
+
+    val cards : ArrayList<Card> = ArrayList<Card>()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +55,7 @@ class SwipeFragment : Fragment() {
         }
 
 
+        Request_CardDatas();
         //make cards
         val cards = arrayListOf<Card>(Card("Lena", R.drawable.face), Card("Lena", R.drawable.face2),
             Card("Lena", R.drawable.face3),Card("Lena", R.drawable.face4),Card("Lena", R.drawable.face5),
@@ -100,4 +109,24 @@ class SwipeFragment : Fragment() {
 
 
     }
+
+    fun Request_CardDatas()
+    {
+        // Instantiate the RequestQueue.
+        val queue = Volley.newRequestQueue(context!!)
+        val url = "https://profile-picker.herokuapp.com/"
+
+        // Request a string response from the provided URL.
+        val stringRequest = StringRequest(Request.Method.GET, url,
+            Response.Listener<String> { response ->
+                // Display the first 500 characters of the response string.
+               Log.d("response", "Response is: ${response.substring(0, 500)}")
+            },
+            Response.ErrorListener { Log.d("error", "error occur") })
+
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest)
+
+    }
+
 }
