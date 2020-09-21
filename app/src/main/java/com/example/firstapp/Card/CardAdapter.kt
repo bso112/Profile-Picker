@@ -26,7 +26,7 @@ class CardAdapter (context : Context, resourceID : Int, items : List<Card>):
 
         //생성된 카드뷰에서 객체를 이미지뷰를 받아온다.
         val swipeImg : ImageView = cardView.findViewById(R.id.swipImg)
-        // 이미지뷰에 이미지를 셋팅한다.
+        // 이미지뷰에 이미지를 셋팅한다. 디폴트는 R.drawable.face
         swipeImg.setImageResource(card?.resourceID ?: R.drawable.face)
 
         //만든 카드뷰를 리턴한다.

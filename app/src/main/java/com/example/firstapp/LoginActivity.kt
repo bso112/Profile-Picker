@@ -71,7 +71,7 @@ class LoginActivity : AppCompatActivity() {
         if (null != account) {
             //main activity로 가기
             val intent = Intent(this, MainActivity::class.java).apply {
-                putExtra(FIRSTAPP_USERNAME,account.email)
+                putExtra(FIRSTAPP_USERNAME,account.displayName)
             }
             startActivity(intent)
             Log.d("MainActivity", "login success!")
