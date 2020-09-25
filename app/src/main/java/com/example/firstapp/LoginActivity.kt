@@ -24,8 +24,15 @@ onActivityResult : 구글 로그인 액티비티의 결과를 받아 그로부�
 
 class LoginActivity : AppCompatActivity() {
 
-    lateinit var  mGoogleSignInClient : GoogleSignInClient;
-    val RC_SIGN_IN : Int = 1234 //onActivityResult 에서 로그인 리퀘스트를 구별하기 위한 상수
+    companion object {
+        var mGoogleSignInClient: GoogleSignInClient? = null
+            private set
+        var mAccount : GoogleSignInAccount? =null
+            private set
+
+    }
+
+    val RC_SIGN_IN: Int = 1234 //onActivityResult 에서 로그인 리퀘스트를 구별하기 위한 상수
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,10 +53,10 @@ class LoginActivity : AppCompatActivity() {
         super.onStart()
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
-        val account = GoogleSignIn.getLastSignedInAccount(this)
-        updateUI(account)
+        mAccount = GoogleSignIn.getLastSignedInAccount(this)
+        updateUI(mAccount)
 
-        sign_in_button.setOnClickListener{ signIn()}
+        sign_in_button.setOnClickListener { signIn() }
 
     }
 
@@ -66,12 +73,12 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun updateUI(account: GoogleSignInAccount?) {
-        
+
         //로그인에 성공했다면
         if (null != account) {
             //main activity로 가기
             val intent = Intent(this, MainActivity::class.java).apply {
-                putExtra(FIRSTAPP_USERNAME,account.displayName)
+                putExtra(FIRSTAPP_USERNAME, account.displayName)
             }
             startActivity(intent)
             Log.d("MainActivity", "login success!")
@@ -79,9 +86,8 @@ class LoginActivity : AppCompatActivity() {
 
     }
 
-    private fun signIn()
-    {
-        startActivityForResult(mGoogleSignInClient.signInIntent, RC_SIGN_IN)
+    private fun signIn() {
+        startActivityForResult(mGoogleSignInClient?.signInIntent, RC_SIGN_IN)
     }
 
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {

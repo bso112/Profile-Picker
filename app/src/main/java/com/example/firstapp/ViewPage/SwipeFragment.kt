@@ -56,6 +56,7 @@ class SwipeFragment : Fragment() {
 
 
         Request_CardDatas();
+
         //make cards
         val cards = arrayListOf<Card>(Card("Lena", R.drawable.face), Card("Lena", R.drawable.face2),
             Card("Lena", R.drawable.face3),Card("Lena", R.drawable.face4),Card("Lena", R.drawable.face5),
@@ -114,13 +115,12 @@ class SwipeFragment : Fragment() {
     {
         // Instantiate the RequestQueue.
         val queue = Volley.newRequestQueue(context!!)
-        val url = "https://profile-picker.herokuapp.com/"
+        val url = getString(R.string.urlToServer)
 
         // Request a string response from the provided URL.
         val stringRequest = StringRequest(Request.Method.GET, url,
             Response.Listener<String> { response ->
-                // Display the first 500 characters of the response string.
-               Log.d("response", "Response is: ${response.substring(0, 500)}")
+               Log.d("response", "Response is: + response")
             },
             Response.ErrorListener { Log.d("error", "error occur") })
 
