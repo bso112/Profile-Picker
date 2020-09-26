@@ -19,18 +19,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.android.volley.Response
-import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import kotlinx.android.synthetic.main.activity_upload_img.*
 import java.io.*
 
-
+//업로드가 끝나면 액티비티도 끝낸다.
 class UploadImgActivity : AppCompatActivity() {
 
     private val REQUEST_IMAGE_CAPTURE = 1
     private val REQUEST_PICK_FROM_ALBUM = 2
     private val REQUEST_PERMISSIONS = 3
-    private var mPicture: Bitmap? = null
+    private val pictureArray : ArrayList<Bitmap> = ArrayList<Bitmap>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,8 +39,8 @@ class UploadImgActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onStart() {
         super.onStart()
-        btn_cam.setOnClickListener { dispatchTakePictureIntent() }
-        btn_gallery.setOnClickListener { dispathGalleryIntent() }
+        btn_post_addPicture.setOnClickListener { dispathGalleryIntent() }
+        tv_post_save.setOnClickListener{ uploadPostToServer() }
     }
 
 
@@ -51,40 +50,37 @@ class UploadImgActivity : AppCompatActivity() {
         if (resultCode != AppCompatActivity.RESULT_OK)
             return;
 
-
+        var picture : Bitmap? = null
         //이미캡쳐 리퀘스트였고, 그 결과가 성공이면
         if (requestCode === REQUEST_IMAGE_CAPTURE) {
             //데이터에서 번들을 뽑아내고, 번들에서 비트맵을 뽑아내서 iv_profile1에 적용한다.
             val extras: Bundle? = data?.extras
-            mPicture = extras?.get("data") as Bitmap
+            picture = extras?.get("data") as Bitmap
 
             //  mPicture = getBitmapFromDataTest(data)
         } else if (requestCode == REQUEST_PICK_FROM_ALBUM) {
-
-            mPicture = getBitmapFromData(data)
-
+            picture = getBitmapFromData(data)
+        }
+        
+        picture?.let {
+            pictureArray.add(picture)
+            //업로드할 사진을 표시0
+            iv_post_picture.setImageBitmap(picture)
         }
 
-        if (null != mPicture) {
-            //생성한 비트맵을 서버로 업로드
-            UploadImageToServer()
-
-            iv_upload_img.setImageBitmap(mPicture)
-        }
-
-        //액티비티 종료
-        finish()
     }
 
-    private fun UploadImageToServer() {
+    private fun uploadPostToServer() {
 
-
+        //업로드 진행 UI 띄우고싶은데..
         val volleyMultipartRequest: VolleyMultipartRequest = object : VolleyMultipartRequest(
-            Method.POST, getString(R.string.urlToServer),
+            Method.POST, getString(R.string.urlToServer) + "writePost/",
             Response.Listener { response ->
                 val obj = String(response.data)
                 Toast.makeText(applicationContext, obj, Toast.LENGTH_SHORT)
                     .show()
+
+                finish()
             },
             Response.ErrorListener { error ->
                 Toast.makeText(applicationContext, error.message, Toast.LENGTH_LONG).show()
@@ -94,20 +90,23 @@ class UploadImgActivity : AppCompatActivity() {
         {
             override fun getByteData(): Map<String, DataPart> {
                 val params: HashMap<String, DataPart> = HashMap()
-                //이미지 이름은 고유해야하니 그냥 지금 시간으로 하자.
-                val imagename = System.currentTimeMillis()
+                
+                //모든 사진을 바이트배열로 변환해서 바디에 쓴다.
                 //key는 html form뷰의 name 항목. 즉, 파라미터가 되는듯
-                mPicture?.let { bitmap ->
-                    params.put(
-                        "image",
-                        DataPart(imagename.toString(), getFileDataFromDrawable(bitmap))
-                    )
+                for(picture in pictureArray)
+                {
+                    //이미지 이름은 고유해야함
+                    val imagename = System.currentTimeMillis()
+                    params.put("image", DataPart(imagename.toString(), getFileDataFromDrawable(picture)))
                 }
+
                 return params
             }
 
             override fun getParams(): MutableMap<String, String> {
                 val params: MutableMap<String, String> = HashMap()
+
+                params.put("content", tv_post_content.text.toString())
                 LoginActivity.mAccount?.email?.let {
                     params.put("email", it)
                 }

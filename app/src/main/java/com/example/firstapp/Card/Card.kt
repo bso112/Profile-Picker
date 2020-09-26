@@ -1,3 +1,5 @@
 package com.example.firstapp.Card
 
-data class Card (var userID : String, var resourceID : Int)
+import android.graphics.Bitmap
+
+data class Card (var email : String, var content : String, var bitmap : Bitmap)
