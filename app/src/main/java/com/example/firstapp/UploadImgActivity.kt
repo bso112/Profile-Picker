@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.provider.MediaStore.ACTION_IMAGE_CAPTURE
 import android.provider.MediaStore.Images
 import android.util.Log
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -20,6 +21,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.android.volley.Response
 import com.android.volley.toolbox.Volley
+import com.example.firstapp.Adapter.UploadImgAdapter
 import kotlinx.android.synthetic.main.activity_upload_img.*
 import java.io.*
 
@@ -29,7 +31,8 @@ class UploadImgActivity : AppCompatActivity() {
     private val REQUEST_IMAGE_CAPTURE = 1
     private val REQUEST_PICK_FROM_ALBUM = 2
     private val REQUEST_PERMISSIONS = 3
-    private val pictureArray : ArrayList<Bitmap> = ArrayList<Bitmap>()
+    private val mPictureArray : ArrayList<MyBitmap> = ArrayList<MyBitmap>()
+    private lateinit var mBitmapAdapter :  ArrayAdapter<MyBitmap>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,8 +42,18 @@ class UploadImgActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onStart() {
         super.onStart()
-        btn_post_addPicture.setOnClickListener { dispathGalleryIntent() }
+        btn_post_addPicture.setOnClickListener {
+            if(mPictureArray.size >= 5) {
+                Toast.makeText(this, "사진은 5장까지만 등록할 수 있습니다.", Toast.LENGTH_LONG).show()
+            }
+            else
+                dispathGalleryIntent()
+        }
+
         tv_post_save.setOnClickListener{ uploadPostToServer() }
+
+        mBitmapAdapter = UploadImgAdapter(this, R.layout.upload_img_item, mPictureArray)
+        gv_picture.adapter = mBitmapAdapter
     }
 
 
@@ -50,22 +63,23 @@ class UploadImgActivity : AppCompatActivity() {
         if (resultCode != AppCompatActivity.RESULT_OK)
             return;
 
-        var picture : Bitmap? = null
+        var picture : MyBitmap? = null
         //이미캡쳐 리퀘스트였고, 그 결과가 성공이면
         if (requestCode === REQUEST_IMAGE_CAPTURE) {
             //데이터에서 번들을 뽑아내고, 번들에서 비트맵을 뽑아내서 iv_profile1에 적용한다.
             val extras: Bundle? = data?.extras
-            picture = extras?.get("data") as Bitmap
+            val bitmap = extras?.get("data") as Bitmap
+            picture = MyBitmap("unnamed", bitmap)
 
             //  mPicture = getBitmapFromDataTest(data)
         } else if (requestCode == REQUEST_PICK_FROM_ALBUM) {
             picture = getBitmapFromData(data)
         }
-        
+
         picture?.let {
-            pictureArray.add(picture)
-            //업로드할 사진을 표시0
-            iv_post_picture.setImageBitmap(picture)
+            mPictureArray.add(picture)
+            //픽쳐가 추가되었음을 알리고, 화면을 갱신하라고한다.
+            mBitmapAdapter.notifyDataSetChanged()
         }
 
     }
@@ -90,14 +104,12 @@ class UploadImgActivity : AppCompatActivity() {
         {
             override fun getByteData(): Map<String, DataPart> {
                 val params: HashMap<String, DataPart> = HashMap()
-                
+
                 //모든 사진을 바이트배열로 변환해서 바디에 쓴다.
                 //key는 html form뷰의 name 항목. 즉, 파라미터가 되는듯
-                for(picture in pictureArray)
+                for(picture in mPictureArray)
                 {
-                    //이미지 이름은 고유해야함
-                    val imagename = System.currentTimeMillis()
-                    params.put("image", DataPart(imagename.toString(), getFileDataFromDrawable(picture)))
+                    params.put("image", DataPart(picture.imgName, getFileDataFromDrawable(picture.bitmap)))
                 }
 
                 return params
@@ -106,7 +118,7 @@ class UploadImgActivity : AppCompatActivity() {
             override fun getParams(): MutableMap<String, String> {
                 val params: MutableMap<String, String> = HashMap()
 
-                params.put("content", tv_post_content.text.toString())
+                params.put("content", et_post_content.text.toString())
                 LoginActivity.mAccount?.email?.let {
                     params.put("email", it)
                 }
@@ -125,7 +137,7 @@ class UploadImgActivity : AppCompatActivity() {
 
     fun getFileDataFromDrawable(bitmap: Bitmap): ByteArray? {
         val byteArrayOutputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.PNG, 80, byteArrayOutputStream)
+        bitmap.compress(Bitmap.CompressFormat.WEBP, 60, byteArrayOutputStream)
         return byteArrayOutputStream.toByteArray()
     }
 
@@ -242,7 +254,7 @@ class UploadImgActivity : AppCompatActivity() {
         return bm;
     }
 
-    private fun getBitmapFromData(data: Intent?): Bitmap? {
+    private fun getBitmapFromData(data: Intent?): MyBitmap? {
         val photoUri: Uri? = data?.data
         //데이터베이스 쿼리를 받기 위한 객체. 쿼리 결과에 대한 랜덤액세스를 제공한다.
         var cursor: Cursor? = null
@@ -263,15 +275,16 @@ class UploadImgActivity : AppCompatActivity() {
 
                 //파일을 얻는다.
                 val file = File(it?.getString(column_index))
+
                 //그냥 빈 옵션을 준비
                 val options = BitmapFactory.Options()
                 //파일을 디코딩해서 비트맵으로 만든다.
-                return BitmapFactory.decodeFile(file.absolutePath, options)
+                return MyBitmap(file.name, BitmapFactory.decodeFile(file.absolutePath, options))
             }
         }
 
         return null
     }
-
-
 }
+
+data class MyBitmap(val imgName :String, val bitmap : Bitmap)

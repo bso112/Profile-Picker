@@ -26,10 +26,8 @@ class ProfileFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        ib_profile1.setOnClickListener{
-            val intent = Intent(context, UploadImgActivity::class.java).apply {
-               // putExtra(FIRSTAPP_USERNAME,account.displayName)
-            }
+        ib_profile_create.setOnClickListener{
+            val intent = Intent(context, UploadImgActivity::class.java)
             startActivity(intent)
         }
     }

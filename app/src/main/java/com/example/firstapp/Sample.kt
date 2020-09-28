@@ -1,6 +1,7 @@
 package com.example.firstapp
 
 import android.provider.ContactsContract
+import android.util.Log
 
 fun main() {
 
@@ -42,6 +43,7 @@ fun main() {
 
     //익명객체, 익명클래스
     createAnimal()
+
 }
 
 //함수
