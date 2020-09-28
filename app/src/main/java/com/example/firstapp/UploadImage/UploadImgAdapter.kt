@@ -1,4 +1,4 @@
-package com.example.firstapp.Adapter
+package com.example.firstapp.UploadImage
 
 import android.content.Context
 import android.view.LayoutInflater

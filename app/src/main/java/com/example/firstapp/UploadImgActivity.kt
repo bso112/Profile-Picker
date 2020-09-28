@@ -1,5 +1,6 @@
 package com.example.firstapp
 
+import LoadingDialogFragment
 import android.Manifest
 import android.content.Intent
 import android.content.Intent.ACTION_PICK
@@ -19,9 +20,10 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
 import com.android.volley.Response
 import com.android.volley.toolbox.Volley
-import com.example.firstapp.Adapter.UploadImgAdapter
+import com.example.firstapp.UploadImage.UploadImgAdapter
 import kotlinx.android.synthetic.main.activity_upload_img.*
 import java.io.*
 
@@ -47,7 +49,7 @@ class UploadImgActivity : AppCompatActivity() {
                 Toast.makeText(this, "사진은 5장까지만 등록할 수 있습니다.", Toast.LENGTH_LONG).show()
             }
             else
-                dispathGalleryIntent()
+                dispatchGalleryIntent()
         }
 
         tv_post_save.setOnClickListener{ uploadPostToServer() }
@@ -86,15 +88,15 @@ class UploadImgActivity : AppCompatActivity() {
 
     private fun uploadPostToServer() {
 
-        //업로드 진행 UI 띄우고싶은데..
+        //Loading Dialog
+        val loadingDialog = LoadingDialogFragment()
+
         val volleyMultipartRequest: VolleyMultipartRequest = object : VolleyMultipartRequest(
             Method.POST, getString(R.string.urlToServer) + "writePost/",
-            Response.Listener { response ->
-                val obj = String(response.data)
-                Toast.makeText(applicationContext, obj, Toast.LENGTH_SHORT)
-                    .show()
-
-                finish()
+            Response.Listener {
+                Toast.makeText(applicationContext, "게시물을 등록하였습니다.", Toast.LENGTH_LONG).show()
+                loadingDialog.dismiss();
+                finish();
             },
             Response.ErrorListener { error ->
                 Toast.makeText(applicationContext, error.message, Toast.LENGTH_LONG).show()
@@ -132,6 +134,8 @@ class UploadImgActivity : AppCompatActivity() {
         //adding the request to volley
         val requestQ = Volley.newRequestQueue(this)
         requestQ.add(volleyMultipartRequest)
+
+        loadingDialog.show(supportFragmentManager, "다이어로그")
 
     }
 
@@ -176,11 +180,11 @@ class UploadImgActivity : AppCompatActivity() {
         if (isDenied) {
 
         } else
-            PickPictureFromGallay()
+            pickPictureFromGallay()
 
     }
 
-    private fun PickPictureFromGallay() {
+    private fun pickPictureFromGallay() {
         //이미 퍼미션을 받았으면 바로 그냥 갤러리로
         Intent(ACTION_PICK).let {
             it.setType(Images.Media.CONTENT_TYPE)
@@ -190,7 +194,7 @@ class UploadImgActivity : AppCompatActivity() {
 
 
     @RequiresApi(Build.VERSION_CODES.M)
-    private fun dispathGalleryIntent() {
+    private fun dispatchGalleryIntent() {
         //외부 스토리지 쓰기, 읽기 퍼미션이 있는지 먼저 확인한다.
         if ((ContextCompat.checkSelfPermission(
                 this,
@@ -202,7 +206,7 @@ class UploadImgActivity : AppCompatActivity() {
             ) == PackageManager.PERMISSION_GRANTED)
         ) {
             //이미 퍼미션을 받았으면 바로 그냥 갤러리로
-            PickPictureFromGallay()
+            pickPictureFromGallay()
 
         } else {
             //만약 교육용 UI를 표시해야한다면 (사용자가 퍼미션을 거부한적이 있으면)
@@ -224,34 +228,6 @@ class UploadImgActivity : AppCompatActivity() {
 
         }
 
-    }
-
-    fun getByteArray(data: String): ByteArray? {
-        val byteArrayOutputStream = ByteArrayOutputStream()
-        //DataOutputStream은 ByteArrayOutputStream에 데이터를 쓰기위한 함수를 제공하는 클래스인듯.
-        val out = DataOutputStream(byteArrayOutputStream)
-        try {
-            out.write(data.toByteArray())
-            byteArrayOutputStream.flush()
-            byteArrayOutputStream.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return byteArrayOutputStream.toByteArray()
-    }
-
-    private fun getBitmapFromDataTest(data: Intent?): Bitmap? {
-        var bm: Bitmap? = null
-        try {
-            val inputStream = contentResolver.openInputStream(data!!.data!!)
-            bm = BitmapFactory.decodeStream(inputStream)
-            inputStream!!.close()
-        } catch (e: FileNotFoundException) {
-            e.printStackTrace()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return bm;
     }
 
     private fun getBitmapFromData(data: Intent?): MyBitmap? {
