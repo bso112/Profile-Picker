@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import com.example.firstapp.Card.CardAdapter
@@ -90,11 +91,19 @@ class SwipeFragment : Fragment() {
             }
 
             override fun onAdapterAboutToEmpty(itemsInAdapter: Int) {
-                // Ask for more data here
                 // 여기서 더 많은 데이터를 가져온다.
+
+                //아직 데이터를 받아오고 있는 중이면
+                if(cardAdapter.isBusy())
+                {
+//                    Toast.makeText(context, "카드 데이터를 받아오는 중입니다.", Toast.LENGTH_SHORT).show()
+                    return
+                }
+
+                //남은 아이템수가 2이하일때
                 if(itemsInAdapter <= 2)
                 {
-                    for (i in 0..5)
+                    for (i in 0..resources.getInteger(R.integer.CardRequestAtOnce))
                         cardAdapter.addCardData();
                 }
 

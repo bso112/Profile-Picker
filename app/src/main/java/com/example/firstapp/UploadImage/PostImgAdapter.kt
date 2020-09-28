@@ -10,8 +10,8 @@ import com.example.firstapp.MyBitmap
 import com.example.firstapp.R
 import kotlinx.android.synthetic.main.upload_img_item.view.*
 
-class UploadImgAdapter(context : Context, resourceID : Int, bitmaps: ArrayList<MyBitmap>) :
-    ArrayAdapter<MyBitmap>(context, resourceID,bitmaps ) {
+class PostImgAdapter(context : Context, resourceID : Int, bitmaps: ArrayList<Bitmap>) :
+    ArrayAdapter<Bitmap>(context, resourceID,bitmaps ) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         var bitmap = getItem(position)
@@ -19,7 +19,7 @@ class UploadImgAdapter(context : Context, resourceID : Int, bitmaps: ArrayList<M
         val cardView: View =
             LayoutInflater.from(context).inflate(R.layout.upload_img_item, parent, false)
 
-        cardView.iv_upload_picture.setImageBitmap(bitmap?.bitmap)
+        cardView.iv_upload_picture.setImageBitmap(bitmap)
 
         return cardView
     }
