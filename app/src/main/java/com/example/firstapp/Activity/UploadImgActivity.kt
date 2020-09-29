@@ -1,13 +1,14 @@
-package com.example.firstapp
+package com.example.firstapp.Activity
 
 import LoadingDialogFragment
 import android.Manifest
 import android.content.Intent
-import android.content.Intent.ACTION_PICK
+import android.content.Intent.*
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -20,10 +21,11 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentManager
 import com.android.volley.Response
 import com.android.volley.toolbox.Volley
+import com.example.firstapp.R
 import com.example.firstapp.UploadImage.UploadImgAdapter
+import com.example.firstapp.VolleyMultipartRequest
 import kotlinx.android.synthetic.main.activity_upload_img.*
 import java.io.*
 
@@ -33,8 +35,8 @@ class UploadImgActivity : AppCompatActivity() {
     private val REQUEST_IMAGE_CAPTURE = 1
     private val REQUEST_PICK_FROM_ALBUM = 2
     private val REQUEST_PERMISSIONS = 3
-    private val mPictureArray : ArrayList<MyBitmap> = ArrayList<MyBitmap>()
-    private lateinit var mBitmapAdapter :  ArrayAdapter<MyBitmap>
+    private var mPictureArray: ArrayList<MyBitmap> = ArrayList<MyBitmap>()
+    private lateinit var mBitmapAdapter: ArrayAdapter<MyBitmap>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,16 +47,18 @@ class UploadImgActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         btn_post_addPicture.setOnClickListener {
-            if(mPictureArray.size >= 5) {
+            if (mPictureArray.size >= 5) {
                 Toast.makeText(this, "사진은 5장까지만 등록할 수 있습니다.", Toast.LENGTH_LONG).show()
-            }
-            else
+            } else
                 dispatchGalleryIntent()
         }
 
-        tv_post_save.setOnClickListener{ uploadPostToServer() }
+        tv_post_save.setOnClickListener { uploadPostToServer() }
 
-        mBitmapAdapter = UploadImgAdapter(this, R.layout.upload_img_item, mPictureArray)
+        mBitmapAdapter = UploadImgAdapter(
+            this,
+            R.layout.upload_img_item, mPictureArray
+        )
         gv_picture.adapter = mBitmapAdapter
     }
 
@@ -65,24 +69,20 @@ class UploadImgActivity : AppCompatActivity() {
         if (resultCode != AppCompatActivity.RESULT_OK)
             return;
 
-        var picture : MyBitmap? = null
         //이미캡쳐 리퀘스트였고, 그 결과가 성공이면
         if (requestCode === REQUEST_IMAGE_CAPTURE) {
             //데이터에서 번들을 뽑아내고, 번들에서 비트맵을 뽑아내서 iv_profile1에 적용한다.
             val extras: Bundle? = data?.extras
             val bitmap = extras?.get("data") as Bitmap
-            picture = MyBitmap("unnamed", bitmap)
-
+            mPictureArray.add(MyBitmap("unnamed", bitmap))
             //  mPicture = getBitmapFromDataTest(data)
         } else if (requestCode == REQUEST_PICK_FROM_ALBUM) {
-            picture = getBitmapFromData(data)
+            mPictureArray = getBitmapFromData(data)
         }
 
-        picture?.let {
-            mPictureArray.add(picture)
-            //픽쳐가 추가되었음을 알리고, 화면을 갱신하라고한다.
-            mBitmapAdapter.notifyDataSetChanged()
-        }
+        //픽쳐가 추가되었음을 알리고, 화면을 갱신하라고한다.
+        mBitmapAdapter.notifyDataSetChanged()
+
 
     }
 
@@ -104,20 +104,29 @@ class UploadImgActivity : AppCompatActivity() {
             }) //여기까지가 object가 구현하는 VolleyMultipartRequest
         //여기서부터는 익명클래스 정의부분
         {
-            override fun getByteData(): Map<String, DataPart> {
-                val params: HashMap<String, DataPart> = HashMap()
-
+            override fun getByteData(): ArrayList<Pair<String, DataPart>> {
+                //map이 중복허용안해서 arrayList로 바꿨다.
+                val params = ArrayList<Pair<String, DataPart>>()
                 //모든 사진을 바이트배열로 변환해서 바디에 쓴다.
                 //key는 html form뷰의 name 항목. 즉, 파라미터가 되는듯
-                for(picture in mPictureArray)
-                {
-                    params.put("image", DataPart(picture.imgName, getFileDataFromDrawable(picture.bitmap)))
+                for (picture in mPictureArray) {
+                    params.add(
+                        Pair(
+                            "image",
+                            DataPart(
+                                picture.imgName,
+                                getFileDataFromDrawable(picture.bitmap),
+                                "image/webp"
+                            )
+                        )
+                    )
                 }
 
                 return params
             }
 
             override fun getParams(): MutableMap<String, String> {
+                //map은 중복허용 안함. 주의!
                 val params: MutableMap<String, String> = HashMap()
 
                 params.put("content", et_post_content.text.toString())
@@ -186,9 +195,12 @@ class UploadImgActivity : AppCompatActivity() {
 
     private fun pickPictureFromGallay() {
         //이미 퍼미션을 받았으면 바로 그냥 갤러리로
-        Intent(ACTION_PICK).let {
-            it.setType(Images.Media.CONTENT_TYPE)
-            startActivityForResult(it, REQUEST_PICK_FROM_ALBUM)
+        Intent(ACTION_GET_CONTENT).let {
+//            it.type = Images.Media.CONTENT_TYPE
+            it.type = "image/*"
+
+            it.putExtra(EXTRA_ALLOW_MULTIPLE, true)
+            startActivityForResult(createChooser(it, "Select Picture"), REQUEST_PICK_FROM_ALBUM)
         }
     }
 
@@ -230,37 +242,65 @@ class UploadImgActivity : AppCompatActivity() {
 
     }
 
-    private fun getBitmapFromData(data: Intent?): MyBitmap? {
-        val photoUri: Uri? = data?.data
-        //데이터베이스 쿼리를 받기 위한 객체. 쿼리 결과에 대한 랜덤액세스를 제공한다.
-        var cursor: Cursor? = null
+    private fun getBitmapFromData2(data: Intent?): ArrayList<MyBitmap> {
 
+        val clipData = data?.clipData ?: return ArrayList<MyBitmap>()
+        var result = ArrayList<MyBitmap>()
+        for (i in 0 until clipData.itemCount) {
+            val photoUri: Uri = clipData.getItemAt(i).uri
+            //데이터베이스 쿼리를 받기 위한 객체. 쿼리 결과에 대한 랜덤액세스를 제공한다.
+            var cursor: Cursor? = null
 
-        //Uri 스키마를 content:/// 에서 file:/// 로  변경한다.
-        val proj = arrayOf(Images.Media.DATA)
-        //contentResolver를 통해 contentProvider에 쿼리한다. photoUri 에 있는 Images.Media.DATA에 해당하는 데이터를 가져와라.
-        cursor = photoUri?.let { contentResolver.query(it, proj, null, null, null) }
+            //Uri 스키마를 content:/// 에서 file:/// 로  변경한다.
+            val proj = arrayOf(Images.Media.DATA)
+            //contentResolver를 통해 contentProvider에 쿼리한다. photoUri 에 있는 Images.Media.DATA에 해당하는 데이터를 가져와라.
+            cursor = photoUri?.let { contentResolver.query(it, proj, null, null, null) }
 
-        //cursor은 Closeable 을 구현하기 때문에 use를 쓸수있다.
-        //익셉션이 발생하건 말건 마지막에 close(리소스반환)한다. 자바의 try-with-resource와 유사하다.
-        cursor?.use {
-            //받아온 데이터가 있으면
-            if (it.moveToFirst()) {
-                //쿼리결과에서 Images.Media.DATA를 가져올 수 있는 인덱스를 얻는다.
-                val column_index: Int = it?.getColumnIndexOrThrow(Images.Media.DATA) ?: -1
+            //cursor은 Closeable 을 구현하기 때문에 use를 쓸수있다.
+            //익셉션이 발생하건 말건 마지막에 close(리소스반환)한다. 자바의 try-with-resource와 유사하다.
+            cursor?.use {
+                //받아온 데이터가 있으면
+                if (it.moveToFirst()) {
+                    //쿼리결과에서 Images.Media.DATA를 가져올 수 있는 인덱스를 얻는다.
+                    val columnIndex: Int = it?.getColumnIndexOrThrow(Images.Media.DATA) ?: -1
 
-                //파일을 얻는다.
-                val file = File(it?.getString(column_index))
+                    //파일을 얻는다.
+                    val file = File(it?.getString(columnIndex))
 
-                //그냥 빈 옵션을 준비
-                val options = BitmapFactory.Options()
-                //파일을 디코딩해서 비트맵으로 만든다.
-                return MyBitmap(file.name, BitmapFactory.decodeFile(file.absolutePath, options))
+                    //그냥 빈 옵션을 준비
+                    val options = BitmapFactory.Options()
+                    //파일을 디코딩해서 비트맵으로 만든다.
+                    result.add(
+                        MyBitmap(file.name, BitmapFactory.decodeFile(file.absolutePath, options))
+                    )
+                }
             }
         }
+        return result
+    }
 
-        return null
+
+    private fun getBitmapFromData(data: Intent?): ArrayList<MyBitmap> {
+        val clipData = data?.clipData ?: return ArrayList<MyBitmap>()
+        var result = ArrayList<MyBitmap>()
+        var cnt = 0
+        for (i in 0 until clipData.itemCount) {
+            val photoUri: Uri = clipData.getItemAt(i).uri
+
+            val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val source = ImageDecoder.createSource(contentResolver, photoUri)
+                ImageDecoder.decodeBitmap(source);
+            } else {
+                contentResolver.openInputStream(photoUri)?.use { inputStream ->
+                    BitmapFactory.decodeStream(inputStream)
+                }
+            }
+            bitmap?.let {
+                result.add(MyBitmap(System.currentTimeMillis().toString() + cnt++, it))
+            }
+        }
+        return result
     }
 }
 
-data class MyBitmap(val imgName :String, val bitmap : Bitmap)
+data class MyBitmap(val imgName: String, val bitmap: Bitmap)

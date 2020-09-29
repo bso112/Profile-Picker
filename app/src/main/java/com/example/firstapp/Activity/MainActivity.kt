@@ -1,16 +1,14 @@
-package com.example.firstapp
+package com.example.firstapp.Activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.drawable.DrawableCompat
+import com.example.firstapp.EXTRA_USERNAME
+import com.example.firstapp.R
 import com.example.firstapp.ViewPage.ViewPageAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlin.system.exitProcess
 
 class MainActivity : AppCompatActivity() {
 
@@ -38,13 +36,16 @@ class MainActivity : AppCompatActivity() {
         TabLayoutMediator(tabLayout, mainPager){ tab, position->
             when(position){
                 0-> {
-                    tab.icon = ResourcesCompat.getDrawable(resources, R.drawable.fire, null)
+                    tab.icon = ResourcesCompat.getDrawable(resources,
+                        R.drawable.fire, null)
                 }
                 1->{
-                    tab.icon = ResourcesCompat.getDrawable(resources, R.drawable.chat, null)
+                    tab.icon = ResourcesCompat.getDrawable(resources,
+                        R.drawable.chat, null)
                 }
                 2->{
-                    tab.icon = ResourcesCompat.getDrawable(resources, R.drawable.profile, null)
+                    tab.icon = ResourcesCompat.getDrawable(resources,
+                        R.drawable.profile, null)
                 }
 
             }
@@ -52,7 +53,7 @@ class MainActivity : AppCompatActivity() {
         }.attach()
 
         //환영인사
-        val message = intent.getStringExtra(FIRSTAPP_USERNAME)
+        val message = intent.getStringExtra(EXTRA_USERNAME)
         Toast.makeText(applicationContext, message + "님, 안녕하세요!", Toast.LENGTH_SHORT).show()
 
     }

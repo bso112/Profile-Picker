@@ -1,16 +1,18 @@
-package com.example.firstapp
+package com.example.firstapp.Activity
 
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.firstapp.EXTRA_USERNAME
+
+import com.example.firstapp.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.internal.Objects
 import com.google.android.gms.tasks.Task
 import kotlinx.android.synthetic.main.activity_login.*
 
@@ -78,7 +80,7 @@ class LoginActivity : AppCompatActivity() {
         if (null != account) {
             //main activity로 가기
             val intent = Intent(this, MainActivity::class.java).apply {
-                putExtra(FIRSTAPP_USERNAME, account.displayName)
+                putExtra(EXTRA_USERNAME, account.displayName)
             }
             startActivity(intent)
             Log.d("MainActivity", "login success!")

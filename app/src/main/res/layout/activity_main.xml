@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:paddingLeft="10dp"
     android:paddingRight="10dp"
-    tools:context=".MainActivity"
+    tools:context=".Activity.MainActivity"
     android:weightSum="1">
 
 

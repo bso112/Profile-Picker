@@ -1,5 +1,7 @@
 package com.example.firstapp;
 
+import android.util.Log;
+
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
@@ -13,7 +15,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Map;
+
+import kotlin.Pair;
 
 public class VolleyMultipartRequest extends Request<NetworkResponse> {
 
@@ -58,7 +63,7 @@ public class VolleyMultipartRequest extends Request<NetworkResponse> {
             }
 
             // populate data byte payload
-            Map<String, DataPart> data = getByteData();
+            ArrayList<Pair<String, DataPart>> data = getByteData();
             if (data != null && data.size() > 0) {
                 dataParse(dos, data);
             }
@@ -66,6 +71,7 @@ public class VolleyMultipartRequest extends Request<NetworkResponse> {
             // close multipart form data after text and file data
             dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
 
+            //Log.d("volley", bos.toString());
             return bos.toByteArray();
         } catch (IOException e) {
             e.printStackTrace();
@@ -79,7 +85,7 @@ public class VolleyMultipartRequest extends Request<NetworkResponse> {
      * @return Map data part label with data byte
      * @throws AuthFailureError
      */
-    protected Map<String, DataPart> getByteData() throws AuthFailureError {
+    protected ArrayList<Pair<String, DataPart>> getByteData() throws AuthFailureError {
         return null;
     }
 
@@ -129,9 +135,9 @@ public class VolleyMultipartRequest extends Request<NetworkResponse> {
      * @param data             loop through data
      * @throws IOException
      */
-    private void dataParse(DataOutputStream dataOutputStream, Map<String, DataPart> data) throws IOException {
-        for (Map.Entry<String, DataPart> entry : data.entrySet()) {
-            buildDataPart(dataOutputStream, entry.getValue(), entry.getKey());
+    private void dataParse(DataOutputStream dataOutputStream,ArrayList<Pair<String, DataPart>> data) throws IOException {
+        for (Pair<String, DataPart> entry : data) {
+            buildDataPart(dataOutputStream, entry.getSecond(), entry.getFirst());
         }
     }
 
@@ -189,7 +195,7 @@ public class VolleyMultipartRequest extends Request<NetworkResponse> {
         dataOutputStream.writeBytes(lineEnd);
     }
 
-    class DataPart {
+   public class DataPart {
         private String fileName;
         private byte[] content;
         private String type;
@@ -197,9 +203,10 @@ public class VolleyMultipartRequest extends Request<NetworkResponse> {
         public DataPart() {
         }
 
-        DataPart(String name, byte[] data) {
+        public DataPart(String name, byte[] data, String type) {
             fileName = name;
             content = data;
+            this.type = type;
         }
 
         String getFileName() {

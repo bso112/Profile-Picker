@@ -1,12 +1,11 @@
 package com.example.firstapp.UploadImage
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import com.example.firstapp.MyBitmap
+import com.example.firstapp.Activity.MyBitmap
 import com.example.firstapp.R
 import kotlinx.android.synthetic.main.upload_img_item.view.*
 

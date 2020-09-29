@@ -7,10 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.firstapp.FIRSTAPP_USERNAME
-import com.example.firstapp.MainActivity
 import com.example.firstapp.R
-import com.example.firstapp.UploadImgActivity
+import com.example.firstapp.Activity.UploadImgActivity
 import kotlinx.android.synthetic.main.frag_profile.*
 
 class ProfileFragment : Fragment() {

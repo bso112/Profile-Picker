@@ -1,5 +1,6 @@
 package com.example.firstapp.ViewPage
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -7,16 +8,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import com.example.firstapp.Card.Card
 import com.example.firstapp.Card.CardAdapter
+import com.example.firstapp.EXTRA_POSTID
+import com.example.firstapp.Activity.PostActivity
 import com.example.firstapp.R
 import com.lorentzos.flingswipe.SwipeFlingAdapterView
 import kotlinx.android.synthetic.main.frag_swipe.*
 
 
 class SwipeFragment : Fragment() {
+
+    var lastClickTime: Long = 0
+    var topCard : Card? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,14 +44,15 @@ class SwipeFragment : Fragment() {
     private fun readyFragementView() {
 
         val btnAnim = AnimationUtils.loadAnimation(context!!, R.anim.anim_btn)
-        //dislike 버튼 눌렀을때
-        btn_dislike.setOnClickListener {
-            swipeView.topCardListener.selectLeft()
-            it.startAnimation(btnAnim)
-        }
-        //like 버튼 눌렀을때
+        //게시물보기 버튼 눌렀을때
         btn_like.setOnClickListener {
-            swipeView.topCardListener.selectRight();
+            //swipeView.topCardListener.selectLeft()
+            topCard?.let {
+                val intent = Intent(context, PostActivity::class.java).apply {
+                    putExtra(EXTRA_POSTID, it.postId)
+                }
+                startActivity(intent)
+            }
             it.startAnimation(btnAnim)
         }
 
@@ -64,12 +71,24 @@ class SwipeFragment : Fragment() {
 
         //set the listener and the adapter
         swipeView.adapter = cardAdapter
+
+        cardAdapter.addCardData{
+                card -> topCard = card
+        }
+
+        for (i in 0..resources.getInteger(R.integer.CardRequestAtOnce))
+            cardAdapter.addCardData();
+
+
         swipeView.setFlingListener(object : SwipeFlingAdapterView.onFlingListener {
 
             override fun removeFirstObjectInAdapter() {
                 // this is the simplest way to delete an object from the Adapter (/AdapterView)
                 Log.d("LIST", "removed object!")
                 cardAdapter.removeCardAtFront()
+
+                if(!cardAdapter.isEmpty())
+                    topCard = cardAdapter.getItem(0)
 
 
                 /*
@@ -94,15 +113,13 @@ class SwipeFragment : Fragment() {
                 // 여기서 더 많은 데이터를 가져온다.
 
                 //아직 데이터를 받아오고 있는 중이면
-                if(cardAdapter.isBusy())
-                {
+                if (cardAdapter.isBusy()) {
 //                    Toast.makeText(context, "카드 데이터를 받아오는 중입니다.", Toast.LENGTH_SHORT).show()
                     return
                 }
 
                 //남은 아이템수가 2이하일때
-                if(itemsInAdapter <= 2)
-                {
+                if (itemsInAdapter <= 2) {
                     for (i in 0..resources.getInteger(R.integer.CardRequestAtOnce))
                         cardAdapter.addCardData();
                 }
@@ -114,10 +131,6 @@ class SwipeFragment : Fragment() {
             }
         })
     }
-
-
-
-
 
 
 }

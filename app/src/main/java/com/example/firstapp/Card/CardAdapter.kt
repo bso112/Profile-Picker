@@ -9,17 +9,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.ImageRequest
 import com.android.volley.toolbox.JsonArrayRequest
-import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.example.firstapp.R
 import kotlinx.android.synthetic.main.swipe_item.view.*
-import org.json.JSONArray
 
 class CardAdapter(context: Context, resourceID: Int) :
     ArrayAdapter<Card>(context, resourceID) {
@@ -62,7 +59,7 @@ class CardAdapter(context: Context, resourceID: Int) :
 
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
-    public fun addCardData() {
+    public fun addCardData(callback: ((card : Card) -> Unit)? = null) {
 
         requestCount = 0
         // Instantiate the RequestQueue.
@@ -110,6 +107,10 @@ class CardAdapter(context: Context, resourceID: Int) :
                                     //어레이어댑터 아이템으로 추가
                                     super.add(_card)
                                     requestCount++
+
+                                    if (callback != null) {
+                                        callback(_card)
+                                    };
                                 },
                                 300,
                                 800,
