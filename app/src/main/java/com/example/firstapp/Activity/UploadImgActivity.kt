@@ -35,7 +35,7 @@ class UploadImgActivity : AppCompatActivity() {
     private val REQUEST_IMAGE_CAPTURE = 1
     private val REQUEST_PICK_FROM_ALBUM = 2
     private val REQUEST_PERMISSIONS = 3
-    private var mPictureArray: ArrayList<MyBitmap> = ArrayList<MyBitmap>()
+    private val mPictureArray: ArrayList<MyBitmap> = ArrayList<MyBitmap>()
     private lateinit var mBitmapAdapter: ArrayAdapter<MyBitmap>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,7 +77,8 @@ class UploadImgActivity : AppCompatActivity() {
             mPictureArray.add(MyBitmap("unnamed", bitmap))
             //  mPicture = getBitmapFromDataTest(data)
         } else if (requestCode == REQUEST_PICK_FROM_ALBUM) {
-            mPictureArray = getBitmapFromData(data)
+            for(myBitmap in getBitmapFromData(data))
+                mPictureArray.add(myBitmap)
         }
 
         //픽쳐가 추가되었음을 알리고, 화면을 갱신하라고한다.
@@ -243,7 +244,7 @@ class UploadImgActivity : AppCompatActivity() {
     }
 
     private fun getBitmapFromData2(data: Intent?): ArrayList<MyBitmap> {
-
+        var test = data?.data;
         val clipData = data?.clipData ?: return ArrayList<MyBitmap>()
         var result = ArrayList<MyBitmap>()
         for (i in 0 until clipData.itemCount) {
@@ -281,12 +282,22 @@ class UploadImgActivity : AppCompatActivity() {
 
 
     private fun getBitmapFromData(data: Intent?): ArrayList<MyBitmap> {
-        val clipData = data?.clipData ?: return ArrayList<MyBitmap>()
-        var result = ArrayList<MyBitmap>()
-        var cnt = 0
-        for (i in 0 until clipData.itemCount) {
-            val photoUri: Uri = clipData.getItemAt(i).uri
 
+        //하나 이상을 선택할경우 clipData에 uri가  들어가고
+        //하나만 선택할경우 data.data에 uri가 들어감.. 왜 그렇게 만들었는지 모르겠음.
+        val result = ArrayList<MyBitmap>()
+        val uriList = ArrayList<Uri>()
+
+        val clipData = data?.clipData
+        if(clipData == null)
+            data?.data?.let { uriList.add(it) };
+        else
+        {
+            for (i in 0 until clipData.itemCount) { uriList.add(clipData.getItemAt(i).uri)}
+        }
+
+        var cnt = 0
+        for (photoUri in uriList) {
             val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 val source = ImageDecoder.createSource(contentResolver, photoUri)
                 ImageDecoder.decodeBitmap(source);
