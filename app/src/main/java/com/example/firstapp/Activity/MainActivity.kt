@@ -55,9 +55,6 @@ class MainActivity : AppCompatActivity() {
             //탭 레이아웃에 메인페이저를 붙인다.(연동한다)
         }.attach()
 
-        //환영인사
-        val message = intent.getStringExtra(EXTRA_USERNAME)
-        Toast.makeText(applicationContext, message + "님, 안녕하세요!", Toast.LENGTH_SHORT).show()
 
     }
 

@@ -1,5 +1,6 @@
 package com.example.firstapp.Activity
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -20,6 +21,7 @@ import com.example.firstapp.EXTRA_POSTID
 import com.example.firstapp.R
 import com.example.firstapp.Adapter.PostImgAdapter
 import kotlinx.android.synthetic.main.activity_post.*
+import kotlinx.android.synthetic.main.post_img_item.*
 
 class PostActivity : AppCompatActivity() {
 
@@ -48,12 +50,24 @@ class PostActivity : AppCompatActivity() {
         lv_post_picture.choiceMode = AbsListView.CHOICE_MODE_SINGLE
 
         lv_post_picture.setOnItemClickListener { parent, view, position, id ->
+            
+            //일단 다 안보이게 클리어함
+            for(i in 0 until parent.childCount)
+                parent.getChildAt(i).findViewById<View>(R.id.iv_vote).visibility = View.INVISIBLE
+            
             view.isSelected = lv_post_picture.isItemChecked(position)
+            
             view.findViewById<View>(R.id.iv_vote).visibility =
                 if (view.isSelected) View.VISIBLE else View.INVISIBLE
 
         }
 
+        btn_vote.setOnClickListener {
+            vote()
+            Intent(this, MainActivity::class.java).apply {
+                startActivity(this)
+            }
+        }
 
         getPostInfo()
     }
@@ -63,13 +77,15 @@ class PostActivity : AppCompatActivity() {
     }
 
     private fun vote() {
-        if (mCard.imageInfo.size <= lv_post_picture.selectedItemPosition)
+        if (mCard.imageInfo.size <= lv_post_picture.checkedItemPosition ||
+            lv_post_picture.checkedItemPosition < 0)
             return;
 
         val url =
-            getString(R.string.urlToServer) + "like/" + mCard.postId + mCard.imageInfo[lv_post_picture.selectedItemPosition].first
+            getString(R.string.urlToServer) + "vote/" + mCard.postId + "/" + mCard.imageInfo[lv_post_picture.checkedItemPosition].first
+        Log.d("volley", url)
         val likeRequest = StringRequest(Request.Method.GET, url,
-            {},
+            { Log.d("volley", it)},
             { it.message?.let { err -> Log.d("volley", err) } })
 
 
