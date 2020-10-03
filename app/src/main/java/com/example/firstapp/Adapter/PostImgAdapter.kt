@@ -13,28 +13,22 @@ import kotlinx.android.synthetic.main.post_img_item.view.*
 class PostImgAdapter(context: Context, resourceID: Int, bitmaps: ArrayList<Bitmap>) :
     ArrayAdapter<Bitmap>(context, resourceID, bitmaps) {
 
+
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+
+        lateinit var view :View
         var bitmap = getItem(position)
 
-        val cardView: View =
+        if(convertView != null)
+            view = convertView
+        else
+        {
+            view =
             LayoutInflater.from(context).inflate(R.layout.post_img_item, parent, false)
 
-
-        cardView.ib_vote.setOnClickListener {
-            if (it.getTag() == R.drawable.ic_baseline_radio_button_checked_24)
-            {
-                it.setBackgroundResource(R.drawable.ic_baseline_radio_button_unchecked_24)
-                it.setTag(R.drawable.ic_baseline_radio_button_unchecked_24)
-                cardView.iv_post_image.setColorFilter(getColor(it.context, R.color.Transparent))
-            }
-            else {
-                it.setBackgroundResource(R.drawable.ic_baseline_radio_button_checked_24)
-                it.setTag(R.drawable.ic_baseline_radio_button_checked_24)
-                cardView.iv_post_image.setColorFilter(getColor(it.context, R.color.Black_alpha))
-
-            }
         }
-        bitmap?.let { cardView.iv_post_image.setImageBitmap(it) }
-        return cardView
+
+        bitmap?.let { view.iv_post_image.setImageBitmap(it) }
+        return view
     }
 }

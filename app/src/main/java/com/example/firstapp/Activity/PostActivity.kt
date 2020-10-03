@@ -5,12 +5,15 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.AbsListView
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.ImageRequest
 import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.example.firstapp.Card.Card
 import com.example.firstapp.EXTRA_POSTID
@@ -20,11 +23,11 @@ import kotlinx.android.synthetic.main.activity_post.*
 
 class PostActivity : AppCompatActivity() {
 
-    private val card: Card =
+    private val mCard: Card =
         Card(-1, "", "", ArrayList<Bitmap>(), ArrayList<Pair<String, String>>())
 
-    private var isBusy: Boolean = false
-    private lateinit var postImgAdapter : PostImgAdapter
+    private var mIsBusy: Boolean = false
+    private lateinit var mPostImgAdapter: PostImgAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,23 +39,53 @@ class PostActivity : AppCompatActivity() {
         super.onStart()
 
 
-        postImgAdapter = PostImgAdapter(
+        mPostImgAdapter = PostImgAdapter(
             this,
-            R.layout.post_img_item, card.bitmaps
+            R.layout.post_img_item, mCard.bitmaps
         )
 
-        lv_post_picture.adapter = postImgAdapter
+        lv_post_picture.adapter = mPostImgAdapter
+        lv_post_picture.choiceMode = AbsListView.CHOICE_MODE_SINGLE
 
-        getPosInfo()
+        lv_post_picture.setOnItemClickListener { parent, view, position, id ->
+            view.isSelected = lv_post_picture.isItemChecked(position)
+            view.findViewById<View>(R.id.iv_vote).visibility =
+                if (view.isSelected) View.VISIBLE else View.INVISIBLE
+
+        }
+
+
+        getPostInfo()
     }
 
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
-    public fun getPosInfo() {
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+    }
 
-        isBusy = true
+    private fun vote() {
+        if (mCard.imageInfo.size <= lv_post_picture.selectedItemPosition)
+            return;
+
+        val url =
+            getString(R.string.urlToServer) + "like/" + mCard.postId + mCard.imageInfo[lv_post_picture.selectedItemPosition].first
+        val likeRequest = StringRequest(Request.Method.GET, url,
+            {},
+            { it.message?.let { err -> Log.d("volley", err) } })
+
+
+        // Instantiate the RequestQueue.
+        val queue = Volley.newRequestQueue(this)
+        queue.add(likeRequest)
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
+    public fun getPostInfo() {
+
+        mIsBusy = true
 
         val postId = intent.getIntExtra(EXTRA_POSTID, -1)
-        if(postId < 0)
+        if (postId < 0)
             return
 
         // Instantiate the RequestQueue.
@@ -73,17 +106,17 @@ class PostActivity : AppCompatActivity() {
 
                         //만약 게시물목록이 비었거나 전에 추가된 포스트의 id와 이번에 추가할
                         //포스트의 id가 다르다면, 게시물목록에 항목추가
-                        if (card?.postId < 0) {
+                        if (mCard?.postId < 0) {
                             val content = obj.getString("content")
                             val writer = obj.getString("writer")
                             val imageInfo = arrayListOf(Pair(fileName, filePath))
-                            card.postId = postId
-                            card.content = content
-                            card.writer = writer
-                            card.imageInfo = imageInfo
+                            mCard.postId = postId
+                            mCard.content = content
+                            mCard.writer = writer
+                            mCard.imageInfo = imageInfo
                         } else {
                             //아니면 전에 추가한 포스트에 이미지정보만 추가
-                            card.imageInfo.add(Pair(fileName, filePath))
+                            mCard.imageInfo.add(Pair(fileName, filePath))
                         }
                     }
 
@@ -91,16 +124,16 @@ class PostActivity : AppCompatActivity() {
 
 
                 //파싱한 데이터를 토대로 게시물의 이미지들을 리퀘스트. 받아왔으면 뷰에 셋팅
-                for (imgInfo in card.imageInfo) {
+                for (imgInfo in mCard.imageInfo) {
                     val url = getString(R.string.urlToServer) + "getImage/" +
                             imgInfo.first;
 
                     val imgRequest = ImageRequest(url,
                         { bitmap ->
-                            card.bitmaps.add(bitmap)
-                            postImgAdapter.notifyDataSetChanged()
-                            if (card.bitmaps.size >= card.imageInfo.size)
-                                isBusy = false
+                            mCard.bitmaps.add(bitmap)
+                            mPostImgAdapter.notifyDataSetChanged()
+                            if (mCard.bitmaps.size >= mCard.imageInfo.size)
+                                mIsBusy = false
                         },
                         300,
                         800,
