@@ -1,11 +1,12 @@
-package com.example.firstapp.ViewPage
+package com.example.firstapp.Adapter
 
-import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
-import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.example.firstapp.ViewPage.MessageFragment
+import com.example.firstapp.ViewPage.ProfileFragment
+import com.example.firstapp.ViewPage.SwipeFragment
 
 
 class ViewPageAdapter(fm : FragmentManager, lifecycle : Lifecycle) : FragmentStateAdapter(fm, lifecycle){

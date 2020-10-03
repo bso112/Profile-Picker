@@ -1,4 +1,4 @@
-package com.example.firstapp.Card
+package com.example.firstapp.Adapter
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -15,6 +15,7 @@ import com.android.volley.Response
 import com.android.volley.toolbox.ImageRequest
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
+import com.example.firstapp.Card.Card
 import com.example.firstapp.R
 import kotlinx.android.synthetic.main.swipe_item.view.*
 
@@ -86,7 +87,13 @@ class CardAdapter(context: Context, resourceID: Int) :
                             val content = obj.getString("content")
                             val writer = obj.getString("writer")
                             val imageInfo = arrayListOf(Pair(fileName, filePath))
-                            card = Card(postId, content, writer, ArrayList<Bitmap>(), imageInfo)
+                            card = Card(
+                                postId,
+                                content,
+                                writer,
+                                ArrayList<Bitmap>(),
+                                imageInfo
+                            )
                         } else {
                             //아니면 전에 추가한 포스트에 이미지정보만 추가
                             card!!.imageInfo.add(Pair(fileName, filePath))

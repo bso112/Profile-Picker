@@ -6,7 +6,7 @@ import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import com.example.firstapp.EXTRA_USERNAME
 import com.example.firstapp.R
-import com.example.firstapp.ViewPage.ViewPageAdapter
+import com.example.firstapp.Adapter.ViewPageAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -28,7 +28,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun ready_UI()
     {
-        viewPageAdapter = ViewPageAdapter(supportFragmentManager, lifecycle)
+        viewPageAdapter = ViewPageAdapter(
+            supportFragmentManager,
+            lifecycle
+        )
         mainPager.adapter = viewPageAdapter
 
         //TabLayoutMediator를 만들고, 그 임시객체를 이용해 tab의 제목가 아이콘을 동적으로 설정한뒤

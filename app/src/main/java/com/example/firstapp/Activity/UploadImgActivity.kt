@@ -24,7 +24,7 @@ import androidx.core.content.ContextCompat
 import com.android.volley.Response
 import com.android.volley.toolbox.Volley
 import com.example.firstapp.R
-import com.example.firstapp.UploadImage.UploadImgAdapter
+import com.example.firstapp.Adapter.UploadImgAdapter
 import com.example.firstapp.VolleyMultipartRequest
 import kotlinx.android.synthetic.main.activity_upload_img.*
 import java.io.*

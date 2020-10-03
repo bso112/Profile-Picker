@@ -9,5 +9,6 @@
     <color name="Ivory">#ECE6CC</color>
     <color name="White">#FFFFFF</color>
     <color name="Black">#000000</color>
+    <color name="Black_alpha">#4D000000</color>
     <color name="CobaltBlue">#00498c</color>
 </resources>

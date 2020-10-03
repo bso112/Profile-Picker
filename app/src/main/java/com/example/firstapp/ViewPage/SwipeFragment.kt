@@ -11,7 +11,7 @@ import android.view.animation.AnimationUtils
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import com.example.firstapp.Card.Card
-import com.example.firstapp.Card.CardAdapter
+import com.example.firstapp.Adapter.CardAdapter
 import com.example.firstapp.EXTRA_POSTID
 import com.example.firstapp.Activity.PostActivity
 import com.example.firstapp.R
@@ -67,7 +67,10 @@ class SwipeFragment : Fragment() {
         }
 
         //craete cardAdapter
-        val cardAdapter = CardAdapter(context!!, R.layout.swipe_item)
+        val cardAdapter = CardAdapter(
+            context!!,
+            R.layout.swipe_item
+        )
 
         //set the listener and the adapter
         swipeView.adapter = cardAdapter

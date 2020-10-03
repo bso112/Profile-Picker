@@ -15,7 +15,7 @@ import com.android.volley.toolbox.Volley
 import com.example.firstapp.Card.Card
 import com.example.firstapp.EXTRA_POSTID
 import com.example.firstapp.R
-import com.example.firstapp.UploadImage.PostImgAdapter
+import com.example.firstapp.Adapter.PostImgAdapter
 import kotlinx.android.synthetic.main.activity_post.*
 
 class PostActivity : AppCompatActivity() {
@@ -35,8 +35,12 @@ class PostActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        postImgAdapter = PostImgAdapter(this,
-            R.layout.upload_img_item, card.bitmaps)
+
+        postImgAdapter = PostImgAdapter(
+            this,
+            R.layout.post_img_item, card.bitmaps
+        )
+
         lv_post_picture.adapter = postImgAdapter
 
         getPosInfo()
