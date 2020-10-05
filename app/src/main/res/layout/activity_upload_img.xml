@@ -16,12 +16,12 @@
         android:textSize="25dp"
         />
 
-    <TextView
-        android:id="@+id/tv_post_memo"
+    <EditText
+        android:id="@+id/et_post_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_post_save"
-        android:text="메모"
+        android:hint="제목"
         android:textSize="25dp"
         android:layout_marginTop="15dp"
         />
@@ -30,9 +30,9 @@
         android:id="@+id/et_post_content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_post_memo"
+        android:layout_below="@+id/et_post_title"
         android:textSize="15dp"
-        android:hint="이곳에 텍스트 입력"
+        android:hint="본문"
         android:layout_marginTop="10dp"
         />
 
@@ -61,6 +61,8 @@
         android:layout_below="@id/tv_post_picture"
         android:layout_marginTop="10dp">
     </GridView>
+
+
 
 
 

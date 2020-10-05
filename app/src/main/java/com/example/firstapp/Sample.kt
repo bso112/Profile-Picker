@@ -1,9 +1,18 @@
 package com.example.firstapp
 
-import android.provider.ContactsContract
-import android.util.Log
+data class CloneTest (var a : Int, var arr : ArrayList<Int>)
+{
+    constructor(other : CloneTest) : this(other.a, ArrayList(other.arr))
+}
+
 
 fun main() {
+
+    //복사생성자를 이용한 깊은복사
+    var origin = CloneTest(3, arrayListOf(3,4))
+    var copy = CloneTest(origin)
+    copy.a = 5
+    copy.arr.clear()
 
     //람다
     // * 람다는 중괄호에 싸여있다. 인자로 넘길때도 소괄호에 싸는게 아니라 중괄호에 싸야함.

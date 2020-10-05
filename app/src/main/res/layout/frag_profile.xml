@@ -1,32 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/Gray"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/backLayer"
-        android:layout_width="match_parent"
-        android:layout_height="450dp"
-        android:scaleType="centerCrop"
-        android:src="@color/White"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
 
     <ImageView
         android:id="@+id/iv_profile_picture"
@@ -44,6 +23,7 @@
 
     <ImageButton
         android:id="@+id/ib_profile_create"
+        android:layout_alignParentRight="true"
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:background="@color/Black"
@@ -55,33 +35,13 @@
         app:layout_constraintStart_toEndOf="@+id/iv_profile_picture"
         app:layout_constraintTop_toBottomOf="@+id/iv_profile_picture"
         app:layout_constraintVertical_bias="0.0">
-
-
     </ImageButton>
 
-    <ImageButton
-        android:id="@+id/imageButton"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:foreground="@drawable/rounded_fg"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/iv_profile_picture"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/iv_profile_picture"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <ImageButton
-        android:id="@+id/imageButton2"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:foreground="@drawable/rounded_fg"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/ib_profile_create"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/imageButton"
-        app:layout_constraintTop_toBottomOf="@+id/iv_profile_picture"
-        app:layout_constraintVertical_bias="0.262" />
+    <ListView
+        android:id="@+id/lv_myPosts"
+        android:layout_below="@+id/iv_profile_picture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

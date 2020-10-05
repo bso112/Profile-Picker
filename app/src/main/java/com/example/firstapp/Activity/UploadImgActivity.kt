@@ -131,6 +131,7 @@ class UploadImgActivity : AppCompatActivity() {
                 val params: MutableMap<String, String> = HashMap()
 
                 params.put("content", et_post_content.text.toString())
+                params.put("title", et_post_title.text.toString())
                 LoginActivity.mAccount?.email?.let {
                     params.put("email", it)
                 }

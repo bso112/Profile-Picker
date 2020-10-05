@@ -2,6 +2,7 @@ package com.example.firstapp.Activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import com.example.firstapp.EXTRA_USERNAME

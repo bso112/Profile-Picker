@@ -1,4 +1,4 @@
-package com.example.firstapp.ViewPage
+package com.example.firstapp.Activity.ViewPage
 
 import android.content.Intent
 import android.os.Build

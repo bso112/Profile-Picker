@@ -5,6 +5,10 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.android.volley.Request
+import com.android.volley.toolbox.JsonRequest
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.example.firstapp.EXTRA_USERNAME
 
 import com.example.firstapp.R
@@ -29,7 +33,7 @@ class LoginActivity : AppCompatActivity() {
     companion object {
         var mGoogleSignInClient: GoogleSignInClient? = null
             private set
-        var mAccount : GoogleSignInAccount? =null
+        var mAccount: GoogleSignInAccount? = null
             private set
 
     }
@@ -96,6 +100,8 @@ class LoginActivity : AppCompatActivity() {
         try {
             val account = completedTask.getResult(ApiException::class.java)
 
+            //데이터베이스에 이메일 저장
+            sendUserInfoToDB()
             // Signed in successfully, show authenticated UI.
             updateUI(account)
         } catch (e: ApiException) {
@@ -108,5 +114,25 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+
+    private fun sendUserInfoToDB() {
+        val queue = Volley.newRequestQueue(applicationContext)
+
+        val url = getString(R.string.urlToServer) + "writeUserInfo/"
+        val req = object : StringRequest(Request.Method.POST, url,
+            {
+                Log.d("volley", it)
+            },
+            {
+                Log.d("volleyError", it.message.toString())
+            }
+        ) {
+            override fun getParams(): MutableMap<String, String> {
+                return mutableMapOf(Pair("email", mAccount?.email.toString()))
+            }
+        }
+
+        queue.add(req)
+    }
 
 }

@@ -4,9 +4,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.example.firstapp.ViewPage.MessageFragment
-import com.example.firstapp.ViewPage.ProfileFragment
-import com.example.firstapp.ViewPage.SwipeFragment
+import com.example.firstapp.Activity.ViewPage.MessageFragment
+import com.example.firstapp.Activity.ViewPage.ProfileFragment
+import com.example.firstapp.Activity.ViewPage.SwipeFragment
 
 
 class ViewPageAdapter(fm : FragmentManager, lifecycle : Lifecycle) : FragmentStateAdapter(fm, lifecycle){

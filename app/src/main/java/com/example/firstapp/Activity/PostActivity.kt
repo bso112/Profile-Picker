@@ -151,8 +151,8 @@ class PostActivity : AppCompatActivity() {
                             if (mCard.bitmaps.size >= mCard.imageInfo.size)
                                 mIsBusy = false
                         },
-                        300,
-                        800,
+                        0,
+                        0,
                         ImageView.ScaleType.CENTER_CROP,
                         Bitmap.Config.ARGB_8888,
                         { err ->
