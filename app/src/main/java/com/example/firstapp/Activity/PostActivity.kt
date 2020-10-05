@@ -25,7 +25,7 @@ import kotlinx.android.synthetic.main.post_img_item.*
 
 class PostActivity : AppCompatActivity() {
 
-    private val mCard: Card =
+    private var mCard: Card =
         Card(-1, "", "", ArrayList<Bitmap>(), ArrayList<Pair<String, String>>())
 
     private var mIsBusy: Boolean = false
@@ -34,12 +34,6 @@ class PostActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_post)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
-    override fun onStart() {
-        super.onStart()
-
 
         mPostImgAdapter = PostImgAdapter(
             this,
@@ -50,13 +44,13 @@ class PostActivity : AppCompatActivity() {
         lv_post_picture.choiceMode = AbsListView.CHOICE_MODE_SINGLE
 
         lv_post_picture.setOnItemClickListener { parent, view, position, id ->
-            
+
             //일단 다 안보이게 클리어함
             for(i in 0 until parent.childCount)
                 parent.getChildAt(i).findViewById<View>(R.id.iv_vote).visibility = View.INVISIBLE
-            
+
             view.isSelected = lv_post_picture.isItemChecked(position)
-            
+
             view.findViewById<View>(R.id.iv_vote).visibility =
                 if (view.isSelected) View.VISIBLE else View.INVISIBLE
 
@@ -69,12 +63,17 @@ class PostActivity : AppCompatActivity() {
             }
         }
 
+
+    }
+
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
+    override fun onStart() {
+        super.onStart()
+        mCard.bitmaps.clear()
         getPostInfo()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-    }
+
 
     private fun vote() {
         if (mCard.imageInfo.size <= lv_post_picture.checkedItemPosition ||
