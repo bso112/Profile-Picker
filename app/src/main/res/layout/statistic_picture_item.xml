@@ -9,6 +9,7 @@
         android:id="@+id/iv_statistic_picture"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:src="@drawable/face"
         android:foreground="@drawable/rounded_fg" />
 
     <TextView
@@ -16,7 +17,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="64dp"
-        android:text="33%"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

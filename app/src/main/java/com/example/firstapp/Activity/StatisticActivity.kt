@@ -40,7 +40,6 @@ class StatisticActivity : AppCompatActivity() {
     }
 
 
-
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     public fun getPostInfo() {
 
@@ -54,7 +53,6 @@ class StatisticActivity : AppCompatActivity() {
 
             val imgRequest = ImageRequest(url,
                 { bitmap ->
-                    //d이러면 돠너ㅏ?
                     picture.bitmap = bitmap
                     statisticPictureAdapter.notifyDataSetChanged()
                 },

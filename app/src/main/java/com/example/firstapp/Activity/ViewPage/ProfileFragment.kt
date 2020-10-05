@@ -74,8 +74,14 @@ class ProfileFragment : Fragment() {
 
         }
 
-        getMyPosts()
+    }
 
+    //내가 쓴 게시물 조회는 액티비티 보일때마다 매번해야됨.
+    //게시물 상태가 수시로 달라질 수 있으니.(조회수, 좋아요 등..)
+    override fun onStart() {
+        super.onStart()
+        mPostInfo.clear()
+        getMyPosts()
     }
 
 
