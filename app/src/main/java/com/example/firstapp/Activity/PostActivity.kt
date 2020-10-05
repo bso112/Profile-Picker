@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.AbsListView
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
@@ -22,11 +23,13 @@ import com.example.firstapp.R
 import com.example.firstapp.Adapter.PostImgAdapter
 import kotlinx.android.synthetic.main.activity_post.*
 import kotlinx.android.synthetic.main.post_img_item.*
+import kotlinx.android.synthetic.main.post_img_item.view.*
 
 class PostActivity : AppCompatActivity() {
 
     private var mCard: Card =
         Card(-1, "", "", ArrayList<Bitmap>(), ArrayList<Pair<String, String>>())
+    private var mSelected = ArrayList<Boolean>()
 
     private var mIsBusy: Boolean = false
     private lateinit var mPostImgAdapter: PostImgAdapter
@@ -35,9 +38,18 @@ class PostActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_post)
 
+
+        val btnAnim = AnimationUtils.loadAnimation(this, R.anim.anim_show_up)
+        //처음에 안보이다가 하나 클릭하면 쓱 올라오게 하고싶음
+        btn_vote.setOnClickListener {
+            vote()
+            finish()
+        }
+
+
         mPostImgAdapter = PostImgAdapter(
             this,
-            R.layout.post_img_item, mCard.bitmaps
+            R.layout.post_img_item, mCard.bitmaps, mSelected
         )
 
         lv_post_picture.adapter = mPostImgAdapter
@@ -45,26 +57,38 @@ class PostActivity : AppCompatActivity() {
 
         lv_post_picture.setOnItemClickListener { parent, view, position, id ->
 
-            //일단 다 안보이게 클리어함
+            //parent는 어댑터뷰. 어댑터뷰의 자식수는 화면에 보이는 아이템 수이다.
+            //view는 adapter의 getView에서 리턴한 뷰 중에서 선택된 뷰
+
+            mSelected.fill(false)
+
+            //view에 selected를 저장하면 안되고 이렇게 따로해야함.
+            //view는 화면을 벗어나면 없어지니까.(정확히는 convertView가 됨)
+            //만약 convertView의 selected에 의존하면 convertView가 가지고 있는건 converView가 되기 전의 상태이므로
+            //재활용되서 화면에 표시될때 뜬금없이 체크된채로 나옴
+           if (position < mSelected.size)
+                mSelected[position] = true;
+
+            //화면에 보이는 뷰(아이템)들의 iv_vote 안보이기
             for(i in 0 until parent.childCount)
-                parent.getChildAt(i).findViewById<View>(R.id.iv_vote).visibility = View.INVISIBLE
+                parent.getChildAt(i).iv_vote.visibility = View.INVISIBLE
 
-            view.isSelected = lv_post_picture.isItemChecked(position)
+            //현재 선택된 뷰(아이템)의 iv_vote 보이기
+            view.iv_vote.visibility = if(lv_post_picture.isItemChecked(position)) View.VISIBLE else View.INVISIBLE
 
-            view.findViewById<View>(R.id.iv_vote).visibility =
-                if (view.isSelected) View.VISIBLE else View.INVISIBLE
 
-        }
-
-        btn_vote.setOnClickListener {
-            vote()
-            Intent(this, MainActivity::class.java).apply {
-                startActivity(this)
+            //최초 클릭에서만 투표버튼의 애니메이션을 실핸한다.
+            if (btn_vote.visibility != View.VISIBLE) {
+                btn_vote.visibility = View.VISIBLE
+                btn_vote.startAnimation(btnAnim)
             }
+
+
         }
 
 
     }
+
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun onStart() {
@@ -74,17 +98,17 @@ class PostActivity : AppCompatActivity() {
     }
 
 
-
     private fun vote() {
         if (mCard.imageInfo.size <= lv_post_picture.checkedItemPosition ||
-            lv_post_picture.checkedItemPosition < 0)
+            lv_post_picture.checkedItemPosition < 0
+        )
             return;
 
         val url =
             getString(R.string.urlToServer) + "vote/" + mCard.postId + "/" + mCard.imageInfo[lv_post_picture.checkedItemPosition].first
         Log.d("volley", url)
         val likeRequest = StringRequest(Request.Method.GET, url,
-            { Log.d("volley", it)},
+            { Log.d("volley", it) },
             { it.message?.let { err -> Log.d("volley", err) } })
 
 
@@ -134,6 +158,10 @@ class PostActivity : AppCompatActivity() {
                             mCard.imageInfo.add(Pair(fileName, filePath))
                         }
                     }
+
+                    for (i in 0 until mCard.imageInfo.size)
+                        mSelected.add(false)
+
 
                 }
 

@@ -77,7 +77,7 @@ class UploadImgActivity : AppCompatActivity() {
             mPictureArray.add(MyBitmap("unnamed", bitmap))
             //  mPicture = getBitmapFromDataTest(data)
         } else if (requestCode == REQUEST_PICK_FROM_ALBUM) {
-            for(myBitmap in getBitmapFromData(data))
+            for (myBitmap in getBitmapFromData(data))
                 mPictureArray.add(myBitmap)
         }
 
@@ -182,6 +182,7 @@ class UploadImgActivity : AppCompatActivity() {
 
         var isDenied: Boolean = false;
 
+        //권한이 하나라도 거부되었나 체크
         for (result in grantResults) {
             if (result == PackageManager.PERMISSION_DENIED)
                 isDenied = true
@@ -290,11 +291,16 @@ class UploadImgActivity : AppCompatActivity() {
         val uriList = ArrayList<Uri>()
 
         val clipData = data?.clipData
-        if(clipData == null)
+
+        if (clipData == null)
             data?.data?.let { uriList.add(it) };
-        else
-        {
-            for (i in 0 until clipData.itemCount) { uriList.add(clipData.getItemAt(i).uri)}
+        else {
+            if (clipData.itemCount > 5)
+                Toast.makeText(this, "사진은 5장까지 추가가능합니다.", Toast.LENGTH_SHORT)
+
+            for (i in 0 until clipData.itemCount.coerceAtMost(5)) {
+                uriList.add(clipData.getItemAt(i).uri)
+            }
         }
 
         var cnt = 0

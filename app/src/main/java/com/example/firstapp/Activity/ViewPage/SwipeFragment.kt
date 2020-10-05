@@ -21,9 +21,8 @@ import kotlinx.android.synthetic.main.frag_swipe.*
 
 class SwipeFragment : Fragment() {
 
-    var lastClickTime: Long = 0
     var topCard : Card? = null
-
+    lateinit var  mCardAdapter : CardAdapter
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -43,10 +42,9 @@ class SwipeFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     private fun readyFragementView() {
 
-        val btnAnim = AnimationUtils.loadAnimation(context!!, R.anim.anim_btn)
+        val btnAnim = AnimationUtils.loadAnimation(context!!, R.anim.anim_flinch)
         //게시물보기 버튼 눌렀을때
         btn_like.setOnClickListener {
-            //swipeView.topCardListener.selectLeft()
             topCard?.let {
                 val intent = Intent(context, PostActivity::class.java).apply {
                     putExtra(EXTRA_POSTID, it.postId)
@@ -67,20 +65,20 @@ class SwipeFragment : Fragment() {
         }
 
         //craete cardAdapter
-        val cardAdapter = CardAdapter(
+        mCardAdapter = CardAdapter(
             context!!,
             R.layout.swipe_item
         )
 
         //set the listener and the adapter
-        swipeView.adapter = cardAdapter
+        swipeView.adapter = mCardAdapter
 
-        cardAdapter.addCardData{
+        mCardAdapter.addCardData{
                 card -> topCard = card
         }
 
         for (i in 0..resources.getInteger(R.integer.CardRequestAtOnce))
-            cardAdapter.addCardData();
+            mCardAdapter.addCardData();
 
 
         swipeView.setFlingListener(object : SwipeFlingAdapterView.onFlingListener {
@@ -88,10 +86,9 @@ class SwipeFragment : Fragment() {
             override fun removeFirstObjectInAdapter() {
                 // this is the simplest way to delete an object from the Adapter (/AdapterView)
                 Log.d("LIST", "removed object!")
-                cardAdapter.removeCardAtFront()
 
-                if(!cardAdapter.isEmpty())
-                    topCard = cardAdapter.getItem(0)
+                if(!mCardAdapter.isEmpty())
+                    topCard = mCardAdapter.getItem(0)
 
 
                 /*
@@ -100,7 +97,7 @@ class SwipeFragment : Fragment() {
                 그 사실이 알려진다.
                 그러면서 CardAdapter의 getView가 불리면서 4개의 뷰를 생성한다. (디버그해본 결과 한번에 최대 4개를 생성하는듯)
                  */
-                cardAdapter.notifyDataSetChanged()
+                mCardAdapter.notifyDataSetChanged()
             }
 
             override fun onLeftCardExit(dataObject: Any) {
@@ -116,7 +113,7 @@ class SwipeFragment : Fragment() {
                 // 여기서 더 많은 데이터를 가져온다.
 
                 //아직 데이터를 받아오고 있는 중이면
-                if (cardAdapter.isBusy()) {
+                if (mCardAdapter.isBusy()) {
 //                    Toast.makeText(context, "카드 데이터를 받아오는 중입니다.", Toast.LENGTH_SHORT).show()
                     return
                 }
@@ -124,7 +121,7 @@ class SwipeFragment : Fragment() {
                 //남은 아이템수가 2이하일때
                 if (itemsInAdapter <= 2) {
                     for (i in 0..resources.getInteger(R.integer.CardRequestAtOnce))
-                        cardAdapter.addCardData();
+                        mCardAdapter.addCardData();
                 }
 
             }
