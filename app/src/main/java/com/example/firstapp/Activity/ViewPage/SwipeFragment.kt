@@ -10,10 +10,10 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
-import com.example.firstapp.Card.Card
 import com.example.firstapp.Adapter.CardAdapter
-import com.example.firstapp.EXTRA_POSTID
+import com.example.firstapp.Default.EXTRA_POSTID
 import com.example.firstapp.Activity.PostActivity
+import com.example.firstapp.Default.Card
 import com.example.firstapp.R
 import com.lorentzos.flingswipe.SwipeFlingAdapterView
 import kotlinx.android.synthetic.main.frag_swipe.*

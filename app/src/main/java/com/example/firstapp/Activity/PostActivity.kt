@@ -1,6 +1,5 @@
 package com.example.firstapp.Activity
 
-import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -17,18 +16,18 @@ import com.android.volley.toolbox.ImageRequest
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.example.firstapp.Card.Card
-import com.example.firstapp.EXTRA_POSTID
+import com.example.firstapp.Default.EXTRA_POSTID
 import com.example.firstapp.R
 import com.example.firstapp.Adapter.PostImgAdapter
+import com.example.firstapp.Default.Card
+import com.example.firstapp.Default.MyPicture
 import kotlinx.android.synthetic.main.activity_post.*
-import kotlinx.android.synthetic.main.post_img_item.*
 import kotlinx.android.synthetic.main.post_img_item.view.*
 
 class PostActivity : AppCompatActivity() {
 
     private var mCard: Card =
-        Card(-1, "", "", ArrayList<Bitmap>(), ArrayList<Pair<String, String>>())
+        Card(-1, "", "", ArrayList())
     private var mSelected = ArrayList<Boolean>()
 
     private var mIsBusy: Boolean = false
@@ -49,7 +48,7 @@ class PostActivity : AppCompatActivity() {
 
         mPostImgAdapter = PostImgAdapter(
             this,
-            R.layout.post_img_item, mCard.bitmaps, mSelected
+            R.layout.post_img_item, mCard.pictures, mSelected
         )
 
         lv_post_picture.adapter = mPostImgAdapter
@@ -66,15 +65,15 @@ class PostActivity : AppCompatActivity() {
             //view는 화면을 벗어나면 없어지니까.(정확히는 convertView가 됨)
             //만약 convertView의 selected에 의존하면 convertView가 가지고 있는건 converView가 되기 전의 상태이므로
             //재활용되서 화면에 표시될때 뜬금없이 체크된채로 나옴
-           if (position < mSelected.size)
+            if (position < mSelected.size)
                 mSelected[position] = true;
 
             //화면에 보이는 뷰(아이템)들의 iv_vote 안보이기
-            for(i in 0 until parent.childCount)
+            for (i in 0 until parent.childCount)
                 parent.getChildAt(i).iv_vote.visibility = View.INVISIBLE
 
             //현재 선택된 뷰(아이템)의 iv_vote 보이기
-            view.iv_vote.visibility = if(lv_post_picture.isItemChecked(position)) View.VISIBLE else View.INVISIBLE
+            view.iv_vote.visibility = if (lv_post_picture.isItemChecked(position)) View.VISIBLE else View.INVISIBLE
 
 
             //최초 클릭에서만 투표버튼의 애니메이션을 실핸한다.
@@ -93,19 +92,15 @@ class PostActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun onStart() {
         super.onStart()
-        mCard.bitmaps.clear()
         getPostInfo()
     }
 
 
     private fun vote() {
-        if (mCard.imageInfo.size <= lv_post_picture.checkedItemPosition ||
-            lv_post_picture.checkedItemPosition < 0
-        )
+        if (mCard.pictures.size <= lv_post_picture.checkedItemPosition || lv_post_picture.checkedItemPosition < 0)
             return;
 
-        val url =
-            getString(R.string.urlToServer) + "vote/" + mCard.postId + "/" + mCard.imageInfo[lv_post_picture.checkedItemPosition].first
+        val url = getString(R.string.urlToServer) + "vote/" + mCard.postId + "/" + mCard.pictures[lv_post_picture.checkedItemPosition].file_name
         Log.d("volley", url)
         val likeRequest = StringRequest(Request.Method.GET, url,
             { Log.d("volley", it) },
@@ -121,6 +116,8 @@ class PostActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     public fun getPostInfo() {
 
+        mCard.pictures.clear()
+
         mIsBusy = true
 
         val postId = intent.getIntExtra(EXTRA_POSTID, -1)
@@ -130,8 +127,7 @@ class PostActivity : AppCompatActivity() {
         // Instantiate the RequestQueue.
         val queue = Volley.newRequestQueue(this)
 
-        //랜덤한 유저의 게시글을 얻는다.
-        //현재 로그인된 유저정보를 바탕으로
+        //게시물 하나의 정보를 얻는다.
         val postInfoRequest = JsonArrayRequest(
             Request.Method.GET, getString(R.string.urlToServer) + "getPost/" + postId.toString(),
             null,
@@ -142,40 +138,31 @@ class PostActivity : AppCompatActivity() {
                         val postId = obj.getInt("postId")
                         val fileName = obj.getString("file_name")
                         val filePath = obj.getString("path")
-
-                        //만약 게시물목록이 비었거나 전에 추가된 포스트의 id와 이번에 추가할
-                        //포스트의 id가 다르다면, 게시물목록에 항목추가
-                        if (mCard?.postId < 0) {
-                            val content = obj.getString("content")
-                            val writer = obj.getString("writer")
-                            val imageInfo = arrayListOf(Pair(fileName, filePath))
-                            mCard.postId = postId
-                            mCard.content = content
-                            mCard.writer = writer
-                            mCard.imageInfo = imageInfo
-                        } else {
-                            //아니면 전에 추가한 포스트에 이미지정보만 추가
-                            mCard.imageInfo.add(Pair(fileName, filePath))
-                        }
+                        val content = obj.getString("content")
+                        val writer = obj.getString("writer")
+                        mCard.postId = postId
+                        mCard.content = content
+                        mCard.writer = writer
+                        mCard.pictures.add(MyPicture(null, fileName, filePath, 0))
                     }
 
-                    for (i in 0 until mCard.imageInfo.size)
+                    for (i in 0 until mCard.pictures.size)
                         mSelected.add(false)
-
 
                 }
 
 
                 //파싱한 데이터를 토대로 게시물의 이미지들을 리퀘스트. 받아왔으면 뷰에 셋팅
-                for (imgInfo in mCard.imageInfo) {
+                for (picture in mCard.pictures) {
                     val url = getString(R.string.urlToServer) + "getImage/" +
-                            imgInfo.first;
+                            picture.file_name
 
+                    var cnt = 0
                     val imgRequest = ImageRequest(url,
                         { bitmap ->
-                            mCard.bitmaps.add(bitmap)
+                            picture.bitmap = bitmap
                             mPostImgAdapter.notifyDataSetChanged()
-                            if (mCard.bitmaps.size >= mCard.imageInfo.size)
+                            if (++cnt >= mCard.pictures.size)
                                 mIsBusy = false
                         },
                         0,

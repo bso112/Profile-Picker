@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import android.widget.Adapter
 import android.widget.ArrayAdapter
 import androidx.annotation.RequiresApi
-import com.example.firstapp.Activity.ViewPage.MyPicture
+import com.example.firstapp.Default.MyPicture
 import com.example.firstapp.R
 import kotlinx.android.synthetic.main.statistic_picture_item.view.*
 import java.lang.Integer.max

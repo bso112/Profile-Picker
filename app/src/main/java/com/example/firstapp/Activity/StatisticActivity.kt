@@ -1,26 +1,21 @@
 package com.example.firstapp.Activity
 
-import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Picture
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.AttributeSet
 import android.util.Log
-import android.view.View
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import com.android.volley.toolbox.ImageRequest
 import com.android.volley.toolbox.Volley
-import com.example.firstapp.Activity.ViewPage.MyPicture
 import com.example.firstapp.Activity.ViewPage.PostInfo
 import com.example.firstapp.Adapter.StatisticPictureAdapter
-import com.example.firstapp.EXTRA_POSTINFO
+import com.example.firstapp.Default.EXTRA_POSTINFO
 import com.example.firstapp.R
 import kotlinx.android.synthetic.main.activity_statistic.*
 
-class StatisticActivity : AppCompatActivity() {
+class  StatisticActivity : AppCompatActivity() {
 
     private var mPost: PostInfo = PostInfo()
     private lateinit var statisticPictureAdapter: StatisticPictureAdapter

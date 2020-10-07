@@ -1,24 +1,23 @@
 package com.example.firstapp.Adapter
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import androidx.core.content.ContextCompat.getColor
+import com.example.firstapp.Default.MyPicture
 import com.example.firstapp.R
-import kotlinx.android.synthetic.*
 import kotlinx.android.synthetic.main.post_img_item.view.*
 
-class PostImgAdapter(context: Context, resourceID: Int, bitmaps: ArrayList<Bitmap>, val mSelected : ArrayList<Boolean>) :
-    ArrayAdapter<Bitmap>(context, resourceID, bitmaps) {
+//스와이프 프래그먼트에서 게시물 클릭했을때 이미지 보여주는 어댑터
+class PostImgAdapter(context: Context, resourceID: Int, bitmaps: ArrayList<MyPicture>, val mSelected : ArrayList<Boolean>) :
+    ArrayAdapter<MyPicture>(context, resourceID, bitmaps) {
 
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
         lateinit var view :View
-        var bitmap = getItem(position)
+        var picture = getItem(position)
 
 
         if(convertView != null)
@@ -31,7 +30,7 @@ class PostImgAdapter(context: Context, resourceID: Int, bitmaps: ArrayList<Bitma
         if(mSelected.size > position)
             view.iv_vote.visibility = if(mSelected[position]) View.VISIBLE else View.INVISIBLE
 
-        bitmap?.let { view.iv_post_image.setImageBitmap(it) }
+        picture?.let { view.iv_post_image.setImageBitmap(it.bitmap) }
 
         return view
     }

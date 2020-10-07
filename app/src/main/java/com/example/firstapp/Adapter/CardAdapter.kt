@@ -15,7 +15,8 @@ import com.android.volley.Response
 import com.android.volley.toolbox.ImageRequest
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
-import com.example.firstapp.Card.Card
+import com.example.firstapp.Default.Card
+import com.example.firstapp.Default.MyPicture
 import com.example.firstapp.R
 import kotlinx.android.synthetic.main.swipe_item.view.*
 
@@ -45,8 +46,8 @@ class CardAdapter(context: Context, resourceID: Int) :
             LayoutInflater.from(context).inflate(R.layout.swipe_item, parent, false)
 
         card?.let {
-            if(it.bitmaps.isNotEmpty())
-                cardView.swipImg?.setImageBitmap((it.bitmaps.first()))
+            if(it.pictures.isNotEmpty())
+                cardView.swipImg?.setImageBitmap(it.pictures.first().bitmap)
         }
         //만든 카드뷰를 리턴한다.
         return cardView
@@ -86,17 +87,16 @@ class CardAdapter(context: Context, resourceID: Int) :
                         if (card?.postId != postId) {
                             val content = obj.getString("content")
                             val writer = obj.getString("writer")
-                            val imageInfo = arrayListOf(Pair(fileName, filePath))
+                            val picture = MyPicture(null, fileName, filePath, 0)
                             card = Card(
                                 postId,
                                 content,
                                 writer,
-                                ArrayList<Bitmap>(),
-                                imageInfo
+                                arrayListOf(picture)
                             )
                         } else {
-                            //아니면 전에 추가한 포스트에 이미지정보만 추가
-                            card!!.imageInfo.add(Pair(fileName, filePath))
+                            //아니면 전에 추가한 포스트에 이미지정보만 추가 .. 할필요 없을듯?
+                            card!!.pictures.add(MyPicture(null, fileName, filePath, 0))
                         }
                     }
 
@@ -106,11 +106,11 @@ class CardAdapter(context: Context, resourceID: Int) :
                 card?.let { _card ->
                     //파싱한 데이터를 토대로 이미지 리퀘스트. 받아왔으면 뷰에 셋팅
                         val url = context.getString(R.string.urlToServer) + "getImage/" +
-                                _card.imageInfo.first().first;
+                                _card.pictures.first().file_name;
 
                         val imgRequest = ImageRequest(url,
                                 { bitmap ->
-                                    _card.bitmaps.add(bitmap)
+                                    _card.pictures.first().bitmap = bitmap
                                     //어레이어댑터 아이템으로 추가
                                     super.add(_card)
                                     requestCount++

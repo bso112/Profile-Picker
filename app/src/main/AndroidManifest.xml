@@ -19,7 +19,7 @@
         android:usesCleartextTraffic="true">
         <activity android:name=".Activity.StatisticActivity" android:noHistory="true"></activity>
         <activity android:name=".Activity.PostActivity" android:noHistory="true"/>
-        <activity android:name=".Activity.UploadImgActivity" android:noHistory="true"/>
+        <activity android:name=".Activity.UploadImgActivity"/>
         <activity android:name=".Activity.LoginActivity" android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

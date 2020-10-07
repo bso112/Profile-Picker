@@ -1,15 +1,22 @@
 package com.example.firstapp
 
-data class CloneTest (var a : Int, var arr : ArrayList<Int>)
-{
-    constructor(other : CloneTest) : this(other.a, ArrayList(other.arr))
+import android.util.Log
+
+data class CloneTest(var a: Int, var arr: ArrayList<Int>) {
+    constructor(other: CloneTest) : this(other.a, ArrayList(other.arr))
 }
 
 
 fun main() {
 
+    //for문 순회순서 테스트
+    for (i in 0..10)
+    {
+        var msg = i.toString()
+        System.out.println(msg)
+    }
     //복사생성자를 이용한 깊은복사
-    var origin = CloneTest(3, arrayListOf(3,4))
+    var origin = CloneTest(3, arrayListOf(3, 4))
     var copy = CloneTest(origin)
     copy.a = 5
     copy.arr.clear()
@@ -185,14 +192,14 @@ fun printAge() {
 }
 
 
- open class animal(var name: String) {
+open class animal(var name: String) {
     //코틀린은 null-safe하다. 모든건 선언과 동시에 초기화해야한다.
     //var a : Int  불가
     //하지만 의존성주입이나 설계상 필요시 선언만 해야할 때도 있다. 그럴때는 lateinit을 붙인다.
     lateinit var a: TestClass
     //lateinit  var a : Int 불가 // 원시타입은 불가능하다.
 
-     open fun bark(){}
+    open fun bark() {}
 }
 
 

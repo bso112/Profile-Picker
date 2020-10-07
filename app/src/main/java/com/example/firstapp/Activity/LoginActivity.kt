@@ -6,10 +6,9 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
-import com.android.volley.toolbox.JsonRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.example.firstapp.EXTRA_USERNAME
+import com.example.firstapp.Default.EXTRA_USERNAME
 
 import com.example.firstapp.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn

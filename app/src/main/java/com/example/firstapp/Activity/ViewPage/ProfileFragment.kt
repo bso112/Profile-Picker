@@ -9,8 +9,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import com.android.volley.Request
+import com.android.volley.toolbox.ImageRequest
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
 import com.example.firstapp.Activity.LoginActivity
@@ -18,29 +20,47 @@ import com.example.firstapp.Activity.StatisticActivity
 import com.example.firstapp.R
 import com.example.firstapp.Activity.UploadImgActivity
 import com.example.firstapp.Adapter.MyPostAdapter
-import com.example.firstapp.EXTRA_POSTINFO
+import com.example.firstapp.Default.EXTRA_POSTINFO
+import com.example.firstapp.Default.MyPicture
 import kotlinx.android.synthetic.main.frag_profile.*
 import java.io.Serializable
 
 
-data class MyPicture(var bitmap: Bitmap?, val file_name : String, val path : String, val likes : Int)
-    :Serializable
+
+
+class Post(var tumbnail: Bitmap?, var postInfo: PostInfo) {
+    public fun getTumbnailPictureName(): String {
+        var result = ""
+        var maxLikes = -1
+        for (picture in postInfo.myPictures) {
+            if (maxLikes < picture.likes) {
+                result = picture.file_name
+                maxLikes = picture.likes
+            }
+        }
+        return result
+    }
+
+
+}
+
 //Picture를 포함하니 Picture도 Serializable이여야한다.
-data class PostInfo(val title : String = "", val date : String = "", val viewCnt : Int = 0,
-                    val postId : Int = 0, var  myPictures : ArrayList<MyPicture> = ArrayList<MyPicture>())
-    : Serializable
-{
-    constructor(other : PostInfo) :this(other.title
-    ,other.date, other.viewCnt, other.postId, ArrayList<MyPicture>(other.myPictures)
+data class PostInfo(
+    val title: String = "", val date: String = "", val viewCnt: Int = 0,
+    val postId: Int = 0, var myPictures: ArrayList<MyPicture> = ArrayList()
+) : Serializable {
+
+    constructor(other: PostInfo) : this(
+        other.title
+        , other.date, other.viewCnt, other.postId, ArrayList<MyPicture>(other.myPictures)
     )
 }
 
 
-
 class ProfileFragment : Fragment() {
 
-    private lateinit var mPostAdapter : ArrayAdapter<PostInfo>
-    private val mPostInfo = ArrayList<PostInfo>()
+    private lateinit var mPostAdapter: ArrayAdapter<Post>
+    private val mPosts = ArrayList<Post>()
 
     //뷰를 생성할때
     override fun onCreateView(
@@ -48,7 +68,7 @@ class ProfileFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return  inflater.inflate(R.layout.frag_profile, container, false)
+        return inflater.inflate(R.layout.frag_profile, container, false)
     }
 
     //뷰가 생성되었을때
@@ -56,19 +76,19 @@ class ProfileFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         //글쓰기 액티비티로
-        ib_profile_create.setOnClickListener{
+        ib_profile_create.setOnClickListener {
             val intent = Intent(context, UploadImgActivity::class.java)
             startActivity(intent)
         }
 
-        mPostAdapter = MyPostAdapter(context!!, R.layout.mypost_item, mPostInfo)
+        mPostAdapter = MyPostAdapter(context!!, R.layout.mypost_item, mPosts)
         lv_myPosts.adapter = mPostAdapter
 
         //포스트 목록 클릭하면 통계 액티비티로
         lv_myPosts.setOnItemClickListener { parent, view, position, id ->
             Intent(context, StatisticActivity::class.java).apply {
-                if(position < mPostInfo.size)
-                    putExtra(EXTRA_POSTINFO, mPostInfo[position])
+                if (position < mPosts.size)
+                    putExtra(EXTRA_POSTINFO, mPosts[position].postInfo)
                 startActivity(this)
             }
 
@@ -80,22 +100,44 @@ class ProfileFragment : Fragment() {
     //게시물 상태가 수시로 달라질 수 있으니.(조회수, 좋아요 등..)
     override fun onStart() {
         super.onStart()
-        mPostInfo.clear()
         getMyPosts()
+    }
+
+    private fun getTumbnail(tumbnailName: String, post: Post) {
+
+        val queue = Volley.newRequestQueue(context)
+
+        val url = getString(R.string.urlToServer) + "getImage/${tumbnailName}"
+
+        val tumbnailRequest = ImageRequest(url, {
+            it?.let { bitmap -> post.tumbnail = it }
+            //어댑터뷰를 다시그린다.
+            mPostAdapter.notifyDataSetInvalidated()
+
+        }, 0, 0, ImageView.ScaleType.CENTER_CROP, null, {
+            Log.d("volley", it.message.toString())
+        })
+
+
+        queue.add(tumbnailRequest)
     }
 
 
 
-    private fun getMyPosts()
-    {
+
+    private fun getMyPosts() {
+
+        //갱신하기 전의 포스트들
+        val oldPosts = ArrayList<Post>(mPosts)
+        mPosts.clear()
+
         val queue = Volley.newRequestQueue(context)
 
         val url = getString(R.string.urlToServer) + "getMyPost/" + LoginActivity.mAccount?.email
         val postRequest = JsonArrayRequest(Request.Method.GET, url, null,
             {
                 it.let {
-                    for(i in 0 until it.length())
-                    {
+                    for (i in 0 until it.length()) {
                         val obj = it.getJSONObject(i)
                         val title = obj.getString("title")
                         val date = obj.getString("date")
@@ -103,13 +145,46 @@ class ProfileFragment : Fragment() {
                         val file_name = obj.getString("file_name")
                         val path = obj.getString("path")
                         val likes = obj.getInt("likes")
-                        if(mPostInfo.isEmpty() || mPostInfo.last().postId != postId)
-                            mPostInfo.add(PostInfo(title, date, 0, postId,  arrayListOf(MyPicture(null, file_name, path, likes))))
-                        else
-                            mPostInfo.last().myPictures.add(MyPicture(null, file_name, path, likes))
+                        val viewCnt = obj.getInt("view")
 
-                        mPostAdapter.notifyDataSetChanged()
+                        //이전에 포스트를 추가한적이 있고, 만약 새로운 포스트를 추가해야하거나
+                        //이번에 추가하는게 마지막 사진이면 가장 많은 좋아요를 받은 사진을 썸네일으로 결정
+                        if ((mPosts.isNotEmpty() && mPosts.last().postInfo.postId != postId) || i == (it.length() - 1)) {
+
+                            //방금 추가된 post와 같은 postId를 가진 post를 oldPosts에서 찾는다.
+                            val oldPost = getPostById(postId, oldPosts)
+
+                            //만약 oldPost가 비어있거나(처음 Post를 만들거나)
+                            //oldPost에서 썼던 썸네일과 현재 추가된 Post의 썸네일이 달라야한다면 서버에 썸네일을 요청한다.
+                            val oldTumbnailName = oldPost?.getTumbnailPictureName()
+                            val newTumbnailName = mPosts.last().getTumbnailPictureName()
+                            if (oldPosts.size <= 0 ||
+                                ((oldPost != null) && (oldTumbnailName != newTumbnailName))
+                            )
+                                getTumbnail(newTumbnailName, mPosts.last())
+                            else
+                                mPosts.last().tumbnail = oldPost?.tumbnail
+                        }
+
+                        //포스트를 처음추가하거나, 새로운 포스트를 추가해야한다면 포스트 추가
+                        if (mPosts.isEmpty() || mPosts.last().postInfo.postId != postId) {
+                            mPosts.add(
+                                Post(
+                                    null, PostInfo(
+                                        title, date, viewCnt, postId,
+                                        arrayListOf(MyPicture(null, file_name, path, likes))
+                                    )
+                                )
+                            )
+                        }
+                        //아니면 사진만 추가
+                        else
+                            mPosts.last().postInfo.myPictures.add(MyPicture(null, file_name, path, likes))
+
+
                     }
+
+                    mPostAdapter.notifyDataSetChanged()
                 }
             },
             {
@@ -120,6 +195,13 @@ class ProfileFragment : Fragment() {
 
     }
 
+    private fun getPostById(postId: Int, posts: ArrayList<Post>): Post? {
+        for (post in posts) {
+            if (post.postInfo.postId == postId)
+                return post;
+        }
+        return null
+    }
 
 
 }
