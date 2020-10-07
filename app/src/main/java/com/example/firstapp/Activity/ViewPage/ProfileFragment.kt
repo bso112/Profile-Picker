@@ -22,44 +22,16 @@ import com.example.firstapp.Activity.UploadImgActivity
 import com.example.firstapp.Adapter.MyPostAdapter
 import com.example.firstapp.Default.EXTRA_POSTINFO
 import com.example.firstapp.Default.MyPicture
+import com.example.firstapp.Default.Post
+import com.example.firstapp.Default.PostInfo
 import kotlinx.android.synthetic.main.frag_profile.*
 import java.io.Serializable
 
 
 
-
-class Post(var tumbnail: Bitmap?, var postInfo: PostInfo) {
-    public fun getTumbnailPictureName(): String {
-        var result = ""
-        var maxLikes = -1
-        for (picture in postInfo.myPictures) {
-            if (maxLikes < picture.likes) {
-                result = picture.file_name
-                maxLikes = picture.likes
-            }
-        }
-        return result
-    }
-
-
-}
-
-//Picture를 포함하니 Picture도 Serializable이여야한다.
-data class PostInfo(
-    val title: String = "", val date: String = "", val viewCnt: Int = 0,
-    val postId: Int = 0, var myPictures: ArrayList<MyPicture> = ArrayList()
-) : Serializable {
-
-    constructor(other: PostInfo) : this(
-        other.title
-        , other.date, other.viewCnt, other.postId, ArrayList<MyPicture>(other.myPictures)
-    )
-}
-
-
 class ProfileFragment : Fragment() {
 
-    private lateinit var mPostAdapter: ArrayAdapter<Post>
+    private lateinit var mPostAdapter: MyPostAdapter
     private val mPosts = ArrayList<Post>()
 
     //뷰를 생성할때
@@ -111,8 +83,9 @@ class ProfileFragment : Fragment() {
 
         val tumbnailRequest = ImageRequest(url, {
             it?.let { bitmap -> post.tumbnail = it }
-            //어댑터뷰를 다시그린다.
-            mPostAdapter.notifyDataSetInvalidated()
+            //썸네일을 적용해서 어댑터뷰를 다시그린다.
+            mPostAdapter.notifyDataSetChanged()
+            lv_myPosts.adapter = mPostAdapter
 
         }, 0, 0, ImageView.ScaleType.CENTER_CROP, null, {
             Log.d("volley", it.message.toString())
@@ -183,7 +156,7 @@ class ProfileFragment : Fragment() {
 
 
                     }
-
+                    //응답처리후 데이터 적용 ( 아직 썸네일 안그림)
                     mPostAdapter.notifyDataSetChanged()
                 }
             },

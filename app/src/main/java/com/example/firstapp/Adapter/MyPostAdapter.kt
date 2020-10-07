@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import com.example.firstapp.Activity.ViewPage.Post
+import com.example.firstapp.Default.Post
 import com.example.firstapp.R
 import kotlinx.android.synthetic.main.mypost_item.view.*
 

@@ -9,9 +9,9 @@ import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import com.android.volley.toolbox.ImageRequest
 import com.android.volley.toolbox.Volley
-import com.example.firstapp.Activity.ViewPage.PostInfo
 import com.example.firstapp.Adapter.StatisticPictureAdapter
 import com.example.firstapp.Default.EXTRA_POSTINFO
+import com.example.firstapp.Default.PostInfo
 import com.example.firstapp.R
 import kotlinx.android.synthetic.main.activity_statistic.*
 
