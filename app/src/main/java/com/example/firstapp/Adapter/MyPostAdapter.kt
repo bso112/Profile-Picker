@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter
 import com.example.firstapp.Default.Post
 import com.example.firstapp.R
 import kotlinx.android.synthetic.main.mypost_item.view.*
+import kotlin.math.floor
 
 //내가 쓴 글목록 보여주는 어댑터
 class MyPostAdapter(context: Context, resource: Int, val posts: ArrayList<Post>) :
@@ -23,15 +24,17 @@ class MyPostAdapter(context: Context, resource: Int, val posts: ArrayList<Post>)
         else
             view = LayoutInflater.from(context).inflate(R.layout.mypost_item, parent, false)
 
-        view.tv_date.text = post?.postInfo?.date
+        var likes = post?.getTumbnailPicture()?.likes ?: 0
+        var stringLikes = if(likes >= 1000) "${floor(likes / 100.0F) / 10.0F}K" else likes.toString()
+
+
+        view.tv_post_date.text = post?.postInfo?.date
         view.tv_post_title.text = post?.postInfo?.title
+        view.tv_post_like.text = stringLikes
         view.iv_post_tumbnail.setImageBitmap(post?.tumbnail)
 
         return view
     }
-
-
-
 
 
 }

@@ -36,7 +36,7 @@ class LogoActivity : AppCompatActivity() {
             override fun run() {
                 startActivity(intent)
             }
-        }, 1000)
+        }, 500)
 
 
     }

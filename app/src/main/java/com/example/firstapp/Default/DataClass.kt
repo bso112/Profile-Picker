@@ -25,6 +25,18 @@ class Post(var tumbnail: Bitmap?, var postInfo: PostInfo) {
         return result
     }
 
+    public fun getTumbnailPicture(): MyPicture? {
+        var result : MyPicture? = null
+        var maxLikes = -1
+        for (picture in postInfo.myPictures) {
+            if (maxLikes < picture.likes) {
+                result = picture
+                maxLikes = picture.likes
+            }
+        }
+        return result
+    }
+
 }
 
 data class MyPicture(var bitmap: Bitmap?, val file_name: String, val path: String, val likes: Int) :
