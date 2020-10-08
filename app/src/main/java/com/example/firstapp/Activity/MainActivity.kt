@@ -26,10 +26,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun ready_UI()
     {
-        viewPageAdapter = ViewPageAdapter(
-            supportFragmentManager,
-            lifecycle
-        )
+        viewPageAdapter = ViewPageAdapter(supportFragmentManager, lifecycle)
         mainPager.adapter = viewPageAdapter
 
         //TabLayoutMediator를 만들고, 그 임시객체를 이용해 tab의 제목가 아이콘을 동적으로 설정한뒤
@@ -37,16 +34,10 @@ class MainActivity : AppCompatActivity() {
         TabLayoutMediator(tabLayout, mainPager){ tab, position->
             when(position){
                 0-> {
-                    tab.icon = ResourcesCompat.getDrawable(resources,
-                        R.drawable.fire, null)
+                    tab.text = "둘러보기"
                 }
                 1->{
-                    tab.icon = ResourcesCompat.getDrawable(resources,
-                        R.drawable.chat, null)
-                }
-                2->{
-                    tab.icon = ResourcesCompat.getDrawable(resources,
-                        R.drawable.profile, null)
+                    tab.text = "내정보"
                 }
 
             }

@@ -131,6 +131,7 @@ class ProfileFragment : Fragment() {
                             //oldPost에서 썼던 썸네일과 현재 추가된 Post의 썸네일이 달라야한다면 서버에 썸네일을 요청한다.
                             val oldTumbnailName = oldPost?.getTumbnailPictureName()
                             val newTumbnailName = mPosts.last().getTumbnailPictureName()
+
                             if (oldPosts.size <= 0 ||
                                 ((oldPost != null) && (oldTumbnailName != newTumbnailName))
                             )
@@ -142,13 +143,7 @@ class ProfileFragment : Fragment() {
                         //포스트를 처음추가하거나, 새로운 포스트를 추가해야한다면 포스트 추가
                         if (mPosts.isEmpty() || mPosts.last().postInfo.postId != postId) {
                             mPosts.add(
-                                Post(
-                                    null, PostInfo(
-                                        title, date, viewCnt, postId,
-                                        arrayListOf(MyPicture(null, file_name, path, likes))
-                                    )
-                                )
-                            )
+                                Post(null, PostInfo(title, date, viewCnt, postId, arrayListOf(MyPicture(null, file_name, path, likes)))))
                         }
                         //아니면 사진만 추가
                         else

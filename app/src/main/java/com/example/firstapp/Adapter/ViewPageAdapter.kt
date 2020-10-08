@@ -14,14 +14,13 @@ class ViewPageAdapter(fm : FragmentManager, lifecycle : Lifecycle) : FragmentSta
 
   //뷰를 이루는 프래그먼트 수
     override fun getItemCount(): Int {
-        return 3
+        return 2
     }
     // position은 누른 탭의 인덱스고, 인덱스마다 알맞은 프래그먼트를 생성한다.
     override fun createFragment(position: Int): Fragment {
         return when (position) {
             0 -> SwipeFragment()
-            1 -> MessageFragment()
-            2 -> ProfileFragment()
++           1 -> ProfileFragment()
             else -> Fragment() //이 경우 어떻게 되는거지?
         }
     }

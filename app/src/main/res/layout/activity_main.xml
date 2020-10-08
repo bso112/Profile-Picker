@@ -6,40 +6,48 @@
     android:layout_height="match_parent"
     android:layout_weight="1"
     android:orientation="vertical"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp"
-    tools:context=".Activity.MainActivity"
-    android:weightSum="1">
+    android:weightSum="1"
+    tools:context=".Activity.MainActivity">
 
 
     <com.google.android.material.tabs.TabLayout
-        android:layout_width="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:id="@+id/tabLayout"
+        android:layout_width="150dp"
+        android:layout_gravity="left"
         android:layout_height="wrap_content"
-        android:id="@+id/tabLayout">
+        app:tabIndicatorColor="@color/Black"
+        app:tabIndicator="@drawable/rounded_corner_fg"
+        app:tabIndicatorHeight="40dp"
+        app:tabIndicatorGravity="center"
+        app:tabSelectedTextColor="@color/White"
+        app:tabTextColor="@color/Black"
+        android:background="@drawable/rounded_corner_fg"
+        app:tabRippleColor="@color/Transparent"
+
+        >
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/item1"
+            android:text="asdasd"
             />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-          />
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            />
+            android:text="asdasd"/>
 
     </com.google.android.material.tabs.TabLayout>
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/mainPager"
-            />
+    <androidx.viewpager2.widget.ViewPager2
+        android:layout_marginTop="10dp"
+        android:id="@+id/mainPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+ />
+
 
 
 

@@ -87,6 +87,8 @@ class SwipeFragment : Fragment() {
                 // this is the simplest way to delete an object from the Adapter (/AdapterView)
                 Log.d("LIST", "removed object!")
 
+                mCardAdapter.removeCardAtFront()
+
                 if(!mCardAdapter.isEmpty())
                     topCard = mCardAdapter.getItem(0)
 

@@ -1,5 +1,6 @@
 package com.example.firstapp.Activity
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -33,7 +34,6 @@ class LoginActivity : AppCompatActivity() {
         var mGoogleSignInClient: GoogleSignInClient? = null
             private set
         var mAccount: GoogleSignInAccount? = null
-            private set
 
     }
 
@@ -61,9 +61,11 @@ class LoginActivity : AppCompatActivity() {
         mAccount = GoogleSignIn.getLastSignedInAccount(this)
         updateUI(mAccount)
 
-        sign_in_button.setOnClickListener { signIn() }
+        signIn()
+        //sign_in_button.setOnClickListener { signIn() }
 
     }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -82,11 +84,9 @@ class LoginActivity : AppCompatActivity() {
         //로그인에 성공했다면
         if (null != account) {
             //main activity로 가기
-            val intent = Intent(this, MainActivity::class.java).apply {
-                putExtra(EXTRA_USERNAME, account.displayName)
-            }
+            val intent = Intent(this, LogoActivity::class.java)
+
             startActivity(intent)
-            Log.d("MainActivity", "login success!")
         }
 
     }

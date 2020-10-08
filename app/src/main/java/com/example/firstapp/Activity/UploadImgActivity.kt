@@ -112,13 +112,7 @@ class UploadImgActivity : AppCompatActivity() {
                 //key는 html form뷰의 name 항목. 즉, 파라미터가 되는듯
                 for (picture in mPictureArray) {
                     params.add(
-                        Pair(
-                            "image",
-                            DataPart(
-                                picture.imgName,
-                                getFileDataFromDrawable(picture.bitmap),
-                                "image/webp"
-                            )
+                        Pair("image", DataPart(picture.imgName, getFileDataFromDrawable(picture.bitmap), "image/webp")
                         )
                     )
                 }

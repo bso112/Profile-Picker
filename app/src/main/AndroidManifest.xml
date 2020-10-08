@@ -17,17 +17,25 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Activity.StatisticActivity" android:noHistory="true"></activity>
-        <activity android:name=".Activity.PostActivity" android:noHistory="true"/>
-        <activity android:name=".Activity.UploadImgActivity"/>
-        <activity android:name=".Activity.LoginActivity" android:noHistory="true">
+        <activity android:name=".Activity.LogoActivity" android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- android:icon="@mipmap/ic_launcher" -->
-        <activity android:name=".Activity.MainActivity"/>
+        </activity>
+        <activity
+            android:name=".Activity.StatisticActivity"
+            android:noHistory="true" />
+        <activity
+            android:name=".Activity.PostActivity"
+            android:noHistory="true" />
+        <activity android:name=".Activity.UploadImgActivity" />
+        <activity
+            android:name=".Activity.LoginActivity"
+            android:noHistory="true"/>
+        <!-- android:icon="@mipmap/ic_launcher" -->
+        <activity android:name=".Activity.MainActivity" />
     </application>
 
 </manifest>
