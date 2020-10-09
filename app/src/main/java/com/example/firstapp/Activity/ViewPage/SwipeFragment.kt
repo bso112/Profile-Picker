@@ -21,8 +21,8 @@ import kotlinx.android.synthetic.main.frag_swipe.*
 
 class SwipeFragment : Fragment() {
 
-    var topCard : Card? = null
-    lateinit var  mCardAdapter : CardAdapter
+    var topCard: Card? = null
+    lateinit var mCardAdapter: CardAdapter
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -80,13 +80,7 @@ class SwipeFragment : Fragment() {
         //set the listener and the adapter
         swipeView.adapter = mCardAdapter
 
-        mCardAdapter.addCardData{
-                card -> topCard = card
-        }
-
-        for (i in 0..resources.getInteger(R.integer.CardRequestAtOnce))
-            mCardAdapter.addCardData();
-
+        mCardAdapter.addCardData(resources.getInteger(R.integer.CardRequestAtOnce)) { card -> topCard = card }
 
         swipeView.setFlingListener(object : SwipeFlingAdapterView.onFlingListener {
 
@@ -96,7 +90,7 @@ class SwipeFragment : Fragment() {
 
                 mCardAdapter.removeCardAtFront()
 
-                if(!mCardAdapter.isEmpty())
+                if (!mCardAdapter.isEmpty())
                     topCard = mCardAdapter.getItem(0)
 
 
@@ -122,15 +116,14 @@ class SwipeFragment : Fragment() {
                 // 여기서 더 많은 데이터를 가져온다.
 
                 //아직 데이터를 받아오고 있는 중이면
-                if (mCardAdapter.isBusy()) {
+                if (mCardAdapter.mIsBusy) {
 //                    Toast.makeText(context, "카드 데이터를 받아오는 중입니다.", Toast.LENGTH_SHORT).show()
                     return
                 }
 
                 //남은 아이템수가 2이하일때
                 if (itemsInAdapter <= 2) {
-                    for (i in 0..resources.getInteger(R.integer.CardRequestAtOnce))
-                        mCardAdapter.addCardData();
+                    mCardAdapter.addCardData(resources.getInteger(R.integer.CardRequestAtOnce)) { card -> topCard = card }
                 }
 
             }

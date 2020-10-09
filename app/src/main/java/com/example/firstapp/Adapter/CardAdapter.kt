@@ -9,12 +9,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.ImageRequest
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
+import com.example.firstapp.Activity.LoginActivity
 import com.example.firstapp.Default.Card
 import com.example.firstapp.Default.MyPicture
 import com.example.firstapp.R
@@ -23,12 +25,18 @@ import kotlinx.android.synthetic.main.swipe_item.view.*
 class CardAdapter(context: Context, resourceID: Int) :
     ArrayAdapter<Card>(context, resourceID) {
 
-    private var requestCount = Int.MAX_VALUE
 
-    //네트워크에서 카드데이터를 받아오는 중인가?
-    fun isBusy(): Boolean {
-        return requestCount < context.resources.getInteger(R.integer.CardRequestAtOnce)
-    }
+    /**
+     *     DB로부터 받아올 카드 데이터의 시작인덱스
+     */
+    private var mCardDataIndex: Int = 0
+
+
+    /**
+     * 네트워크에서 카드데이터를 받아오는 중인가?
+     */
+    var mIsBusy : Boolean = false
+    private set;
 
 
     //getView는 view가 필요할때 즉, 화면에 view가 보여야할때 불린다.
@@ -53,7 +61,6 @@ class CardAdapter(context: Context, resourceID: Int) :
             view.tv_swipe_content.text = card.content
 
 
-
         }
 
         //만든 카드뷰를 리턴한다.
@@ -67,21 +74,27 @@ class CardAdapter(context: Context, resourceID: Int) :
 
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
-    public fun addCardData(callback: ((card: Card) -> Unit)? = null) {
+    /**
+     * postCnt : 가져올 post 수
+     */
+    public fun addCardData(postCnt: Int, callback: ((card: Card) -> Unit)? = null) {
 
-        requestCount = 0
+        mIsBusy = true
+
         // Instantiate the RequestQueue.
         val queue = Volley.newRequestQueue(context!!)
 
-        var card: Card? = null
+
+        var cardList = ArrayList<Card>()
+
+        var url = context.getString(R.string.urlToServer) + "getRandomPost/" + postCnt.toString() + "/" + mCardDataIndex.toString() +
+                "/" + LoginActivity.mAccount?.email
         //랜덤한 유저의 게시글을 얻는다.
         //현재 로그인된 유저정보를 바탕으로
         val postInfoRequest = JsonArrayRequest(
-            Request.Method.GET,
-            context.getString(R.string.urlToServer) + "getRandomPost/",
-            null,
-            Response.Listener {
-                it?.let { jsonArr ->
+            Request.Method.GET, url, null,
+            Response.Listener {res->
+                res?.let { jsonArr ->
                     for (i in 0 until jsonArr.length()) {
                         val obj = jsonArr.getJSONObject(i);
                         val postId = obj.getInt("postId")
@@ -89,55 +102,66 @@ class CardAdapter(context: Context, resourceID: Int) :
                         val fileName = obj.getString("file_name")
                         val filePath = obj.getString("path")
 
+
                         //만약 게시물목록이 비었거나 전에 추가된 포스트의 id와 이번에 추가할
                         //포스트의 id가 다르다면, 게시물목록에 항목추가
-                        if (card?.postId != postId) {
+                        if (cardList.isEmpty() || cardList.last().postId != postId) {
                             val content = obj.getString("content")
                             val writer = obj.getString("writer")
                             val picture = MyPicture(null, fileName, filePath, 0)
-                            card = Card(
-                                postId,
-                                title,
-                                content,
-                                writer,
-                                arrayListOf(picture)
-                            )
+                            cardList.add(Card(postId, title, content, writer, arrayListOf(picture)))
                         } else {
                             //아니면 전에 추가한 포스트에 이미지정보만 추가 .. 할필요 없을듯?
-                            card!!.pictures.add(MyPicture(null, fileName, filePath, 0))
+                            cardList.last().pictures.add(MyPicture(null, fileName, filePath, 0))
                         }
                     }
-
                 }
 
-                //게시물의 첫번째 사진만 가져온다.
-                card?.let { _card ->
-                    //파싱한 데이터를 토대로 이미지 리퀘스트. 받아왔으면 뷰에 셋팅
+                //카드에 쓸 이미지 받아옴
+                for (card in cardList) {
+                    if (null == card)
+                        return@Listener
+
                     val url = context.getString(R.string.urlToServer) + "getImage/" +
-                            _card.pictures.first().file_name;
+                            card.pictures.first().file_name;
 
                     val imgRequest = ImageRequest(url,
                         { bitmap ->
-                            _card.pictures.first().bitmap = bitmap
-                            //어레이어댑터 아이템으로 추가
-                            super.add(_card)
-                            requestCount++
+                            card.pictures.first().bitmap = bitmap
+                            //완성한 카드를 어레디어댑터에 추가
+                            super.add(card)
+
+                            mCardDataIndex++
+
+                            //마지막 루프면
+                            if(card === cardList.last())
+                            {
+                                mIsBusy = false
+
+                                //만약 받았은 포스트의 수가 요청한 것보다 적으면 마지막 데이터셋이라는 뜻
+                                //그때는 mCardDataIndex를 0으로 돌린다.
+                                if(cardList.count() < postCnt)
+                                {
+                                    mCardDataIndex = 0
+                                    Toast.makeText(context, "새로운 게시물이 없습니다. 이전 게시물을 표시합니다.", Toast.LENGTH_SHORT)
+                                }
+
+                            }
+
+
+
 
                             if (callback != null) {
-                                callback(_card)
-                            };
-                        },
-                        300,
-                        800,
-                        ImageView.ScaleType.CENTER_CROP,
-                        Bitmap.Config.ARGB_8888,
+                                callback(card)
+                            }
+                        }, 300, 800, ImageView.ScaleType.CENTER_CROP, Bitmap.Config.ARGB_8888,
                         { err ->
                             Log.e("volley", err.message ?: "err ocurr!")
                         })
+
                     queue.add(imgRequest)
 
                 }
-                //Response.Listener End
             },
             Response.ErrorListener {
                 Log.e("Volley", it.toString())
