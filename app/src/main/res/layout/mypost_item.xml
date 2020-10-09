@@ -10,8 +10,8 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="250dp"
-        android:elevation="50dp"
-        app:cardCornerRadius="10dp">
+        app:cardCornerRadius="10dp"
+        app:cardElevation="10dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -47,9 +47,8 @@
                 <ImageView
                     android:layout_width="15dp"
                     android:layout_height="15dp"
-                    android:layout_alignTop="@id/tv_post_like"
-                    android:layout_marginTop="5dp"
                     android:layout_marginRight="2dp"
+                    android:layout_marginTop="3dp"
                     android:layout_toLeftOf="@id/tv_post_like"
                     android:src="@drawable/like"
                     android:tint="@color/Red" />
@@ -59,10 +58,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
-                    android:text="100"
+                    android:text="1000000000000000000"
+                    android:maxLength="8"
+                    android:ellipsize="end"
                     android:textSize="15sp" />
 
                 <TextView
+                    android:layout_marginTop="7dp"
                     android:id="@+id/tv_post_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

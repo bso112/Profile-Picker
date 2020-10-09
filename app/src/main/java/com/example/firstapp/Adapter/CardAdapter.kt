@@ -24,9 +24,10 @@ class CardAdapter(context: Context, resourceID: Int) :
     ArrayAdapter<Card>(context, resourceID) {
 
     private var requestCount = Int.MAX_VALUE
+
     //네트워크에서 카드데이터를 받아오는 중인가?
-    fun isBusy() : Boolean{
-        return requestCount <  context.resources.getInteger(R.integer.CardRequestAtOnce)
+    fun isBusy(): Boolean {
+        return requestCount < context.resources.getInteger(R.integer.CardRequestAtOnce)
     }
 
 
@@ -37,31 +38,36 @@ class CardAdapter(context: Context, resourceID: Int) :
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val card: Card? = getItem(position)
 
+        var view: View
+        if (null != convertView)
+            view = convertView
+        else
+            view = LayoutInflater.from(context).inflate(R.layout.swipe_item, parent, false)
 
-        /*
-        Inflater는 XML을 실제로 메모리에 올리는 역할을 한다. inflate을 통해 메모리에 올리고,
-        그렇게 생성한 객체를 반환한다.
-         */
-        val cardView: View =
-            LayoutInflater.from(context).inflate(R.layout.swipe_item, parent, false)
+        if (card != null) {
+            if (card.pictures.isNotEmpty())
+                view.swipImg?.setImageBitmap(card.pictures.first().bitmap)
 
-        card?.let {
-            if(it.pictures.isNotEmpty())
-                cardView.swipImg?.setImageBitmap(it.pictures.first().bitmap)
+            view.tv_swipe_title.text = card.title
+            //view.tv_swipe_userName.text = card.writer
+            view.tv_swipe_content.text = card.content
+
+
+
         }
+
         //만든 카드뷰를 리턴한다.
-        return cardView
+        return view
     }
 
-     public fun removeCardAtFront()
-     {
-         if(!super.isEmpty())
+    public fun removeCardAtFront() {
+        if (!super.isEmpty())
             super.remove(super.getItem(0))
-     }
+    }
 
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
-    public fun addCardData(callback: ((card : Card) -> Unit)? = null) {
+    public fun addCardData(callback: ((card: Card) -> Unit)? = null) {
 
         requestCount = 0
         // Instantiate the RequestQueue.
@@ -75,10 +81,11 @@ class CardAdapter(context: Context, resourceID: Int) :
             context.getString(R.string.urlToServer) + "getRandomPost/",
             null,
             Response.Listener {
-                it?.let { jsonArr->
+                it?.let { jsonArr ->
                     for (i in 0 until jsonArr.length()) {
                         val obj = jsonArr.getJSONObject(i);
                         val postId = obj.getInt("postId")
+                        val title = obj.getString("title")
                         val fileName = obj.getString("file_name")
                         val filePath = obj.getString("path")
 
@@ -90,6 +97,7 @@ class CardAdapter(context: Context, resourceID: Int) :
                             val picture = MyPicture(null, fileName, filePath, 0)
                             card = Card(
                                 postId,
+                                title,
                                 content,
                                 writer,
                                 arrayListOf(picture)
@@ -105,28 +113,28 @@ class CardAdapter(context: Context, resourceID: Int) :
                 //게시물의 첫번째 사진만 가져온다.
                 card?.let { _card ->
                     //파싱한 데이터를 토대로 이미지 리퀘스트. 받아왔으면 뷰에 셋팅
-                        val url = context.getString(R.string.urlToServer) + "getImage/" +
-                                _card.pictures.first().file_name;
+                    val url = context.getString(R.string.urlToServer) + "getImage/" +
+                            _card.pictures.first().file_name;
 
-                        val imgRequest = ImageRequest(url,
-                                { bitmap ->
-                                    _card.pictures.first().bitmap = bitmap
-                                    //어레이어댑터 아이템으로 추가
-                                    super.add(_card)
-                                    requestCount++
+                    val imgRequest = ImageRequest(url,
+                        { bitmap ->
+                            _card.pictures.first().bitmap = bitmap
+                            //어레이어댑터 아이템으로 추가
+                            super.add(_card)
+                            requestCount++
 
-                                    if (callback != null) {
-                                        callback(_card)
-                                    };
-                                },
-                                300,
-                                800,
-                                ImageView.ScaleType.CENTER_CROP,
-                                Bitmap.Config.ARGB_8888,
-                                { err ->
-                                    Log.e("volley", err.message ?: "err ocurr!")
-                                })
-                        queue.add(imgRequest)
+                            if (callback != null) {
+                                callback(_card)
+                            };
+                        },
+                        300,
+                        800,
+                        ImageView.ScaleType.CENTER_CROP,
+                        Bitmap.Config.ARGB_8888,
+                        { err ->
+                            Log.e("volley", err.message ?: "err ocurr!")
+                        })
+                    queue.add(imgRequest)
 
                 }
                 //Response.Listener End

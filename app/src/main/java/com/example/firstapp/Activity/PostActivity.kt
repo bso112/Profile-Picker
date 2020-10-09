@@ -27,7 +27,7 @@ import kotlinx.android.synthetic.main.post_img_item.view.*
 class PostActivity : AppCompatActivity() {
 
     private var mCard: Card =
-        Card(-1, "", "", ArrayList())
+        Card(-1, "","", "", ArrayList())
     private var mSelected = ArrayList<Boolean>()
 
     private var mIsBusy: Boolean = false

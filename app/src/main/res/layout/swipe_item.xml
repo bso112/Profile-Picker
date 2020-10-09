@@ -1,25 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_gravity="center"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:layout_gravity="center">
+
+
+    <TextView
+        android:id="@+id/tv_swipe_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/tv_swipe_content"
+        android:layout_alignLeft="@id/tv_swipe_content"
+        android:elevation="100dp"
+        android:fontFamily="sans-serif"
+        android:maxLength="10"
+        android:text="@string/lorem"
+        android:textColor="@color/White"
+        android:textSize="40dp"
+        android:textStyle="bold"
+        style="@style/AudioFileInfoOverlayText"/>
+
+<!--    <TextView-->
+<!--        android:id="@+id/tv_swipe_userName"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="@string/lorem"-->
+<!--        android:maxLength="10"-->
+<!--        android:layout_toRightOf="@id/tv_swipe_title"-->
+<!--        android:layout_alignBottom="@id/tv_swipe_title"-->
+<!--        android:elevation="100dp"-->
+<!--        android:textColor="@color/White"/>-->
+
+
+    <TextView
+        android:id="@+id/tv_swipe_content"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_alignBottom="@id/cv_swipe"
+        android:elevation="100dp"
+        android:lineSpacingExtra="3dp"
+        android:maxLines="3"
+        android:textSize="15dp"
+        android:text="@string/lorem"
+        android:textColor="@color/White"
+        style="@style/AudioFileInfoOverlayText"/>
+
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cv_swipe"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_margin="5dp"
         app:cardCornerRadius="20dp"
-        app:cardElevation="5dp"
-        android:layout_margin="5dp">
+        app:cardElevation="5dp">
 
-    <ImageView
-        android:id="@+id/swipImg"
-        android:gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        android:src="@drawable/face"/>
+
+        <ImageView
+            android:id="@+id/swipImg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:scaleType="centerCrop"
+            android:src="@drawable/face" />
+
 
     </androidx.cardview.widget.CardView>
-</FrameLayout>
+
+
+</RelativeLayout>

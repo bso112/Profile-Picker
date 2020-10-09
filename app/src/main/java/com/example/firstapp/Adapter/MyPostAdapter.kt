@@ -28,7 +28,7 @@ class MyPostAdapter(context: Context, resource: Int, val posts: ArrayList<Post>)
         var stringLikes = if(likes >= 1000) "${floor(likes / 100.0F) / 10.0F}K" else likes.toString()
 
 
-        view.tv_post_date.text = post?.postInfo?.date
+        view.tv_post_date.text = post?.postInfo?.date?.substring(IntRange(0, 9))
         view.tv_post_title.text = post?.postInfo?.title
         view.tv_post_like.text = stringLikes
         view.iv_post_tumbnail.setImageBitmap(post?.tumbnail)

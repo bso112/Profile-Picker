@@ -53,6 +53,13 @@ class SwipeFragment : Fragment() {
             }
             it.startAnimation(btnAnim)
         }
+        btn_prv.setOnClickListener {
+            swipeView.topCardListener.selectLeft()
+        }
+        btn_next.setOnClickListener {
+            swipeView.topCardListener.selectRight()
+        }
+
 
         readySwipeView()
     }

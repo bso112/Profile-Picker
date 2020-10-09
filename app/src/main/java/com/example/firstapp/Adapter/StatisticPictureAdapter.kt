@@ -1,18 +1,14 @@
 package com.example.firstapp.Adapter
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Adapter
 import android.widget.ArrayAdapter
-import androidx.annotation.RequiresApi
 import com.example.firstapp.Default.MyPicture
 import com.example.firstapp.R
 import kotlinx.android.synthetic.main.statistic_picture_item.view.*
-import java.lang.Integer.max
+import kotlin.math.floor
 
 class StatisticPictureAdapter(context: Context, resource: Int, myPictures: ArrayList<MyPicture>) :
     ArrayAdapter<MyPicture>(context, resource, myPictures) {
@@ -37,7 +33,10 @@ class StatisticPictureAdapter(context: Context, resource: Int, myPictures: Array
                 likeSum += pic?.likes ?: 0
             }
             val persent: Int = (picture.likes / likeSum.coerceAtLeast(1F) * 100).toInt()
-            view.tv_statistic_likes.text = "$persent%"
+            view.tv_statistic_likes_persent.text = "$persent%"
+
+            var stringLikes = if(picture.likes >= 1000) "${floor(picture.likes / 100.0F) / 10.0F}K" else picture.likes.toString()
+            view.tv_statistic_likes_absolute.text = "(${stringLikes}명)"
         }
 
 

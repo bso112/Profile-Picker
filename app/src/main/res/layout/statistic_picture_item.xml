@@ -1,25 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="20dp">
 
     <ImageView
         android:id="@+id/iv_statistic_picture"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@drawable/face"
-        android:foreground="@drawable/rounded_fg" />
+        android:foreground="@drawable/rounded_fg"
+        />
 
     <TextView
-        android:id="@+id/tv_statistic_likes"
+        android:layout_marginTop="90dp"
+        android:id="@+id/tv_statistic_likes_persent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="64dp"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:text="80%"
+        android:layout_gravity="center"
+        android:textColor="@color/White"
+        android:textStyle="bold"
+        style="@style/AudioFileInfoOverlayText"
+        android:textSize="40sp"
+        android:textAlignment="center"
+        />
+
+    <TextView
+        android:layout_marginTop="130dp"
+        android:layout_gravity="center"
+        android:id="@+id/tv_statistic_likes_absolute"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_statistic_likes_persent"
+        android:text="(123명)"
+        android:textColor="@color/White"
+        android:textStyle="bold"
+        style="@style/AudioFileInfoOverlayText"
+        android:textAlignment="center"
+        android:textSize="30sp"/>
+
+
+</FrameLayout>
