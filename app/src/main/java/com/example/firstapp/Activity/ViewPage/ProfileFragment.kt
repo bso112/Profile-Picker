@@ -146,37 +146,38 @@ class ProfileFragment : Fragment() {
         queue.add(tumbnailRequest)
     }
 
-    private fun getPostTumbnail(postId : Int , oldPosts : ArrayList<Post>)
-    {
+    private fun getPostTumbnail(postId: Int, oldPosts: ArrayList<Post>) {
         //매번 포스트에 대한 이미지리퀘스트를 날리는건 낭비가 심하니까
         //썸네일이 바뀌여야할때 이미지리퀘스트를 하고, 아니면 전에 썸네일을 그대로 쓴다.
         if (mPosts.isNotEmpty() && (mPosts.last().postInfo.postId != postId)) {
 
-            if(oldPosts.isEmpty())
-            {
+
+            //이전 포스트의 postId와 일치하는 포스트를 oldposts에서 찾는다.
+            val oldPost = getPostById(mPosts.last().postInfo.postId, oldPosts)
+            
+            //만약 oldPosts에 없으면 바로 리퀘스트
+            if (oldPost == null) {
                 val newTumbnailName = mPosts.last().getTumbnailPictureName()
                 requestPostTumbnail(newTumbnailName, mPosts.last())
             }
-            else
-            {
-                //이전 포스트의 postId와 일치하는 포스트를 oldposts에서 찾는다.
-                val oldPost = getPostById(mPosts.last().postInfo.postId, oldPosts)
-                oldPost?.let {
+            
+            //있으면 갱신해야되는지 확인후 갱신
+            oldPost?.let {
 
-                    //찾은 포스트의 썸네일
-                    val oldTumbnailName = it.getTumbnailPictureName()
-                    //현재 post의 썸네일
-                    val newTumbnailName = mPosts.last().getTumbnailPictureName()
+                //찾은 포스트의 썸네일
+                val oldTumbnailName = it.getTumbnailPictureName()
+                //현재 post의 썸네일
+                val newTumbnailName = mPosts.last().getTumbnailPictureName()
 
-                    //만약 두 썸네일이 다르다면(like가 갱신됬다면) 새로운 썸네일을 서버로 요청
-                    if (oldTumbnailName != newTumbnailName)
-                        requestPostTumbnail(newTumbnailName, mPosts.last())
-                    //같다면 예전꺼 그대로 씀
-                    else
-                        mPosts.last().tumbnail = it?.tumbnail
+                //만약 두 썸네일이 다르다면(like가 갱신됬다면) 새로운 썸네일을 서버로 요청
+                if (oldTumbnailName != newTumbnailName)
+                    requestPostTumbnail(newTumbnailName, mPosts.last())
+                //같다면 예전꺼 그대로 씀
+                else
+                    mPosts.last().tumbnail = it?.tumbnail
 
-                }
             }
+            
 
         }
     }
@@ -211,9 +212,9 @@ class ProfileFragment : Fragment() {
                         //포스트를 처음추가하거나, 새로운 포스트를 추가해야한다면 포스트 추가
                         if (mPosts.isEmpty() || mPosts.last().postInfo.postId != postId) {
                             mPosts.add(Post(null, PostInfo(title, date, viewCnt, postId, arrayListOf(MyPicture(null, file_name, path, likes)))))
-                            
+
                             //마지막 포스트 처리 (무조건 조건을 통과하기 위해 postId 에 -1값 줌.
-                            if(i == (it.length() - 1))
+                            if (i == (it.length() - 1))
                                 getPostTumbnail(-1, oldPosts)
 
                         }
