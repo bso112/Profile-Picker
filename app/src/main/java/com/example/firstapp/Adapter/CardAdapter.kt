@@ -110,14 +110,17 @@ class CardAdapter(context: Context, resourceID: Int) :
                             val writer = obj.getString("writer")
                             val picture = MyPicture(null, fileName, filePath, 0)
                             cardList.add(Card(postId, title, content, writer, arrayListOf(picture)))
-                        } else {
-                            //아니면 전에 추가한 포스트에 이미지정보만 추가 .. 할필요 없을듯?
-                            cardList.last().pictures.add(MyPicture(null, fileName, filePath, 0))
                         }
+//                        else {
+//                            //아니면 전에 추가한 포스트에 이미지정보만 추가 .. 할필요 없을듯?
+//                            cardList.last().pictures.add(MyPicture(null, fileName, filePath, 0))
+//                        }
                     }
                 }
 
-                //카드에 쓸 이미지 받아옴
+
+                //카드에 쓸 이미지를 사용자가 지정할수있게? 혹은 가장 like 많이 받은걸로?
+                //각 카드에 쓸 이미지 받아옴
                 for (card in cardList) {
                     if (null == card)
                         return@Listener
@@ -147,9 +150,6 @@ class CardAdapter(context: Context, resourceID: Int) :
                                 }
 
                             }
-
-
-
 
                             if (callback != null) {
                                 callback(card)

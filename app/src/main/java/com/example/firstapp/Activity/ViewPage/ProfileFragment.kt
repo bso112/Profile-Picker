@@ -1,20 +1,23 @@
 package com.example.firstapp.Activity.ViewPage
 
 
+import LoadingDialogFragment
 import android.content.Intent
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.android.volley.Request
 import com.android.volley.toolbox.ImageRequest
 import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.example.firstapp.Activity.Helper.VolleyHelper
+import com.example.firstapp.Activity.Helper.makeSimpleAlert
 import com.example.firstapp.Activity.LoginActivity
 import com.example.firstapp.Activity.StatisticActivity
 import com.example.firstapp.R
@@ -25,8 +28,6 @@ import com.example.firstapp.Default.MyPicture
 import com.example.firstapp.Default.Post
 import com.example.firstapp.Default.PostInfo
 import kotlinx.android.synthetic.main.frag_profile.*
-import java.io.Serializable
-
 
 
 class ProfileFragment : Fragment() {
@@ -66,7 +67,56 @@ class ProfileFragment : Fragment() {
 
         }
 
+        tv_profile_email.text = LoginActivity.mAccount?.email
+
+
+        btn_profile_logout.setOnClickListener {
+            makeSimpleAlert(
+                activity, "로그아웃", "로그아웃 하시겠습니까?",
+                { LoginActivity.mGoogleSignInClient?.signOut(); Intent(context, LoginActivity::class.java).apply { startActivity(this) }; }, null
+            )
+        }
+
+
+        tv_profile_withdrawal.setOnClickListener {
+            makeSimpleAlert(activity, "회원탈퇴", "회원탈퇴를 하시겠습니까? 모든 게시글은 삭제됩니다.",
+                {
+                    //Disconnect accounts ..? https://developers.google.com/identity/sign-in/android/disconnect
+                    activity?.let { _activity ->
+                        LoginActivity.mGoogleSignInClient?.revokeAccess()
+                            ?.addOnCompleteListener(_activity) { withdrawAccount() }
+                    }
+
+
+                })
+        }
+
     }
+
+    //회원탈퇴를 끝내고 로그인액티비티로 간다.
+    private fun withdrawAccount() {
+        val loadingDialog = LoadingDialogFragment()
+
+        val url = getString(R.string.urlToServer) + "withdrawAccount/${LoginActivity.mAccount?.email}"
+        val request = StringRequest(Request.Method.GET, url,
+            {
+                it?.let { Log.d("volley", it) }
+
+                loadingDialog.dismiss()
+
+                Toast.makeText(context, "탈퇴가 완료되었습니다.", Toast.LENGTH_SHORT)
+                Intent(context, LoginActivity::class.java).apply { startActivity(this) };
+
+
+            },
+            { it.message?.let { it1 -> Log.d("volley", it1) } })
+
+        context?.let { VolleyHelper.getInstance(it).addRequestQueue(request) }
+
+        activity?.supportFragmentManager?.let { loadingDialog.show(it, "다이어로그") }
+
+    }
+
 
     //내가 쓴 게시물 조회는 액티비티 보일때마다 매번해야됨.
     //게시물 상태가 수시로 달라질 수 있으니.(조회수, 좋아요 등..)
@@ -75,7 +125,8 @@ class ProfileFragment : Fragment() {
         getMyPosts()
     }
 
-    private fun getTumbnail(tumbnailName: String, post: Post) {
+
+    private fun requestPostTumbnail(tumbnailName: String, post: Post) {
 
         val queue = Volley.newRequestQueue(context)
 
@@ -95,7 +146,40 @@ class ProfileFragment : Fragment() {
         queue.add(tumbnailRequest)
     }
 
+    private fun getPostTumbnail(postId : Int , oldPosts : ArrayList<Post>)
+    {
+        //매번 포스트에 대한 이미지리퀘스트를 날리는건 낭비가 심하니까
+        //썸네일이 바뀌여야할때 이미지리퀘스트를 하고, 아니면 전에 썸네일을 그대로 쓴다.
+        if (mPosts.isNotEmpty() && (mPosts.last().postInfo.postId != postId)) {
 
+            if(oldPosts.isEmpty())
+            {
+                val newTumbnailName = mPosts.last().getTumbnailPictureName()
+                requestPostTumbnail(newTumbnailName, mPosts.last())
+            }
+            else
+            {
+                //이전 포스트의 postId와 일치하는 포스트를 oldposts에서 찾는다.
+                val oldPost = getPostById(mPosts.last().postInfo.postId, oldPosts)
+                oldPost?.let {
+
+                    //찾은 포스트의 썸네일
+                    val oldTumbnailName = it.getTumbnailPictureName()
+                    //현재 post의 썸네일
+                    val newTumbnailName = mPosts.last().getTumbnailPictureName()
+
+                    //만약 두 썸네일이 다르다면(like가 갱신됬다면) 새로운 썸네일을 서버로 요청
+                    if (oldTumbnailName != newTumbnailName)
+                        requestPostTumbnail(newTumbnailName, mPosts.last())
+                    //같다면 예전꺼 그대로 씀
+                    else
+                        mPosts.last().tumbnail = it?.tumbnail
+
+                }
+            }
+
+        }
+    }
 
 
     private fun getMyPosts() {
@@ -120,30 +204,18 @@ class ProfileFragment : Fragment() {
                         val likes = obj.getInt("likes")
                         val viewCnt = obj.getInt("view")
 
-                        //이전에 포스트를 추가한적이 있고, 만약 새로운 포스트를 추가해야하거나
-                        //이번에 추가하는게 마지막 사진이면 가장 많은 좋아요를 받은 사진을 썸네일으로 결정
-                        if ((mPosts.isNotEmpty() && mPosts.last().postInfo.postId != postId) || i == (it.length() - 1)) {
+                        //만약 이번에 새로운 포스트를 추가한다면, 우선 이전 포스트 썸네일을 결정한다.
+                        getPostTumbnail(postId, oldPosts)
 
-                            //방금 추가된 post와 같은 postId를 가진 post를 oldPosts에서 찾는다.
-                            val oldPost = getPostById(postId, oldPosts)
-
-                            //만약 oldPost가 비어있거나(처음 Post를 만들거나)
-                            //oldPost에서 썼던 썸네일과 현재 추가된 Post의 썸네일이 달라야한다면 서버에 썸네일을 요청한다.
-                            val oldTumbnailName = oldPost?.getTumbnailPictureName()
-                            val newTumbnailName = mPosts.last().getTumbnailPictureName()
-
-                            if (oldPosts.size <= 0 ||
-                                ((oldPost != null) && (oldTumbnailName != newTumbnailName))
-                            )
-                                getTumbnail(newTumbnailName, mPosts.last())
-                            else
-                                mPosts.last().tumbnail = oldPost?.tumbnail
-                        }
 
                         //포스트를 처음추가하거나, 새로운 포스트를 추가해야한다면 포스트 추가
                         if (mPosts.isEmpty() || mPosts.last().postInfo.postId != postId) {
-                            mPosts.add(
-                                Post(null, PostInfo(title, date, viewCnt, postId, arrayListOf(MyPicture(null, file_name, path, likes)))))
+                            mPosts.add(Post(null, PostInfo(title, date, viewCnt, postId, arrayListOf(MyPicture(null, file_name, path, likes)))))
+                            
+                            //마지막 포스트 처리 (무조건 조건을 통과하기 위해 postId 에 -1값 줌.
+                            if(i == (it.length() - 1))
+                                getPostTumbnail(-1, oldPosts)
+
                         }
                         //아니면 사진만 추가
                         else

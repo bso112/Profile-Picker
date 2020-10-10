@@ -1,7 +1,9 @@
 package com.example.firstapp.Activity
 
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.annotation.RequiresApi
 import androidx.core.content.res.ResourcesCompat
 import com.example.firstapp.R
 import com.example.firstapp.Adapter.ViewPageAdapter
@@ -44,6 +46,14 @@ class MainActivity : AppCompatActivity() {
             //탭 레이아웃에 메인페이저를 붙인다.(연동한다)
         }.attach()
 
+
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    override fun onBackPressed() {
+        finishAffinity();
+        System.runFinalization();
+        System.exit(0);
 
     }
 

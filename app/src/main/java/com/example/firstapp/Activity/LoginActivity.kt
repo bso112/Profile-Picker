@@ -2,14 +2,15 @@ package com.example.firstapp.Activity
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.example.firstapp.Default.EXTRA_USERNAME
 
 import com.example.firstapp.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -19,6 +20,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import kotlinx.android.synthetic.main.activity_login.*
+import kotlin.system.exitProcess
 
 
 /*
@@ -32,8 +34,29 @@ class LoginActivity : AppCompatActivity() {
 
     companion object {
         var mGoogleSignInClient: GoogleSignInClient? = null
-            private set
+        private set
         var mAccount: GoogleSignInAccount? = null
+        private set
+
+
+        //이미 로그인한적이 있는경우 이것만 부르면 로그인 정보를 셋팅할 수 있다.
+        fun setAccountInfo(activity: Activity)
+        {
+            // Configure sign-in to request the user's ID, email address, and basic
+            // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build()
+
+            // Build a GoogleSignInClient with the options specified by gso.
+            mGoogleSignInClient = GoogleSignIn.getClient(activity, gso);
+            mAccount = GoogleSignIn.getLastSignedInAccount(activity)
+        }
+
+        fun clearLoginInfo()
+        {
+            mAccount = null
+        }
 
     }
 
@@ -52,17 +75,24 @@ class LoginActivity : AppCompatActivity() {
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
+        sign_in_button.setOnClickListener { signIn() }
+
     }
+
 
     override fun onStart() {
         super.onStart()
-        // Check for existing Google Sign In account, if the user is already signed in
-        // the GoogleSignInAccount will be non-null.
+        //로그인이 이미 되어있는지 확인
         mAccount = GoogleSignIn.getLastSignedInAccount(this)
-        updateUI(mAccount)
+        mAccount?.let { onLoginSuccess(mAccount) } 
+        
+    }
 
-        signIn()
-        //sign_in_button.setOnClickListener { signIn() }
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    override fun onBackPressed() {
+        finishAffinity();
+        System.runFinalization();
+        exitProcess(0);
 
     }
 
@@ -79,12 +109,14 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateUI(account: GoogleSignInAccount?) {
+    private fun onLoginSuccess(account: GoogleSignInAccount?) {
 
         //로그인에 성공했다면
         if (null != account) {
+            //계정 저장
+            mAccount = account
             //main activity로 가기
-            val intent = Intent(this, LogoActivity::class.java)
+            val intent = Intent(this, MainActivity::class.java)
 
             startActivity(intent)
         }
@@ -102,12 +134,12 @@ class LoginActivity : AppCompatActivity() {
             //데이터베이스에 이메일 저장
             sendUserInfoToDB()
             // Signed in successfully, show authenticated UI.
-            updateUI(account)
+            onLoginSuccess(account)
         } catch (e: ApiException) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
             Log.w("MainActivity", "signInResult:failed code=" + e.statusCode)
-            updateUI(null)
+            onLoginSuccess(null)
             Toast.makeText(applicationContext, "로그인에 실패하였습니다!", Toast.LENGTH_SHORT).show()
 
         }
