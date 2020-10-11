@@ -23,11 +23,14 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.android.volley.Response
 import com.android.volley.toolbox.Volley
-import com.example.firstapp.R
 import com.example.firstapp.Adapter.UploadImgAdapter
+import com.example.firstapp.R
 import com.example.firstapp.VolleyMultipartRequest
+import com.theartofdev.edmodo.cropper.CropImage
+import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.android.synthetic.main.activity_upload_img.*
-import java.io.*
+import java.io.ByteArrayOutputStream
+import java.io.File
 
 //업로드가 끝나면 액티비티도 끝낸다.
 class UploadImgActivity : AppCompatActivity() {
@@ -55,10 +58,7 @@ class UploadImgActivity : AppCompatActivity() {
 
         tv_post_save.setOnClickListener { uploadPostToServer() }
 
-        mBitmapAdapter = UploadImgAdapter(
-            this,
-            R.layout.upload_img_item, mPictureArray
-        )
+        mBitmapAdapter = UploadImgAdapter(this, R.layout.upload_img_item, mPictureArray)
         gv_picture.adapter = mBitmapAdapter
     }
 
@@ -66,10 +66,18 @@ class UploadImgActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (resultCode != AppCompatActivity.RESULT_OK)
+        //region Error handling
+        if (resultCode != AppCompatActivity.RESULT_OK) {
+            if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+                val result = CropImage.getActivityResult(data)
+                val error = result.error
+                Log.d("UploadImg", error.toString())
+            }
             return;
+        }
+        //endregion
 
-        //이미캡쳐 리퀘스트였고, 그 결과가 성공이면
+        //카메라 리퀘스트
         if (requestCode === REQUEST_IMAGE_CAPTURE) {
             //데이터에서 번들을 뽑아내고, 번들에서 비트맵을 뽑아내서 iv_profile1에 적용한다.
             val extras: Bundle? = data?.extras
@@ -77,14 +85,18 @@ class UploadImgActivity : AppCompatActivity() {
             mPictureArray.add(MyBitmap("unnamed", bitmap))
             //  mPicture = getBitmapFromDataTest(data)
         } else if (requestCode == REQUEST_PICK_FROM_ALBUM) {
-            for (myBitmap in getBitmapFromData(data))
-                mPictureArray.add(myBitmap)
+
+//            for (myBitmap in getBitmapFromData(data))
+//                mPictureArray.add(myBitmap)
+            //이미지크롭 요청
+            launchImageCrop(data?.data)
+        } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            var result = CropImage.getActivityResult(data);
+            getBitmapFromUri(result.uri)?.let { mPictureArray.add(it) }
         }
 
         //픽쳐가 추가되었음을 알리고, 화면을 갱신하라고한다.
         mBitmapAdapter.notifyDataSetChanged()
-
-
     }
 
     private fun uploadPostToServer() {
@@ -112,7 +124,8 @@ class UploadImgActivity : AppCompatActivity() {
                 //key는 html form뷰의 name 항목. 즉, 파라미터가 되는듯
                 for (picture in mPictureArray) {
                     params.add(
-                        Pair("image", DataPart(picture.imgName, getFileDataFromDrawable(picture.bitmap), "image/webp")
+                        Pair(
+                            "image", DataPart(picture.imgName, getFileDataFromDrawable(picture.bitmap), "image/webp")
                         )
                     )
                 }
@@ -190,13 +203,22 @@ class UploadImgActivity : AppCompatActivity() {
 
     }
 
+    private fun launchImageCrop(uri: Uri?) {
+        CropImage.activity(uri).setGuidelines(CropImageView.Guidelines.ON)
+            .setCropShape(CropImageView.CropShape.RECTANGLE)
+            .setAspectRatio(10,13)
+            .setFixAspectRatio(true)
+            .setScaleType(CropImageView.ScaleType.CENTER_CROP)
+            .start(this)
+    }
+
     private fun pickPictureFromGallay() {
         //이미 퍼미션을 받았으면 바로 그냥 갤러리로
         Intent(ACTION_GET_CONTENT).let {
 //            it.type = Images.Media.CONTENT_TYPE
             it.type = "image/*"
-
-            it.putExtra(EXTRA_ALLOW_MULTIPLE, true)
+           // it.putExtra(EXTRA_ALLOW_MULTIPLE, true)
+            intent.putExtra("crop", true)
             startActivityForResult(createChooser(it, "Select Picture"), REQUEST_PICK_FROM_ALBUM)
         }
     }
@@ -273,6 +295,27 @@ class UploadImgActivity : AppCompatActivity() {
                 }
             }
         }
+        return result
+    }
+
+    private fun getBitmapFromUri(uri: Uri): MyBitmap? {
+
+        var result: MyBitmap? = null
+
+        val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val source = ImageDecoder.createSource(contentResolver, uri)
+            ImageDecoder.decodeBitmap(source);
+        } else {
+            contentResolver.openInputStream(uri)?.use { inputStream ->
+                BitmapFactory.decodeStream(inputStream)
+            }
+        }
+
+        //비트맵이 만들어졌으면 저장
+        bitmap?.let {
+            result = MyBitmap(System.currentTimeMillis().toString(), it)
+        }
+
         return result
     }
 

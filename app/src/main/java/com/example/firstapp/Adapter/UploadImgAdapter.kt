@@ -15,8 +15,7 @@ class UploadImgAdapter(context : Context, resourceID : Int, bitmaps: ArrayList<M
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         var bitmap = getItem(position)
 
-        val cardView: View =
-            LayoutInflater.from(context).inflate(R.layout.upload_img_item, parent, false)
+        val cardView: View = LayoutInflater.from(context).inflate(R.layout.upload_img_item, parent, false)
 
         cardView.iv_upload_picture.setImageBitmap(bitmap?.bitmap)
 
