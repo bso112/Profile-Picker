@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.example.firstapp.Activity.Helper.UtiliyHelper
 
 import com.example.firstapp.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -90,10 +91,7 @@ class LoginActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onBackPressed() {
-        finishAffinity();
-        System.runFinalization();
-        exitProcess(0);
-
+        UtiliyHelper.getInstance().exitApp(this)
     }
 
 

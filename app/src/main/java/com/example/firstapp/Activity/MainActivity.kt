@@ -13,8 +13,9 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.PopupMenu
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
+import com.example.firstapp.Activity.Helper.UtiliyHelper
 import com.example.firstapp.Activity.Helper.VolleyHelper
-import com.example.firstapp.Activity.Helper.makeSimpleAlert
+import com.example.firstapp.Activity.Helper.showSimpleAlert
 import com.example.firstapp.R
 import com.example.firstapp.Adapter.ViewPageAdapter
 import com.google.android.material.tabs.TabLayoutMediator
@@ -23,8 +24,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     private lateinit var viewPageAdapter : ViewPageAdapter
-    private var backBtnTimeInMillis : Long = 0
-    private var backBtnTimeDelay : Long = 2000
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +44,7 @@ class MainActivity : AppCompatActivity() {
         popup.setOnMenuItemClickListener{
            when(it?.itemId){
                 R.id.it_logout ->{
-                    makeSimpleAlert(this@MainActivity, "로그아웃", "로그아웃 하시겠습니까?",
+                    showSimpleAlert(this@MainActivity, "로그아웃", "로그아웃 하시겠습니까?",
                         {
                             LoginActivity.mGoogleSignInClient?.signOut();
                             Intent(this@MainActivity, LoginActivity::class.java).apply { startActivity(this) };
@@ -54,7 +53,7 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.it_withdraw->{
-                    makeSimpleAlert(this@MainActivity, "회원탈퇴", "회원탈퇴를 하시겠습니까? 모든 게시글은 삭제됩니다.",
+                    showSimpleAlert(this@MainActivity, "회원탈퇴", "회원탈퇴를 하시겠습니까? 모든 게시글은 삭제됩니다.",
                         {
                             //Disconnect accounts ..? https://developers.google.com/identity/sign-in/android/disconnect
                             LoginActivity.mGoogleSignInClient?.revokeAccess()
@@ -118,10 +117,7 @@ class MainActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onBackPressed() {
-        finishAffinity();
-        System.runFinalization();
-        System.exit(0);
-
+        UtiliyHelper.getInstance().exitApp(this)
     }
 
 }

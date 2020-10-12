@@ -15,6 +15,7 @@ import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.example.firstapp.Activity.Helper.VolleyHelper
+import com.example.firstapp.Activity.Helper.showSimpleAlert
 import com.example.firstapp.Activity.LoginActivity
 import com.example.firstapp.Activity.StatisticActivity
 import com.example.firstapp.Activity.UploadImgActivity
@@ -71,6 +72,7 @@ class ProfileFragment : Fragment() {
         //lv_myPosts의 아이템을 길게누르면 메뉴가 생성되며 onCreateContextMenu가 불림.
         registerForContextMenu(lv_myPosts)
 
+
     }
 
 
@@ -93,7 +95,7 @@ class ProfileFragment : Fragment() {
                 mSelectedPost?.let { it1 -> modifyPost(it1) }
             }
             R.id.it_remove ->{
-                mSelectedPost?.let { it1 -> deletePost(it1) }
+                showSimpleAlert(context, null, "정말로 삭제하시겠습니까?", {  mSelectedPost?.let { it1 -> deletePost(it1) }})
             }
         }
         return super.onContextItemSelected(item)
