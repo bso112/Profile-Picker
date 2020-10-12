@@ -9,6 +9,13 @@ data class CloneTest(var a: Int, var arr: ArrayList<Int>) {
 
 fun main() {
 
+    var v : Int = 0
+    System.out.println(++v)
+    System.out.println(++v)
+    System.out.println(++v)
+    System.out.println(++v)
+
+
     //for문 순회순서 테스트
     for (i in 0..10)
     {

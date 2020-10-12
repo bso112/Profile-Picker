@@ -10,13 +10,13 @@
     <RelativeLayout
         android:id="@+id/rv_profile"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="60dp"
         android:padding="10dp">
 
         <ImageView
             android:id="@+id/iv_profile_icon"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:background="@drawable/ic_baseline_face_24" />
 
         <TextView
@@ -41,20 +41,31 @@
             android:textSize="12sp" />
 
 
+
+        <ImageButton
+            android:id="@+id/ib_profile_create"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/circle"
+            android:backgroundTint="@color/DarkGray"
+            android:elevation="20dp"
+            android:src="@drawable/ic_baseline_add_24"
+            android:tint="@color/White" />
+
         <TextView
             android:id="@+id/tv_profile_withdrawal"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="회원탈퇴"
+            android:layout_height="0dp"
             android:layout_below="@+id/btn_profile_logout"
-            android:textSize="8sp"
             android:layout_alignRight="@+id/btn_profile_logout"
-            />
+            android:text="회원탈퇴"
+            android:textSize="8sp" />
 
         <Button
             android:id="@+id/btn_profile_logout"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_alignParentRight="true"
             android:text="로그아웃"
             android:textSize="15sp" />
@@ -70,19 +81,38 @@
         android:divider="@color/Transparent" />
 
 
-    <ImageButton
-        android:id="@+id/ib_profile_create"
-        android:layout_width="50dp"
+
+    <LinearLayout
+        android:id="@+id/ll_post_choice"
+        android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_alignParentRight="true"
+        android:orientation="horizontal"
+        android:elevation="15dp"
+        android:visibility="invisible"
         android:layout_alignParentBottom="true"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="20dp"
-        android:background="@drawable/circle"
-        android:backgroundTint="@color/DarkGray"
-        android:elevation="10dp"
-        android:src="@drawable/ic_baseline_add_24"
-        android:tint="@color/White" />
+        android:gravity="center"
+        android:background="@color/Gray"
+        >
+
+        <TextView
+            android:id="@+id/tv_profile_modify"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="수정하기"
+            android:textSize="20sp"
+            android:textColor="@color/Black" />
+
+        <TextView
+            android:id="@+id/tv_profile_delete"
+            android:layout_marginLeft="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="삭제하기"
+            android:textSize="20dp"
+            android:textColor="@color/Black" />
+
+    </LinearLayout>
+
 
 
 </RelativeLayout>

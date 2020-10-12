@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -11,11 +12,11 @@
         android:id="@+id/cv_swipe"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintDimensionRatio="1:1"
         android:layout_margin="5dp"
         app:cardCornerRadius="20dp"
         app:cardElevation="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -28,7 +29,25 @@
             android:scaleType="centerCrop"
             android:src="@drawable/face_ratio_1" />
 
-
     </androidx.cardview.widget.CardView>
+
+    <ImageButton
+        android:id="@+id/btn_upload_cancel"
+        android:layout_width="30dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="1:1"
+        android:background="@drawable/ic_baseline_cancel_24"
+        android:backgroundTint="@color/Black"
+        android:elevation="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/cv_swipe"
+        app:layout_constraintVertical_bias="0.0"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

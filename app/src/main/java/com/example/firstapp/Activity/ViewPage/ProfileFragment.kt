@@ -2,12 +2,16 @@ package com.example.firstapp.Activity.ViewPage
 
 
 import LoadingDialogFragment
+import android.app.Activity.RESULT_OK
 import android.content.Intent
+import android.graphics.PorterDuff
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -23,17 +27,16 @@ import com.example.firstapp.Activity.StatisticActivity
 import com.example.firstapp.R
 import com.example.firstapp.Activity.UploadImgActivity
 import com.example.firstapp.Adapter.MyPostAdapter
-import com.example.firstapp.Default.EXTRA_POSTINFO
-import com.example.firstapp.Default.MyPicture
-import com.example.firstapp.Default.Post
-import com.example.firstapp.Default.PostInfo
+import com.example.firstapp.Default.*
 import kotlinx.android.synthetic.main.frag_profile.*
+import kotlinx.android.synthetic.main.mypost_item.view.*
 
 
 class ProfileFragment : Fragment() {
 
     private lateinit var mPostAdapter: MyPostAdapter
     private val mPosts = ArrayList<Post>()
+    private var mSelectedPost: Post? = null
 
     //뷰를 생성할때
     override fun onCreateView(
@@ -91,7 +94,62 @@ class ProfileFragment : Fragment() {
                 })
         }
 
+
+        lv_myPosts.setOnItemLongClickListener { parent, view, position, id ->
+            val anim = AnimationUtils.loadAnimation(context, R.anim.anim_show_up)
+            ll_post_choice.startAnimation(anim)
+            ll_post_choice.visibility = View.VISIBLE
+            mSelectedPost = lv_myPosts.getItemAtPosition(position) as? Post
+            view.cv_post?.foreground?.setColorFilter(resources.getColor(R.color.Black_alpha), PorterDuff.Mode.SRC_IN)
+            return@setOnItemLongClickListener true
+        }
+
+        val animListener = object : Animation.AnimationListener {
+            override fun onAnimationRepeat(animation: Animation?) {}
+            override fun onAnimationStart(animation: Animation?) {}
+            override fun onAnimationEnd(animation: Animation?) {
+                ll_post_choice.visibility = View.INVISIBLE
+            }
+
+        }
+
+        tv_profile_modify.setOnClickListener {
+            val anim = AnimationUtils.loadAnimation(context, R.anim.anim_hide_down)
+            anim.setAnimationListener(animListener)
+            ll_post_choice.startAnimation(anim)
+            mSelectedPost?.let { it1 -> modifyPost(it1) }
+        }
+
+        tv_profile_delete.setOnClickListener {
+            val anim = AnimationUtils.loadAnimation(context, R.anim.anim_hide_down)
+            anim.setAnimationListener(animListener)
+            ll_post_choice.startAnimation(anim)
+            //경고창 띄우기
+
+
+            mSelectedPost?.let { it1 -> deletePost(it1) }
+        }
     }
+
+
+    private fun deletePost(post: Post) {
+        val url = getString(R.string.urlToServer) + "deletePost/${post.postInfo.postId}"
+        val request = StringRequest(Request.Method.GET, url, {
+            Toast.makeText(context, "삭제되었습니다.", Toast.LENGTH_SHORT)
+            refreshView()
+        }, null)
+
+        context?.let { VolleyHelper.getInstance(it).addRequestQueue(request) }
+    }
+
+
+    private fun modifyPost(post: Post) {
+        Intent(context, UploadImgActivity::class.java).apply {
+            putExtra(EXTRA_POSTID, post.postInfo.postId)
+            startActivity(this)
+        }
+    }
+
 
     //회원탈퇴를 끝내고 로그인액티비티로 간다.
     private fun withdrawAccount() {
@@ -122,7 +180,7 @@ class ProfileFragment : Fragment() {
     //게시물 상태가 수시로 달라질 수 있으니.(조회수, 좋아요 등..)
     override fun onStart() {
         super.onStart()
-        getMyPosts()
+        refreshView()
     }
 
 
@@ -133,7 +191,9 @@ class ProfileFragment : Fragment() {
         val url = getString(R.string.urlToServer) + "getImage/${tumbnailName}"
 
         val tumbnailRequest = ImageRequest(url, {
-            it?.let { bitmap -> post.tumbnail = it }
+            it?.let { bitmap ->
+                post.tumbnail = it
+            }
             //썸네일을 적용해서 어댑터뷰를 다시그린다.
             mPostAdapter.notifyDataSetChanged()
             lv_myPosts.adapter = mPostAdapter
@@ -146,44 +206,42 @@ class ProfileFragment : Fragment() {
         queue.add(tumbnailRequest)
     }
 
-    private fun getPostTumbnail(postId: Int, oldPosts: ArrayList<Post>) {
+    private fun getPostTumbnail(oldPosts: ArrayList<Post>) {
+
         //매번 포스트에 대한 이미지리퀘스트를 날리는건 낭비가 심하니까
         //썸네일이 바뀌여야할때 이미지리퀘스트를 하고, 아니면 전에 썸네일을 그대로 쓴다.
-        if (mPosts.isNotEmpty() && (mPosts.last().postInfo.postId != postId)) {
 
+        //이전 포스트의 postId와 일치하는 포스트를 oldposts에서 찾는다.
+        val oldPost = getPostById(mPosts.last().postInfo.postId, oldPosts)
 
-            //이전 포스트의 postId와 일치하는 포스트를 oldposts에서 찾는다.
-            val oldPost = getPostById(mPosts.last().postInfo.postId, oldPosts)
-            
-            //만약 oldPosts에 없으면 바로 리퀘스트
-            if (oldPost == null) {
-                val newTumbnailName = mPosts.last().getTumbnailPictureName()
+        //만약 oldPosts에 없으면 바로 리퀘스트
+        if (oldPost == null) {
+            val newTumbnailName = mPosts.last().getTumbnailPictureName()
+            requestPostTumbnail(newTumbnailName, mPosts.last())
+        }
+
+        //있으면 갱신해야되는지 확인후 갱신
+        oldPost?.let {
+
+            //찾은 포스트의 썸네일
+            val oldTumbnailName = it.getTumbnailPictureName()
+            //현재 post의 썸네일
+            val newTumbnailName = mPosts.last().getTumbnailPictureName()
+
+            //만약 두 썸네일이 다르다면(like가 갱신됬다면) 새로운 썸네일을 서버로 요청
+            if (oldTumbnailName != newTumbnailName)
                 requestPostTumbnail(newTumbnailName, mPosts.last())
-            }
-            
-            //있으면 갱신해야되는지 확인후 갱신
-            oldPost?.let {
-
-                //찾은 포스트의 썸네일
-                val oldTumbnailName = it.getTumbnailPictureName()
-                //현재 post의 썸네일
-                val newTumbnailName = mPosts.last().getTumbnailPictureName()
-
-                //만약 두 썸네일이 다르다면(like가 갱신됬다면) 새로운 썸네일을 서버로 요청
-                if (oldTumbnailName != newTumbnailName)
-                    requestPostTumbnail(newTumbnailName, mPosts.last())
-                //같다면 예전꺼 그대로 씀
-                else
-                    mPosts.last().tumbnail = it?.tumbnail
-
-            }
-            
+            //같다면 예전꺼 그대로 씀
+            else
+                mPosts.last().tumbnail = it?.tumbnail
 
         }
+
+
     }
 
 
-    private fun getMyPosts() {
+    private fun refreshView() {
 
         //갱신하기 전의 포스트들
         val oldPosts = ArrayList<Post>(mPosts)
@@ -206,21 +264,22 @@ class ProfileFragment : Fragment() {
                         val viewCnt = obj.getInt("view")
 
                         //만약 이번에 새로운 포스트를 추가한다면, 우선 이전 포스트 썸네일을 결정한다.
-                        getPostTumbnail(postId, oldPosts)
+                        if (mPosts.isNotEmpty() && (mPosts.last().postInfo.postId != postId))
+                            getPostTumbnail(oldPosts)
 
 
                         //포스트를 처음추가하거나, 새로운 포스트를 추가해야한다면 포스트 추가
                         if (mPosts.isEmpty() || mPosts.last().postInfo.postId != postId) {
                             mPosts.add(Post(null, PostInfo(title, date, viewCnt, postId, arrayListOf(MyPicture(null, file_name, path, likes)))))
 
-                            //마지막 포스트 처리 (무조건 조건을 통과하기 위해 postId 에 -1값 줌.
-                            if (i == (it.length() - 1))
-                                getPostTumbnail(-1, oldPosts)
-
                         }
                         //아니면 사진만 추가
                         else
                             mPosts.last().postInfo.myPictures.add(MyPicture(null, file_name, path, likes))
+
+                        //마지막 포스트 처리
+                        if (i == (it.length() - 1))
+                            getPostTumbnail(oldPosts)
 
 
                     }

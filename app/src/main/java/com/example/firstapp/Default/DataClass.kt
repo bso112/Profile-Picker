@@ -46,11 +46,17 @@ data class MyPicture(var bitmap: Bitmap?, val file_name: String, val path: Strin
 //Picture를 포함하니 Picture도 Serializable이여야한다.
 data class PostInfo(
     val title: String = "", val date: String = "", val viewCnt: Int = 0,
-    val postId: Int = 0, var myPictures: ArrayList<MyPicture> = ArrayList()
+    var postId: Int = 0, var myPictures: ArrayList<MyPicture> = ArrayList(),
+    var content: String = "", var writer: String = ""
 ) : Serializable {
+
+    var mOnInitialized : (() -> Unit)? = null
 
     constructor(other: PostInfo) : this(
         other.title
         , other.date, other.viewCnt, other.postId, ArrayList<MyPicture>(other.myPictures)
     )
+
+
+
 }

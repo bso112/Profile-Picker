@@ -33,6 +33,7 @@ class MyPostAdapter(context: Context, resource: Int, val posts: ArrayList<Post>)
         view.tv_post_like.text = stringLikes
         view.iv_post_tumbnail.setImageBitmap(post?.tumbnail)
 
+
         return view
     }
 

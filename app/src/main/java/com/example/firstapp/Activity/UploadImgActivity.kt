@@ -2,6 +2,7 @@ package com.example.firstapp.Activity
 
 import LoadingDialogFragment
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.Intent.*
 import android.content.pm.PackageManager
@@ -23,14 +24,24 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.android.volley.Response
 import com.android.volley.toolbox.Volley
+import com.example.firstapp.Activity.Helper.VolleyHelper
 import com.example.firstapp.Adapter.UploadImgAdapter
+import com.example.firstapp.Default.EXTRA_POSTID
+import com.example.firstapp.Default.EXTRA_POSTINFO
+import com.example.firstapp.Default.PostInfo
 import com.example.firstapp.R
 import com.example.firstapp.VolleyMultipartRequest
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.android.synthetic.main.activity_upload_img.*
+import kotlinx.android.synthetic.main.mypost_item.*
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
+
+data class MyBitmap(val imgName: String, val bitmap: Bitmap)
 
 //업로드가 끝나면 액티비티도 끝낸다.
 class UploadImgActivity : AppCompatActivity() {
@@ -38,44 +49,67 @@ class UploadImgActivity : AppCompatActivity() {
     private val REQUEST_IMAGE_CAPTURE = 1
     private val REQUEST_PICK_FROM_ALBUM = 2
     private val REQUEST_PERMISSIONS = 3
-    private val mPictureArray: ArrayList<MyBitmap> = ArrayList<MyBitmap>()
+    private val mPictureArray: LinkedList<MyBitmap> = LinkedList<MyBitmap>()
     private lateinit var mBitmapAdapter: ArrayAdapter<MyBitmap>
 
+    /**
+     * 기존 게시글을 수정하는 중인가?
+     */
+    private var mIsModify: Boolean = false
+
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_upload_img)
-    }
 
-    @RequiresApi(Build.VERSION_CODES.M)
-    override fun onStart() {
-        super.onStart()
-        btn_post_addPicture.setOnClickListener {
+        btn_upload_addPicture.setOnClickListener {
             if (mPictureArray.size >= 5) {
                 Toast.makeText(this, "사진은 5장까지만 등록할 수 있습니다.", Toast.LENGTH_LONG).show()
             } else
                 dispatchGalleryIntent()
         }
 
-        tv_post_save.setOnClickListener { uploadPostToServer() }
+        tv_upload_save.setOnClickListener {
+            if (mIsModify)
+                uploadPostToServer(getString(R.string.urlToServer) + "updatePost/")
+            else
+                uploadPostToServer(getString(R.string.urlToServer) + "writePost/")
+        }
 
         mBitmapAdapter = UploadImgAdapter(this, R.layout.upload_img_item, mPictureArray)
-        gv_picture.adapter = mBitmapAdapter
+        gv_upload_picture.adapter = mBitmapAdapter
+
+
+        //내 게시물 수정시, 내 게시물 정보를 불러와서 표시해줌.
+        val postId = intent.getIntExtra(EXTRA_POSTID, -1)
+        if (postId >= 0) {
+            mIsModify = true
+
+            var postInfo: PostInfo = PostInfo()
+            VolleyHelper.getInstance(this).getPostInfo(postId, postInfo)
+            postInfo.mOnInitialized =
+                {
+                    et_upload_content.setText(postInfo.content)
+                    et_upload_title.setText(postInfo.title)
+                    mPictureArray.clear()
+                    for (picture in postInfo.myPictures)
+                        picture.bitmap?.let { MyBitmap(picture.file_name, it) }?.let { mPictureArray.add(it) }
+                    mBitmapAdapter.notifyDataSetChanged()
+                }
+
+        }
+
+
     }
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        //region Error handling
-        if (resultCode != AppCompatActivity.RESULT_OK) {
-            if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-                val result = CropImage.getActivityResult(data)
-                val error = result.error
-                Log.d("UploadImg", error.toString())
-            }
+        if (resultCode != RESULT_OK) {
             return;
         }
-        //endregion
+
 
         //카메라 리퀘스트
         if (requestCode === REQUEST_IMAGE_CAPTURE) {
@@ -99,17 +133,18 @@ class UploadImgActivity : AppCompatActivity() {
         mBitmapAdapter.notifyDataSetChanged()
     }
 
-    private fun uploadPostToServer() {
+    private fun uploadPostToServer(url: String) {
 
         //Loading Dialog
         val loadingDialog = LoadingDialogFragment()
 
         val volleyMultipartRequest: VolleyMultipartRequest = object : VolleyMultipartRequest(
-            Method.POST, getString(R.string.urlToServer) + "writePost/",
+            Method.POST, url,
             Response.Listener {
                 Toast.makeText(applicationContext, "게시물을 등록하였습니다.", Toast.LENGTH_LONG).show()
                 loadingDialog.dismiss();
                 finish();
+
             },
             Response.ErrorListener { error ->
                 Toast.makeText(applicationContext, error.message, Toast.LENGTH_LONG).show()
@@ -136,9 +171,10 @@ class UploadImgActivity : AppCompatActivity() {
             override fun getParams(): MutableMap<String, String> {
                 //map은 중복허용 안함. 주의!
                 val params: MutableMap<String, String> = HashMap()
-
-                params.put("content", et_post_content.text.toString())
-                params.put("title", et_post_title.text.toString())
+                if (mIsModify)
+                    params.put("postId", intent.getIntExtra(EXTRA_POSTID, -1).toString())
+                params.put("content", et_upload_content.text.toString())
+                params.put("title", et_upload_title.text.toString())
                 LoginActivity.mAccount?.email?.let {
                     params.put("email", it)
                 }
@@ -163,22 +199,6 @@ class UploadImgActivity : AppCompatActivity() {
         return byteArrayOutputStream.toByteArray()
     }
 
-    private fun dispatchTakePictureIntent() {
-        /*
-        카메라 기능이 있는 앱을 찾아서 실행시킨다.
-        만약, 그런 앱이 없는데  startActivity()를 호출하면 앱이 정지된다.
-        따라서 resolveActivity로 그 결과가 null인지 아닌지에 따라서 startActivity를 수행한다.
-         */
-        Intent(ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
-            //packageManager가 null이 아니면 수행하라.
-            packageManager?.let {
-                //resolveActivity 의 결과가 null이 아니면 수행하라.
-                takePictureIntent.resolveActivity(it)?.also {
-                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
-                }
-            }
-        }
-    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -206,9 +226,10 @@ class UploadImgActivity : AppCompatActivity() {
     private fun launchImageCrop(uri: Uri?) {
         CropImage.activity(uri).setGuidelines(CropImageView.Guidelines.ON)
             .setCropShape(CropImageView.CropShape.RECTANGLE)
-            .setAspectRatio(10,13)
+            .setAspectRatio(10, 13)
             .setFixAspectRatio(true)
             .setScaleType(CropImageView.ScaleType.CENTER_CROP)
+            .setAutoZoomEnabled(false)
             .start(this)
     }
 
@@ -217,7 +238,7 @@ class UploadImgActivity : AppCompatActivity() {
         Intent(ACTION_GET_CONTENT).let {
 //            it.type = Images.Media.CONTENT_TYPE
             it.type = "image/*"
-           // it.putExtra(EXTRA_ALLOW_MULTIPLE, true)
+            // it.putExtra(EXTRA_ALLOW_MULTIPLE, true)
             intent.putExtra("crop", true)
             startActivityForResult(createChooser(it, "Select Picture"), REQUEST_PICK_FROM_ALBUM)
         }
@@ -261,6 +282,46 @@ class UploadImgActivity : AppCompatActivity() {
 
     }
 
+    private fun getBitmapFromUri(uri: Uri): MyBitmap? {
+
+        var result: MyBitmap? = null
+
+        val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val source = ImageDecoder.createSource(contentResolver, uri)
+            ImageDecoder.decodeBitmap(source);
+        } else {
+            contentResolver.openInputStream(uri)?.use { inputStream ->
+                BitmapFactory.decodeStream(inputStream)
+            }
+        }
+
+        //비트맵이 만들어졌으면 저장
+        bitmap?.let {
+            result = MyBitmap(System.currentTimeMillis().toString(), it)
+        }
+
+        return result
+    }
+
+
+    private fun dispatchTakePictureIntent() {
+        /*
+        카메라 기능이 있는 앱을 찾아서 실행시킨다.
+        만약, 그런 앱이 없는데  startActivity()를 호출하면 앱이 정지된다.
+        따라서 resolveActivity로 그 결과가 null인지 아닌지에 따라서 startActivity를 수행한다.
+         */
+        Intent(ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+            //packageManager가 null이 아니면 수행하라.
+            packageManager?.let {
+                //resolveActivity 의 결과가 null이 아니면 수행하라.
+                takePictureIntent.resolveActivity(it)?.also {
+                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+                }
+            }
+        }
+    }
+
+
     private fun getBitmapFromData2(data: Intent?): ArrayList<MyBitmap> {
         var test = data?.data;
         val clipData = data?.clipData ?: return ArrayList<MyBitmap>()
@@ -295,27 +356,6 @@ class UploadImgActivity : AppCompatActivity() {
                 }
             }
         }
-        return result
-    }
-
-    private fun getBitmapFromUri(uri: Uri): MyBitmap? {
-
-        var result: MyBitmap? = null
-
-        val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            val source = ImageDecoder.createSource(contentResolver, uri)
-            ImageDecoder.decodeBitmap(source);
-        } else {
-            contentResolver.openInputStream(uri)?.use { inputStream ->
-                BitmapFactory.decodeStream(inputStream)
-            }
-        }
-
-        //비트맵이 만들어졌으면 저장
-        bitmap?.let {
-            result = MyBitmap(System.currentTimeMillis().toString(), it)
-        }
-
         return result
     }
 
@@ -358,4 +398,3 @@ class UploadImgActivity : AppCompatActivity() {
     }
 }
 
-data class MyBitmap(val imgName: String, val bitmap: Bitmap)

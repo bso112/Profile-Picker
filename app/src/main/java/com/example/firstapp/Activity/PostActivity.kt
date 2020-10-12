@@ -24,10 +24,11 @@ import com.example.firstapp.Default.MyPicture
 import kotlinx.android.synthetic.main.activity_post.*
 import kotlinx.android.synthetic.main.post_img_item.view.*
 
+//다른사람 게시물을 보여주는 액티비티
 class PostActivity : AppCompatActivity() {
 
     private var mCard: Card =
-        Card(-1, "","", "", ArrayList())
+        Card(-1, "", "", "", ArrayList())
     private var mSelected = ArrayList<Boolean>()
 
     private var mIsBusy: Boolean = false
@@ -152,12 +153,12 @@ class PostActivity : AppCompatActivity() {
                 }
 
 
+                var cnt = 0
                 //파싱한 데이터를 토대로 게시물의 이미지들을 리퀘스트. 받아왔으면 뷰에 셋팅
                 for (picture in mCard.pictures) {
                     val url = getString(R.string.urlToServer) + "getImage/" +
                             picture.file_name
 
-                    var cnt = 0
                     val imgRequest = ImageRequest(url,
                         { bitmap ->
                             picture.bitmap = bitmap
