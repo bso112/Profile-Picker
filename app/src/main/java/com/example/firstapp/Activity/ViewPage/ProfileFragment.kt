@@ -73,27 +73,6 @@ class ProfileFragment : Fragment() {
         tv_profile_email.text = LoginActivity.mAccount?.email
 
 
-        btn_profile_logout.setOnClickListener {
-            makeSimpleAlert(
-                activity, "로그아웃", "로그아웃 하시겠습니까?",
-                { LoginActivity.mGoogleSignInClient?.signOut(); Intent(context, LoginActivity::class.java).apply { startActivity(this) }; }, null
-            )
-        }
-
-
-        tv_profile_withdrawal.setOnClickListener {
-            makeSimpleAlert(activity, "회원탈퇴", "회원탈퇴를 하시겠습니까? 모든 게시글은 삭제됩니다.",
-                {
-                    //Disconnect accounts ..? https://developers.google.com/identity/sign-in/android/disconnect
-                    activity?.let { _activity ->
-                        LoginActivity.mGoogleSignInClient?.revokeAccess()
-                            ?.addOnCompleteListener(_activity) { withdrawAccount() }
-                    }
-
-
-                })
-        }
-
 
         lv_myPosts.setOnItemLongClickListener { parent, view, position, id ->
             val anim = AnimationUtils.loadAnimation(context, R.anim.anim_show_up)
@@ -151,29 +130,7 @@ class ProfileFragment : Fragment() {
     }
 
 
-    //회원탈퇴를 끝내고 로그인액티비티로 간다.
-    private fun withdrawAccount() {
-        val loadingDialog = LoadingDialogFragment()
 
-        val url = getString(R.string.urlToServer) + "withdrawAccount/${LoginActivity.mAccount?.email}"
-        val request = StringRequest(Request.Method.GET, url,
-            {
-                it?.let { Log.d("volley", it) }
-
-                loadingDialog.dismiss()
-
-                Toast.makeText(context, "탈퇴가 완료되었습니다.", Toast.LENGTH_SHORT)
-                Intent(context, LoginActivity::class.java).apply { startActivity(this) };
-
-
-            },
-            { it.message?.let { it1 -> Log.d("volley", it1) } })
-
-        context?.let { VolleyHelper.getInstance(it).addRequestQueue(request) }
-
-        activity?.supportFragmentManager?.let { loadingDialog.show(it, "다이어로그") }
-
-    }
 
 
     //내가 쓴 게시물 조회는 액티비티 보일때마다 매번해야됨.

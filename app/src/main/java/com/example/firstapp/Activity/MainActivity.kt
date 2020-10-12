@@ -1,10 +1,22 @@
 package com.example.firstapp.Activity
 
+import LoadingDialogFragment
+import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.res.ResourcesCompat
+import com.android.volley.Request
+import com.android.volley.toolbox.StringRequest
+import com.example.firstapp.Activity.Helper.VolleyHelper
+import com.example.firstapp.Activity.Helper.makeSimpleAlert
 import com.example.firstapp.R
 import com.example.firstapp.Adapter.ViewPageAdapter
 import com.google.android.material.tabs.TabLayoutMediator
@@ -24,7 +36,64 @@ class MainActivity : AppCompatActivity() {
 
         ready_UI()
 
+
     }
+
+    fun showPopup(v: View) {
+        val popup = PopupMenu(this, v)
+        val inflater: MenuInflater = popup.menuInflater
+        inflater.inflate(R.menu.main_menu, popup.menu)
+        popup.show()
+        popup.setOnMenuItemClickListener{
+           when(it?.itemId){
+                R.id.it_logout ->{
+                    makeSimpleAlert(this@MainActivity, "로그아웃", "로그아웃 하시겠습니까?",
+                        {
+                            LoginActivity.mGoogleSignInClient?.signOut();
+                            Intent(this@MainActivity, LoginActivity::class.java).apply { startActivity(this) };
+                        })
+
+                    true
+                }
+                R.id.it_withdraw->{
+                    makeSimpleAlert(this@MainActivity, "회원탈퇴", "회원탈퇴를 하시겠습니까? 모든 게시글은 삭제됩니다.",
+                        {
+                            //Disconnect accounts ..? https://developers.google.com/identity/sign-in/android/disconnect
+                            LoginActivity.mGoogleSignInClient?.revokeAccess()
+                                ?.addOnCompleteListener { withdrawAccount() }
+                        })
+                    true
+                }
+                else ->  false
+            }
+        }
+    }
+
+    //회원탈퇴 후 로그인액티비티로 간다.
+    private fun withdrawAccount() {
+        val loadingDialog = LoadingDialogFragment()
+
+        val url = getString(R.string.urlToServer) + "withdrawAccount/${LoginActivity.mAccount?.email}"
+        val request = StringRequest(
+            Request.Method.GET, url,
+            {
+                it?.let { Log.d("volley", it) }
+
+                loadingDialog.dismiss()
+
+                Toast.makeText(this, "탈퇴가 완료되었습니다.", Toast.LENGTH_SHORT)
+                Intent(this, LoginActivity::class.java).apply { startActivity(this) };
+
+
+            },
+            { it.message?.let { it1 -> Log.d("volley", it1) } })
+
+        VolleyHelper.getInstance(this).addRequestQueue(request)
+
+       loadingDialog.show(supportFragmentManager, "다이어로그")
+
+    }
+
 
     private fun ready_UI()
     {

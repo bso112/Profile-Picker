@@ -53,11 +53,13 @@
             android:layout_weight="1"/>
 
         <ImageButton
+            android:id="@+id/btn_main_menu"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:background="@drawable/ic_baseline_format_align_right_24"
             android:backgroundTint="@color/Black"
             android:layout_marginRight="8dp"
+            android:onClick="showPopup"
 
             />
     </LinearLayout>

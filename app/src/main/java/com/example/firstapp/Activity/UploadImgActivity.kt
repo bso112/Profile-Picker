@@ -226,8 +226,9 @@ class UploadImgActivity : AppCompatActivity() {
     private fun launchImageCrop(uri: Uri?) {
         CropImage.activity(uri).setGuidelines(CropImageView.Guidelines.ON)
             .setCropShape(CropImageView.CropShape.RECTANGLE)
-            .setAspectRatio(10, 13)
+            .setAspectRatio(1, 1)
             .setFixAspectRatio(true)
+            .setInitialCropWindowPaddingRatio(0.0F)
             .setScaleType(CropImageView.ScaleType.CENTER_CROP)
             .setAutoZoomEnabled(false)
             .start(this)

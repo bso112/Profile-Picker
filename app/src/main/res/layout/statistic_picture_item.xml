@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,40 +9,56 @@
 
     <ImageView
         android:id="@+id/iv_statistic_picture"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:foreground="@drawable/rounded_fg"
+        android:scaleType="centerCrop"
         android:src="@drawable/face"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5"
         />
 
+
     <TextView
-        android:layout_marginTop="90dp"
         android:id="@+id/tv_statistic_likes_persent"
+        style="@style/AudioFileInfoOverlayText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="80%"
         android:layout_gravity="center"
-        android:textColor="@color/White"
-        android:textStyle="bold"
-        style="@style/AudioFileInfoOverlayText"
-        android:textSize="40sp"
+        android:text="80%"
         android:textAlignment="center"
-        />
+        android:textColor="@color/White"
+        android:textSize="40sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_statistic_picture"
+        app:layout_constraintEnd_toEndOf="@+id/iv_statistic_picture"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="@+id/iv_statistic_picture"
+        app:layout_constraintTop_toTopOf="@+id/iv_statistic_picture"
+        app:layout_constraintVertical_bias="0.76" />
 
     <TextView
-        android:layout_marginTop="130dp"
-        android:layout_gravity="center"
         android:id="@+id/tv_statistic_likes_absolute"
+        style="@style/AudioFileInfoOverlayText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/tv_statistic_likes_persent"
+        android:layout_gravity="center"
         android:text="(123명)"
-        android:textColor="@color/White"
-        android:textStyle="bold"
-        style="@style/AudioFileInfoOverlayText"
         android:textAlignment="center"
-        android:textSize="30sp"/>
+        android:textColor="@color/White"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_statistic_picture"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/iv_statistic_picture"
+        app:layout_constraintTop_toBottomOf="@+id/tv_statistic_likes_persent"
+        app:layout_constraintVertical_bias="0.0" />
 
 
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
