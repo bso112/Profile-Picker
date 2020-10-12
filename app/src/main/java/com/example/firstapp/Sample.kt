@@ -1,6 +1,7 @@
 package com.example.firstapp
 
 import android.util.Log
+import org.json.JSONArray
 
 data class CloneTest(var a: Int, var arr: ArrayList<Int>) {
     constructor(other: CloneTest) : this(other.a, ArrayList(other.arr))
@@ -9,11 +10,12 @@ data class CloneTest(var a: Int, var arr: ArrayList<Int>) {
 
 fun main() {
 
-    var v : Int = 0
-    System.out.println(++v)
-    System.out.println(++v)
-    System.out.println(++v)
-    System.out.println(++v)
+
+    var likes = arrayListOf<Int>()
+    for(i in 0..5)
+        likes.add(i)
+
+    System.out.println(likes.toString())
 
 
     //for문 순회순서 테스트

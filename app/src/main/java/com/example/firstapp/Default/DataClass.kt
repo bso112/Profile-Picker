@@ -14,7 +14,7 @@ data class Card(
 
 
 class Post(var tumbnail: Bitmap?, var postInfo: PostInfo) {
-    public fun getTumbnailPictureName(): String {
+    fun getTumbnailPictureName(): String {
         var result = ""
         var maxLikes = -1
         for (picture in postInfo.myPictures) {
@@ -26,7 +26,15 @@ class Post(var tumbnail: Bitmap?, var postInfo: PostInfo) {
         return result
     }
 
-    public fun getTumbnailPicture(): MyPicture? {
+    fun getLikeSum() : Int
+    {
+        var likeSum = 0
+        for(picture in postInfo.myPictures)
+            likeSum += picture.likes
+        return likeSum
+    }
+
+    fun getTumbnailPicture(): MyPicture? {
         var result : MyPicture? = null
         var maxLikes = -1
         for (picture in postInfo.myPictures) {
@@ -45,7 +53,7 @@ data class MyPicture(var bitmap: Bitmap?, val file_name: String, val path: Strin
 
 //Picture를 포함하니 Picture도 Serializable이여야한다.
 data class PostInfo(
-    val title: String = "", val date: String = "", val viewCnt: Int = 0,
+    var title: String = "", val date: String = "", val viewCnt: Int = 0,
     var postId: Int = 0, var myPictures: ArrayList<MyPicture> = ArrayList(),
     var content: String = "", var writer: String = ""
 ) : Serializable {

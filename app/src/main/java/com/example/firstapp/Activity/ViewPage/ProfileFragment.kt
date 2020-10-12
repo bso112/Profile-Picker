@@ -1,17 +1,11 @@
 package com.example.firstapp.Activity.ViewPage
 
 
-import LoadingDialogFragment
-import android.app.Activity.RESULT_OK
 import android.content.Intent
-import android.graphics.PorterDuff
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
+import android.view.*
+import android.widget.AdapterView.AdapterContextMenuInfo
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -21,15 +15,13 @@ import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.example.firstapp.Activity.Helper.VolleyHelper
-import com.example.firstapp.Activity.Helper.makeSimpleAlert
 import com.example.firstapp.Activity.LoginActivity
 import com.example.firstapp.Activity.StatisticActivity
-import com.example.firstapp.R
 import com.example.firstapp.Activity.UploadImgActivity
 import com.example.firstapp.Adapter.MyPostAdapter
 import com.example.firstapp.Default.*
+import com.example.firstapp.R
 import kotlinx.android.synthetic.main.frag_profile.*
-import kotlinx.android.synthetic.main.mypost_item.view.*
 
 
 class ProfileFragment : Fragment() {
@@ -62,6 +54,7 @@ class ProfileFragment : Fragment() {
 
         //포스트 목록 클릭하면 통계 액티비티로
         lv_myPosts.setOnItemClickListener { parent, view, position, id ->
+
             Intent(context, StatisticActivity::class.java).apply {
                 if (position < mPosts.size)
                     putExtra(EXTRA_POSTINFO, mPosts[position].postInfo)
@@ -74,40 +67,37 @@ class ProfileFragment : Fragment() {
 
 
 
-        lv_myPosts.setOnItemLongClickListener { parent, view, position, id ->
-            val anim = AnimationUtils.loadAnimation(context, R.anim.anim_show_up)
-            ll_post_choice.startAnimation(anim)
-            ll_post_choice.visibility = View.VISIBLE
-            mSelectedPost = lv_myPosts.getItemAtPosition(position) as? Post
-            view.cv_post?.foreground?.setColorFilter(resources.getColor(R.color.Black_alpha), PorterDuff.Mode.SRC_IN)
-            return@setOnItemLongClickListener true
-        }
 
-        val animListener = object : Animation.AnimationListener {
-            override fun onAnimationRepeat(animation: Animation?) {}
-            override fun onAnimationStart(animation: Animation?) {}
-            override fun onAnimationEnd(animation: Animation?) {
-                ll_post_choice.visibility = View.INVISIBLE
+        //lv_myPosts의 아이템을 길게누르면 메뉴가 생성되며 onCreateContextMenu가 불림.
+        registerForContextMenu(lv_myPosts)
+
+    }
+
+
+    override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
+        super.onCreateContextMenu(menu, v, menuInfo)
+
+        val info = menuInfo as? AdapterContextMenuInfo
+        mSelectedPost = lv_myPosts.getItemAtPosition(info?.position ?: 0) as? Post
+
+        if(v.id == R.id.lv_myPosts)
+            activity?.menuInflater?.let { it.inflate(R.menu.menu_post, menu) }
+
+    }
+
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+
+        when(item.itemId)
+        {
+            R.id.it_modify -> {
+                mSelectedPost?.let { it1 -> modifyPost(it1) }
             }
-
+            R.id.it_remove ->{
+                mSelectedPost?.let { it1 -> deletePost(it1) }
+            }
         }
+        return super.onContextItemSelected(item)
 
-        tv_profile_modify.setOnClickListener {
-            val anim = AnimationUtils.loadAnimation(context, R.anim.anim_hide_down)
-            anim.setAnimationListener(animListener)
-            ll_post_choice.startAnimation(anim)
-            mSelectedPost?.let { it1 -> modifyPost(it1) }
-        }
-
-        tv_profile_delete.setOnClickListener {
-            val anim = AnimationUtils.loadAnimation(context, R.anim.anim_hide_down)
-            anim.setAnimationListener(animListener)
-            ll_post_choice.startAnimation(anim)
-            //경고창 띄우기
-
-
-            mSelectedPost?.let { it1 -> deletePost(it1) }
-        }
     }
 
 
@@ -128,9 +118,6 @@ class ProfileFragment : Fragment() {
             startActivity(this)
         }
     }
-
-
-
 
 
     //내가 쓴 게시물 조회는 액티비티 보일때마다 매번해야됨.

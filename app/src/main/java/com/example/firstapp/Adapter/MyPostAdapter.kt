@@ -24,8 +24,8 @@ class MyPostAdapter(context: Context, resource: Int, val posts: ArrayList<Post>)
         else
             view = LayoutInflater.from(context).inflate(R.layout.mypost_item, parent, false)
 
-        var likes = post?.getTumbnailPicture()?.likes ?: 0
-        var stringLikes = if(likes >= 1000) "${floor(likes / 100.0F) / 10.0F}K" else likes.toString()
+        var likeSum = post?.getLikeSum() ?: 0
+        var stringLikes = if(likeSum >= 1000) "${floor(likeSum / 100.0F) / 10.0F}K" else likeSum.toString()
 
 
         view.tv_post_date.text = post?.postInfo?.date?.substring(IntRange(0, 9))

@@ -152,7 +152,7 @@ class CardAdapter(context: Context, resourceID: Int) :
                             }
 
                             if (callback != null) {
-                                callback(card)
+                                callback(cardList.first())
                             }
                         }, 300, 800, ImageView.ScaleType.CENTER_CROP, Bitmap.Config.ARGB_8888,
                         { err ->

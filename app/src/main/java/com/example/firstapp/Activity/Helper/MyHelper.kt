@@ -2,10 +2,11 @@ package com.example.firstapp.Activity.Helper
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 
 
-fun makeSimpleAlert(activity: Activity?, title: String, message: String, onClickOk: () -> Unit, onClickCancle: (() -> Unit)? = null) {
-    val alertDialog: AlertDialog? = activity?.let {
+fun makeSimpleAlert(context: Context?, title: String, message: String, onClickOk: () -> Unit, onClickCancle: (() -> Unit)? = null) {
+    val alertDialog: AlertDialog? = context?.let {
         val builder = AlertDialog.Builder(it)
         builder.apply {
             setPositiveButton("확인") { dialog, which ->

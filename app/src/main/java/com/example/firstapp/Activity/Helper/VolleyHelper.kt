@@ -53,14 +53,17 @@ class VolleyHelper (val context : Context){
                     for (i in 0 until jsonArr.length()) {
                         val obj = jsonArr.getJSONObject(i);
                         val postId = obj.getInt("postId")
+                        val title = obj.getString("title")
                         val fileName = obj.getString("file_name")
                         val filePath = obj.getString("path")
                         val content = obj.getString("content")
                         val writer = obj.getString("writer")
+                        val likes = obj.getInt("likes")
+                        postInfo.title = title
                         postInfo.postId = postId
                         postInfo.content = content
                         postInfo.writer = writer
-                        postInfo.myPictures.add(MyPicture(null, fileName, filePath, 0))
+                        postInfo.myPictures.add(MyPicture(null, fileName, filePath, likes))
                     }
 
                 }

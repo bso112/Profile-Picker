@@ -28,6 +28,7 @@ import com.example.firstapp.Activity.Helper.VolleyHelper
 import com.example.firstapp.Adapter.UploadImgAdapter
 import com.example.firstapp.Default.EXTRA_POSTID
 import com.example.firstapp.Default.EXTRA_POSTINFO
+import com.example.firstapp.Default.MyPicture
 import com.example.firstapp.Default.PostInfo
 import com.example.firstapp.R
 import com.example.firstapp.VolleyMultipartRequest
@@ -35,6 +36,8 @@ import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.android.synthetic.main.activity_upload_img.*
 import kotlinx.android.synthetic.main.mypost_item.*
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.*
@@ -49,21 +52,41 @@ class UploadImgActivity : AppCompatActivity() {
     private val REQUEST_IMAGE_CAPTURE = 1
     private val REQUEST_PICK_FROM_ALBUM = 2
     private val REQUEST_PERMISSIONS = 3
-    private val mPictureArray: LinkedList<MyBitmap> = LinkedList<MyBitmap>()
-    private lateinit var mBitmapAdapter: ArrayAdapter<MyBitmap>
+    private lateinit var mBitmapAdapter: UploadImgAdapter
 
     /**
      * 기존 게시글을 수정하는 중인가?
      */
     private var mIsModify: Boolean = false
 
+    /**
+     * 기존 게시글 정보
+     */
+    private var mPostInfo: PostInfo = PostInfo()
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_upload_img)
 
+        //내 게시물 수정시, 내 게시물 정보를 불러와서 표시해줌.
+        val postId = intent.getIntExtra(EXTRA_POSTID, -1)
+        if (postId >= 0) {
+            mIsModify = true
+
+            VolleyHelper.getInstance(this).getPostInfo(postId, mPostInfo)
+            mPostInfo.mOnInitialized =
+                {
+                    et_upload_content.setText(mPostInfo.content)
+                    et_upload_title.setText(mPostInfo.title)
+                    mBitmapAdapter.notifyDataSetChanged()
+                }
+
+        }
+
+
+
         btn_upload_addPicture.setOnClickListener {
-            if (mPictureArray.size >= 5) {
+            if (mPostInfo.myPictures.size >= 5) {
                 Toast.makeText(this, "사진은 5장까지만 등록할 수 있습니다.", Toast.LENGTH_LONG).show()
             } else
                 dispatchGalleryIntent()
@@ -76,28 +99,10 @@ class UploadImgActivity : AppCompatActivity() {
                 uploadPostToServer(getString(R.string.urlToServer) + "writePost/")
         }
 
-        mBitmapAdapter = UploadImgAdapter(this, R.layout.upload_img_item, mPictureArray)
+        mBitmapAdapter = UploadImgAdapter(this, R.layout.upload_img_item, mPostInfo.myPictures)
         gv_upload_picture.adapter = mBitmapAdapter
 
 
-        //내 게시물 수정시, 내 게시물 정보를 불러와서 표시해줌.
-        val postId = intent.getIntExtra(EXTRA_POSTID, -1)
-        if (postId >= 0) {
-            mIsModify = true
-
-            var postInfo: PostInfo = PostInfo()
-            VolleyHelper.getInstance(this).getPostInfo(postId, postInfo)
-            postInfo.mOnInitialized =
-                {
-                    et_upload_content.setText(postInfo.content)
-                    et_upload_title.setText(postInfo.title)
-                    mPictureArray.clear()
-                    for (picture in postInfo.myPictures)
-                        picture.bitmap?.let { MyBitmap(picture.file_name, it) }?.let { mPictureArray.add(it) }
-                    mBitmapAdapter.notifyDataSetChanged()
-                }
-
-        }
 
 
     }
@@ -116,17 +121,16 @@ class UploadImgActivity : AppCompatActivity() {
             //데이터에서 번들을 뽑아내고, 번들에서 비트맵을 뽑아내서 iv_profile1에 적용한다.
             val extras: Bundle? = data?.extras
             val bitmap = extras?.get("data") as Bitmap
-            mPictureArray.add(MyBitmap("unnamed", bitmap))
-            //  mPicture = getBitmapFromDataTest(data)
-        } else if (requestCode == REQUEST_PICK_FROM_ALBUM) {
+            //임시
+            mPostInfo.myPictures.add(MyPicture(bitmap, "unnamed", "", 0))
 
-//            for (myBitmap in getBitmapFromData(data))
-//                mPictureArray.add(myBitmap)
+
+        } else if (requestCode == REQUEST_PICK_FROM_ALBUM) {
             //이미지크롭 요청
             launchImageCrop(data?.data)
         } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             var result = CropImage.getActivityResult(data);
-            getBitmapFromUri(result.uri)?.let { mPictureArray.add(it) }
+            getBitmapFromUri(result.uri)?.let { mPostInfo.myPictures.add(MyPicture(it, "", "", 0)) }
         }
 
         //픽쳐가 추가되었음을 알리고, 화면을 갱신하라고한다.
@@ -157,12 +161,9 @@ class UploadImgActivity : AppCompatActivity() {
                 val params = ArrayList<Pair<String, DataPart>>()
                 //모든 사진을 바이트배열로 변환해서 바디에 쓴다.
                 //key는 html form뷰의 name 항목. 즉, 파라미터가 되는듯
-                for (picture in mPictureArray) {
-                    params.add(
-                        Pair(
-                            "image", DataPart(picture.imgName, getFileDataFromDrawable(picture.bitmap), "image/webp")
-                        )
-                    )
+                for (picture in mPostInfo.myPictures) {
+                    params.add(Pair("image", DataPart(System.currentTimeMillis().toString(),
+                        picture.bitmap?.let { getFileDataFromDrawable(it) }, "image/webp")))
                 }
 
                 return params
@@ -171,8 +172,18 @@ class UploadImgActivity : AppCompatActivity() {
             override fun getParams(): MutableMap<String, String> {
                 //map은 중복허용 안함. 주의!
                 val params: MutableMap<String, String> = HashMap()
-                if (mIsModify)
-                    params.put("postId", intent.getIntExtra(EXTRA_POSTID, -1).toString())
+                //게시물 수정인경우 추가로 보낼 정보들
+                if (mIsModify) {
+                    mPostInfo?.let {
+                        params.put("postId", it.postId.toString())
+                        params.put("view", it.viewCnt.toString())
+
+                        var likes = arrayListOf<Int>()
+                        for(picture in it.myPictures)
+                            likes.add(picture.likes)
+                        params.put("likes", likes.toString())
+                    }
+                }
                 params.put("content", et_upload_content.text.toString())
                 params.put("title", et_upload_title.text.toString())
                 LoginActivity.mAccount?.email?.let {
@@ -283,10 +294,7 @@ class UploadImgActivity : AppCompatActivity() {
 
     }
 
-    private fun getBitmapFromUri(uri: Uri): MyBitmap? {
-
-        var result: MyBitmap? = null
-
+    private fun getBitmapFromUri(uri: Uri): Bitmap? {
         val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             val source = ImageDecoder.createSource(contentResolver, uri)
             ImageDecoder.decodeBitmap(source);
@@ -296,12 +304,8 @@ class UploadImgActivity : AppCompatActivity() {
             }
         }
 
-        //비트맵이 만들어졌으면 저장
-        bitmap?.let {
-            result = MyBitmap(System.currentTimeMillis().toString(), it)
-        }
 
-        return result
+        return bitmap
     }
 
 

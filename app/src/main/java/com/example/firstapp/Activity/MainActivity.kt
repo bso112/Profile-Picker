@@ -7,12 +7,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.content.res.ResourcesCompat
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.example.firstapp.Activity.Helper.VolleyHelper
@@ -42,7 +40,7 @@ class MainActivity : AppCompatActivity() {
     fun showPopup(v: View) {
         val popup = PopupMenu(this, v)
         val inflater: MenuInflater = popup.menuInflater
-        inflater.inflate(R.menu.main_menu, popup.menu)
+        inflater.inflate(R.menu.menu_main, popup.menu)
         popup.show()
         popup.setOnMenuItemClickListener{
            when(it?.itemId){
