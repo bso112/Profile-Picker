@@ -15,24 +15,12 @@
         android:layout_alignLeft="@id/tv_swipe_content"
         android:elevation="100dp"
         android:fontFamily="sans-serif"
-        android:maxLength="10"
+        android:maxLength="25"
         android:text="@string/lorem"
         android:textColor="@color/White"
-        android:textSize="40dp"
+        android:textSize="30dp"
         android:textStyle="bold"
         style="@style/AudioFileInfoOverlayText"/>
-
-<!--    <TextView-->
-<!--        android:id="@+id/tv_swipe_userName"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="@string/lorem"-->
-<!--        android:maxLength="10"-->
-<!--        android:layout_toRightOf="@id/tv_swipe_title"-->
-<!--        android:layout_alignBottom="@id/tv_swipe_title"-->
-<!--        android:elevation="100dp"-->
-<!--        android:textColor="@color/White"/>-->
-
 
     <TextView
         android:id="@+id/tv_swipe_content"
@@ -43,11 +31,49 @@
         android:layout_alignBottom="@id/cv_swipe"
         android:elevation="100dp"
         android:lineSpacingExtra="3dp"
+        android:maxLength="77"
         android:maxLines="3"
         android:textSize="15dp"
         android:text="@string/lorem"
         android:textColor="@color/White"
         style="@style/AudioFileInfoOverlayText"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_above="@id/tv_swipe_title"
+        android:layout_alignLeft="@id/tv_swipe_title"
+        android:elevation="10dp"
+        android:gravity="center"
+        >
+
+        <ImageView
+            android:id="@+id/iv_swipe_userIcon"
+            android:layout_height="20dp"
+            android:layout_width="20dp"
+            android:elevation="10dp"
+            android:tint="@color/Black"
+            android:src="@drawable/ic_baseline_face_24" />
+
+
+        <TextView
+            android:id="@+id/tv_swipe_userName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="@string/lorem"
+            android:maxLength="10"
+            android:elevation="100dp"
+            android:textSize="12sp"
+            android:textColor="@color/White"/>
+
+
+
+    </LinearLayout>
+
+
+
 
 
     <androidx.cardview.widget.CardView

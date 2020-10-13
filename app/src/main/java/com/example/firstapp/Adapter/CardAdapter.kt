@@ -53,13 +53,13 @@ class CardAdapter(context: Context, resourceID: Int) :
             view = LayoutInflater.from(context).inflate(R.layout.swipe_item, parent, false)
 
         if (card != null) {
+            //썸네일을 설정. pictures에는 하나의 사진밖에 없음.
             if (card.pictures.isNotEmpty())
                 view.swipImg?.setImageBitmap(card.pictures.first().bitmap)
 
             view.tv_swipe_title.text = card.title
             //view.tv_swipe_userName.text = card.writer
             view.tv_swipe_content.text = card.content
-
 
         }
 
@@ -77,7 +77,7 @@ class CardAdapter(context: Context, resourceID: Int) :
     /**
      * postCnt : 가져올 post 수
      */
-    public fun addCardData(postCnt: Int, callback: ((card: Card) -> Unit)? = null) {
+    public fun addCardData(postCnt: Int) {
 
         mIsBusy = true
 
@@ -111,15 +111,12 @@ class CardAdapter(context: Context, resourceID: Int) :
                             val picture = MyPicture(null, fileName, filePath, 0)
                             cardList.add(Card(postId, title, content, writer, arrayListOf(picture)))
                         }
-//                        else {
-//                            //아니면 전에 추가한 포스트에 이미지정보만 추가 .. 할필요 없을듯?
-//                            cardList.last().pictures.add(MyPicture(null, fileName, filePath, 0))
-//                        }
+
                     }
                 }
 
 
-                //카드에 쓸 이미지를 사용자가 지정할수있게? 혹은 가장 like 많이 받은걸로?
+                //카드에 쓸 이미지는 그냥 첫번째 이미지
                 //각 카드에 쓸 이미지 받아옴
                 for (card in cardList) {
                     if (null == card)
@@ -144,16 +141,10 @@ class CardAdapter(context: Context, resourceID: Int) :
                                 //만약 받았은 포스트의 수가 요청한 것보다 적으면 마지막 데이터셋이라는 뜻
                                 //그때는 mCardDataIndex를 0으로 돌린다.
                                 if(cardList.count() < postCnt)
-                                {
                                     mCardDataIndex = 0
-                                    Toast.makeText(context, "새로운 게시물이 없습니다. 이전 게시물을 표시합니다.", Toast.LENGTH_SHORT)
-                                }
 
                             }
 
-                            if (callback != null) {
-                                callback(cardList.first())
-                            }
                         }, 300, 800, ImageView.ScaleType.CENTER_CROP, Bitmap.Config.ARGB_8888,
                         { err ->
                             Log.e("volley", err.message ?: "err ocurr!")

@@ -2,9 +2,9 @@ package com.example.firstapp.Activity
 
 import LoadingDialogFragment
 import android.Manifest
-import android.app.Activity
 import android.content.Intent
-import android.content.Intent.*
+import android.content.Intent.ACTION_GET_CONTENT
+import android.content.Intent.createChooser
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Bitmap
@@ -17,18 +17,17 @@ import android.provider.MediaStore.ACTION_IMAGE_CAPTURE
 import android.provider.MediaStore.Images
 import android.util.Log
 import android.view.WindowManager
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.android.volley.Response
 import com.android.volley.toolbox.Volley
 import com.example.firstapp.Activity.Helper.VolleyHelper
 import com.example.firstapp.Adapter.UploadImgAdapter
 import com.example.firstapp.Default.EXTRA_POSTID
-import com.example.firstapp.Default.EXTRA_POSTINFO
 import com.example.firstapp.Default.MyPicture
 import com.example.firstapp.Default.PostInfo
 import com.example.firstapp.R
@@ -36,14 +35,8 @@ import com.example.firstapp.VolleyMultipartRequest
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.android.synthetic.main.activity_upload_img.*
-import kotlinx.android.synthetic.main.mypost_item.*
-import org.json.JSONArray
-import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 data class MyBitmap(val imgName: String, val bitmap: Bitmap)
 
@@ -53,7 +46,7 @@ class UploadImgActivity : AppCompatActivity() {
     private val REQUEST_IMAGE_CAPTURE = 1
     private val REQUEST_PICK_FROM_ALBUM = 2
     private val REQUEST_PERMISSIONS = 3
-    private lateinit var mBitmapAdapter: UploadImgAdapter
+    private lateinit var mUploadImgAdapter: UploadImgAdapter
 
     /**
      * 기존 게시글을 수정하는 중인가?
@@ -69,6 +62,11 @@ class UploadImgActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_upload_img)
 
+        mUploadImgAdapter = UploadImgAdapter(mPostInfo.myPictures, this)
+        gv_upload_picture.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        gv_upload_picture.adapter = mUploadImgAdapter
+
+
         //내 게시물 수정시, 내 게시물 정보를 불러와서 표시해줌.
         val postId = intent.getIntExtra(EXTRA_POSTID, -1)
         if (postId >= 0) {
@@ -79,11 +77,10 @@ class UploadImgActivity : AppCompatActivity() {
                 {
                     et_upload_content.setText(mPostInfo.content)
                     et_upload_title.setText(mPostInfo.title)
-                    mBitmapAdapter.notifyDataSetChanged()
+                    mUploadImgAdapter.notifyDataSetChanged()
                 }
 
         }
-
 
 
         btn_upload_addPicture.setOnClickListener {
@@ -100,8 +97,7 @@ class UploadImgActivity : AppCompatActivity() {
                 uploadPostToServer(getString(R.string.urlToServer) + "writePost/")
         }
 
-        mBitmapAdapter = UploadImgAdapter(this, R.layout.upload_img_item, mPostInfo.myPictures)
-        gv_upload_picture.adapter = mBitmapAdapter
+
 
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
@@ -135,7 +131,7 @@ class UploadImgActivity : AppCompatActivity() {
         }
 
         //픽쳐가 추가되었음을 알리고, 화면을 갱신하라고한다.
-        mBitmapAdapter.notifyDataSetChanged()
+        mUploadImgAdapter.notifyDataSetChanged()
     }
 
     private fun uploadPostToServer(url: String) {
@@ -401,6 +397,13 @@ class UploadImgActivity : AppCompatActivity() {
             }
         }
         return result
+    }
+
+
+    override fun onDestroy() {
+        //상호참조 끊기
+        mUploadImgAdapter.onDestroy()
+        super.onDestroy()
     }
 }
 

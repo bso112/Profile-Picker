@@ -23,7 +23,6 @@ import kotlinx.android.synthetic.main.frag_swipe.*
 class SwipeFragment : Fragment() {
 
     var REQUEST_VOTE = 0
-    var topCard: Card? = null
     lateinit var mCardAdapter: CardAdapter
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,7 +46,7 @@ class SwipeFragment : Fragment() {
         val btnAnim = AnimationUtils.loadAnimation(context!!, R.anim.anim_flinch)
         //게시물보기 버튼 눌렀을때
         btn_like.setOnClickListener {
-            topCard?.let {
+            mCardAdapter.getItem(0)?.let {
                 val intent = Intent(context, PostActivity::class.java).apply {
                     putExtra(EXTRA_POSTID, it.postId)
                 }
@@ -92,7 +91,7 @@ class SwipeFragment : Fragment() {
         //set the listener and the adapter
         swipeView.adapter = mCardAdapter
 
-        mCardAdapter.addCardData(resources.getInteger(R.integer.CardRequestAtOnce)) { card -> topCard = card }
+        mCardAdapter.addCardData(resources.getInteger(R.integer.CardRequestAtOnce))
 
         swipeView.setFlingListener(object : SwipeFlingAdapterView.onFlingListener {
 
@@ -101,9 +100,6 @@ class SwipeFragment : Fragment() {
                 Log.d("LIST", "removed object!")
 
                 mCardAdapter.removeCardAtFront()
-
-                if (!mCardAdapter.isEmpty())
-                    topCard = mCardAdapter.getItem(0)
 
 
                 /*
@@ -135,7 +131,7 @@ class SwipeFragment : Fragment() {
 
                 //남은 아이템수가 2이하일때
                 if (itemsInAdapter <= 2) {
-                    mCardAdapter.addCardData(resources.getInteger(R.integer.CardRequestAtOnce)) { card -> topCard = card }
+                    mCardAdapter.addCardData(resources.getInteger(R.integer.CardRequestAtOnce))
                 }
 
             }

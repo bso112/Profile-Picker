@@ -23,8 +23,7 @@ class PostImgAdapter(context: Context, resourceID: Int, bitmaps: ArrayList<MyPic
         if(convertView != null)
             view = convertView
         else
-            view =
-            LayoutInflater.from(context).inflate(R.layout.post_img_item, parent, false)
+            view = LayoutInflater.from(context).inflate(R.layout.post_img_item, parent, false)
 
         //mSelected를 참고해서 선택 이미지를 끄고킨다.
         if(mSelected.size > position)

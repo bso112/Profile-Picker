@@ -14,14 +14,14 @@
 
     <TextView
         android:id="@+id/tv_upload_save"
-        android:layout_width="50dp"
-        android:layout_height="30dp"
+        android:layout_width="60dp"
+        android:layout_height="40dp"
         android:layout_alignParentRight="true"
         android:textColor="@color/White"
         android:background="@drawable/rounded_corner_fg"
         android:backgroundTint="@color/Black"
         android:text="저장"
-        android:textSize="15dp"
+        android:textSize="20dp"
         android:gravity="center" />
 
     <EditText
@@ -32,7 +32,10 @@
         android:layout_marginTop="5dp"
         android:backgroundTint="@color/Black"
         android:hint="제목"
-        android:textSize="25dp" />
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:maxLength="25"
+        />
 
     <androidx.cardview.widget.CardView
         android:layout_marginRight="10dp"
@@ -51,9 +54,11 @@
             android:id="@+id/et_upload_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="본문"
+            android:hint="내용을 입력하세요"
             android:textColor="@color/Black"
-            android:textSize="15dp" />
+            android:textSize="15sp"
+            android:maxLength="77"
+            />
 
     </androidx.cardview.widget.CardView>
 
