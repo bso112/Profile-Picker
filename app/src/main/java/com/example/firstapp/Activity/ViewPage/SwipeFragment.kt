@@ -1,5 +1,6 @@
 package com.example.firstapp.Activity.ViewPage
 
+import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -21,6 +22,7 @@ import kotlinx.android.synthetic.main.frag_swipe.*
 
 class SwipeFragment : Fragment() {
 
+    var REQUEST_VOTE = 0
     var topCard: Card? = null
     lateinit var mCardAdapter: CardAdapter
     override fun onCreateView(
@@ -49,7 +51,7 @@ class SwipeFragment : Fragment() {
                 val intent = Intent(context, PostActivity::class.java).apply {
                     putExtra(EXTRA_POSTID, it.postId)
                 }
-                startActivity(intent)
+                startActivityForResult(intent, REQUEST_VOTE)
             }
             it.startAnimation(btnAnim)
         }
@@ -62,6 +64,16 @@ class SwipeFragment : Fragment() {
 
 
         readySwipeView()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if(resultCode != RESULT_OK)
+            return
+
+        if(requestCode == REQUEST_VOTE)
+            swipeView.topCardListener.selectLeft()
     }
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)

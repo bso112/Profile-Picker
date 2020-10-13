@@ -1,72 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Activity.UploadImgActivity"
-    android:padding="20dp">
+    >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp">
 
     <TextView
         android:id="@+id/tv_upload_save"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="50dp"
+        android:layout_height="30dp"
         android:layout_alignParentRight="true"
+        android:textColor="@color/White"
+        android:background="@drawable/rounded_corner_fg"
+        android:backgroundTint="@color/Black"
         android:text="저장"
-        android:textSize="25dp"
-        />
+        android:textSize="15dp"
+        android:gravity="center" />
 
     <EditText
         android:id="@+id/et_upload_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_upload_save"
+        android:layout_marginTop="5dp"
+        android:backgroundTint="@color/Black"
         android:hint="제목"
-        android:textSize="25dp"
-        android:layout_marginTop="15dp"
-        />
+        android:textSize="25dp" />
 
-    <EditText
-        android:id="@+id/et_upload_content"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <androidx.cardview.widget.CardView
+        android:layout_marginRight="10dp"
+        android:id="@+id/cv_upload_content"
         android:layout_below="@+id/et_upload_title"
-        android:textSize="15dp"
-        android:hint="본문"
-        android:layout_marginTop="10dp"
-        />
-
-    <TextView
-        android:id="@+id/tv_upload_picture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="사진첨부"
-        android:textSize="25dp"
-        android:layout_below="@id/et_upload_content"
-        android:layout_marginTop="15dp"/>
+        android:layout_marginTop = "10dp"
+        app:cardCornerRadius="30dp"
+        app:cardBackgroundColor="#80E8E7E7"
+        app:cardElevation="0dp"
+        >
+
+        <EditText
+            android:layout_margin="15dp"
+            android:id="@+id/et_upload_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="본문"
+            android:textColor="@color/Black"
+            android:textSize="15dp" />
+
+    </androidx.cardview.widget.CardView>
+
 
     <ImageButton
         android:id="@+id/btn_upload_addPicture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/tv_upload_picture"
-        android:src="@drawable/ic_insert_photo_black_24dp"
-        android:layout_alignParentRight="true"
-        />
+        android:layout_alignBottom="@id/tv_upload_save"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@drawable/ic_insert_photo_black_24dp"/>
 
-    <GridView
+
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/gv_upload_picture"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/tv_upload_picture"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/cv_upload_content"
         android:layout_marginTop="10dp"
-        android:numColumns="2"
-        >
-    </GridView>
+        android:scrollbars="horizontal"
+       />
 
 
 
+    </RelativeLayout>
 
 
-
-</RelativeLayout>
+</ScrollView>

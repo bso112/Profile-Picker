@@ -1,5 +1,6 @@
 package com.example.firstapp.Activity
 
+import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -43,6 +44,7 @@ class PostActivity : AppCompatActivity() {
         //처음에 안보이다가 하나 클릭하면 쓱 올라오게 하고싶음
         btn_vote.setOnClickListener {
             vote()
+            setResult(Activity.RESULT_OK)
             finish()
         }
 

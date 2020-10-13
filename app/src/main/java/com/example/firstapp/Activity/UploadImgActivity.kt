@@ -16,6 +16,7 @@ import android.os.Bundle
 import android.provider.MediaStore.ACTION_IMAGE_CAPTURE
 import android.provider.MediaStore.Images
 import android.util.Log
+import android.view.WindowManager
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -103,7 +104,7 @@ class UploadImgActivity : AppCompatActivity() {
         gv_upload_picture.adapter = mBitmapAdapter
 
 
-
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
     }
 
