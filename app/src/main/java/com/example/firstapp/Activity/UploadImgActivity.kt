@@ -15,6 +15,8 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore.ACTION_IMAGE_CAPTURE
 import android.provider.MediaStore.Images
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.WindowManager
 import android.widget.Toast
@@ -22,19 +24,19 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.android.volley.Response
 import com.android.volley.toolbox.Volley
 import com.example.firstapp.Activity.Helper.VolleyHelper
 import com.example.firstapp.Adapter.UploadImgAdapter
-import com.example.firstapp.Default.EXTRA_POSTID
-import com.example.firstapp.Default.MyPicture
-import com.example.firstapp.Default.PostInfo
+import com.example.firstapp.Default.*
 import com.example.firstapp.R
 import com.example.firstapp.VolleyMultipartRequest
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.android.synthetic.main.activity_upload_img.*
+import kotlinx.android.synthetic.main.activity_upload_img.view.*
 import java.io.ByteArrayOutputStream
 import java.io.File
 
@@ -57,6 +59,8 @@ class UploadImgActivity : AppCompatActivity() {
      * 기존 게시글 정보
      */
     private var mPostInfo: PostInfo = PostInfo()
+
+
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,16 +95,38 @@ class UploadImgActivity : AppCompatActivity() {
         }
 
         tv_upload_save.setOnClickListener {
+
+            if (mPostInfo.myPictures.isEmpty()) {
+                Toast.makeText(this, "사진을 하나 이상 등록하세요!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             if (mIsModify)
                 uploadPostToServer(getString(R.string.urlToServer) + "updatePost/")
             else
                 uploadPostToServer(getString(R.string.urlToServer) + "writePost/")
+
         }
 
 
 
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
+
+        var currTextCnt = if (mIsModify) mPostInfo.title.length else 0
+        tv_upload_titleCnt.text = "(${currTextCnt}/ ${MAX_TITLE_LENGTH})"
+        currTextCnt = if (mIsModify) mPostInfo.content.length else 0
+        tv_upload_contentCnt.text = "(${currTextCnt} / ${MAX_CONTENT_LENGTH})"
+
+        et_upload_title.addTextChangedListener {
+            tv_upload_titleCnt.text = "(${it?.length} / ${MAX_TITLE_LENGTH})"
+        }
+
+        et_upload_content.addTextChangedListener {
+            tv_upload_contentCnt.text = "(${it?.length} / ${MAX_CONTENT_LENGTH})"
+        }
+
 
     }
 
@@ -160,7 +186,10 @@ class UploadImgActivity : AppCompatActivity() {
                 //key는 html form뷰의 name 항목. 즉, 파라미터가 되는듯
                 for (picture in mPostInfo.myPictures) {
                     params.add(Pair("image", DataPart(System.currentTimeMillis().toString(),
-                        picture.bitmap?.let { getFileDataFromDrawable(it) }, "image/webp")))
+                        picture.bitmap?.let { getFileDataFromDrawable(it) }, "image/webp"
+                    )
+                    )
+                    )
                 }
 
                 return params
@@ -176,7 +205,7 @@ class UploadImgActivity : AppCompatActivity() {
                         params.put("view", it.viewCnt.toString())
 
                         var likes = arrayListOf<Int>()
-                        for(picture in it.myPictures)
+                        for (picture in it.myPictures)
                             likes.add(picture.likes)
                         params.put("likes", likes.toString())
                     }

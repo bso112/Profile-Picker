@@ -26,6 +26,9 @@ class UploadImgAdapter(private val mPictures: ArrayList<MyPicture>, private var 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layout: View = LayoutInflater.from(parent.context).inflate(R.layout.upload_img_item, parent, false)
 
+        // set the view's size, margins, paddings and layout parameters
+
+
         return ViewHolder(layout, layout.iv_upload_picture, layout.btn_upload_cancel)
     }
 
