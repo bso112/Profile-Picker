@@ -5,11 +5,12 @@ import java.io.Serializable
 
 
 data class Card(
-    var postId: Int,
-    var title : String,
-    var content: String,
-    var writer: String,
-    var pictures : ArrayList<MyPicture>
+    var postId: Int = 0,
+    var title : String = "",
+    var content: String = "",
+    var writer: String = "",
+    var pictures : ArrayList<MyPicture> = ArrayList<MyPicture>(),
+    var isAd : Boolean = false
 );
 
 

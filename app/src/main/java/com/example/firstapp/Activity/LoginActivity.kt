@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.example.firstapp.Activity.Helper.UtiliyHelper
+import com.example.firstapp.Helper.UtiliyHelper
 
 import com.example.firstapp.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -21,7 +21,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import kotlinx.android.synthetic.main.activity_login.*
-import kotlin.system.exitProcess
 
 
 /*

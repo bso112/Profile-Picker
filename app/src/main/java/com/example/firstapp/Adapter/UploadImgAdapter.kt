@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.firstapp.Activity.Helper.showSimpleAlert
+import com.example.firstapp.Helper.showSimpleAlert
 import com.example.firstapp.Default.MyPicture
 import com.example.firstapp.R
 import kotlinx.android.synthetic.main.upload_img_item.view.*
@@ -27,13 +27,12 @@ class UploadImgAdapter(private val mPictures: ArrayList<MyPicture>, private var 
         val layout: View = LayoutInflater.from(parent.context).inflate(R.layout.upload_img_item, parent, false)
 
         // set the view's size, margins, paddings and layout parameters
-
-
         return ViewHolder(layout, layout.iv_upload_picture, layout.btn_upload_cancel)
     }
 
     //스크롤시 화면을 벗어나있는 아이템이 화면에 보여야할때, 기존에 만들어둔 viewHolder를 가져와 데이터 바인딩후에 화면에 뿌려준다.
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+
 
         holder.iv_picture.setImageBitmap(mPictures[position].bitmap)
         holder.btn_cancel.setOnClickListener {

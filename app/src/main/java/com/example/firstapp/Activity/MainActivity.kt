@@ -3,33 +3,37 @@ package com.example.firstapp.Activity
 import LoadingDialogFragment
 import android.content.Intent
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuInflater
 import android.view.View
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
-import com.example.firstapp.Activity.Helper.UtiliyHelper
-import com.example.firstapp.Activity.Helper.VolleyHelper
-import com.example.firstapp.Activity.Helper.showSimpleAlert
-import com.example.firstapp.R
+import com.example.firstapp.Helper.VolleyHelper
+import com.example.firstapp.Helper.showSimpleAlert
 import com.example.firstapp.Adapter.ViewPageAdapter
+import com.example.firstapp.Helper.AdHelper
+import com.example.firstapp.Helper.UtiliyHelper
+import com.example.firstapp.R
+import com.google.android.gms.ads.MobileAds
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
 
+
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var viewPageAdapter : ViewPageAdapter
-
+    private lateinit var viewPageAdapter: ViewPageAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        MobileAds.initialize(this) { }
+
         ready_UI()
 
 
@@ -40,9 +44,9 @@ class MainActivity : AppCompatActivity() {
         val inflater: MenuInflater = popup.menuInflater
         inflater.inflate(R.menu.menu_main, popup.menu)
         popup.show()
-        popup.setOnMenuItemClickListener{
-           when(it?.itemId){
-                R.id.it_logout ->{
+        popup.setOnMenuItemClickListener {
+            when (it?.itemId) {
+                R.id.it_logout -> {
                     showSimpleAlert(this@MainActivity, "로그아웃", "로그아웃 하시겠습니까?",
                         {
                             LoginActivity.mGoogleSignInClient?.signOut();
@@ -51,7 +55,7 @@ class MainActivity : AppCompatActivity() {
 
                     true
                 }
-                R.id.it_withdraw->{
+                R.id.it_withdraw -> {
                     showSimpleAlert(this@MainActivity, "회원탈퇴", "회원탈퇴를 하시겠습니까? 모든 게시글은 삭제됩니다.",
                         {
                             //Disconnect accounts ..? https://developers.google.com/identity/sign-in/android/disconnect
@@ -60,7 +64,7 @@ class MainActivity : AppCompatActivity() {
                         })
                     true
                 }
-                else ->  false
+                else -> false
             }
         }
     }
@@ -86,24 +90,23 @@ class MainActivity : AppCompatActivity() {
 
         VolleyHelper.getInstance(this).addRequestQueue(request)
 
-       loadingDialog.show(supportFragmentManager, "다이어로그")
+        loadingDialog.show(supportFragmentManager, "다이어로그")
 
     }
 
 
-    private fun ready_UI()
-    {
+    private fun ready_UI() {
         viewPageAdapter = ViewPageAdapter(supportFragmentManager, lifecycle)
         mainPager.adapter = viewPageAdapter
 
         //TabLayoutMediator를 만들고, 그 임시객체를 이용해 tab의 제목가 아이콘을 동적으로 설정한뒤
         //탭 레이아웃에 메인페이저를 붙인다.(연동한다)
-        TabLayoutMediator(tabLayout, mainPager){ tab, position->
-            when(position){
-                0-> {
+        TabLayoutMediator(tabLayout, mainPager) { tab, position ->
+            when (position) {
+                0 -> {
                     tab.text = "둘러보기"
                 }
-                1->{
+                1 -> {
                     tab.text = "내정보"
                 }
 
@@ -118,6 +121,8 @@ class MainActivity : AppCompatActivity() {
     override fun onBackPressed() {
         UtiliyHelper.getInstance().exitApp(this)
     }
+
+
 
 }
 

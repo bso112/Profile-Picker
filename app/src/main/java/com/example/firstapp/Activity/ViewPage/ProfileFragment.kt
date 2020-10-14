@@ -14,8 +14,8 @@ import com.android.volley.toolbox.ImageRequest
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.example.firstapp.Activity.Helper.VolleyHelper
-import com.example.firstapp.Activity.Helper.showSimpleAlert
+import com.example.firstapp.Helper.VolleyHelper
+import com.example.firstapp.Helper.showSimpleAlert
 import com.example.firstapp.Activity.LoginActivity
 import com.example.firstapp.Activity.StatisticActivity
 import com.example.firstapp.Activity.UploadImgActivity

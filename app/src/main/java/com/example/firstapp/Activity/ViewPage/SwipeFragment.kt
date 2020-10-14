@@ -1,6 +1,7 @@
 package com.example.firstapp.Activity.ViewPage
 
 import android.app.Activity.RESULT_OK
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -14,8 +15,14 @@ import androidx.fragment.app.Fragment
 import com.example.firstapp.Adapter.CardAdapter
 import com.example.firstapp.Default.EXTRA_POSTID
 import com.example.firstapp.Activity.PostActivity
-import com.example.firstapp.Default.Card
+import com.example.firstapp.Helper.AdHelper
+import com.example.firstapp.Helper.UtiliyHelper
 import com.example.firstapp.R
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdLoader
+import com.google.android.gms.ads.VideoOptions
+import com.google.android.gms.ads.formats.NativeAdOptions
+import com.google.android.gms.ads.formats.UnifiedNativeAd
 import com.lorentzos.flingswipe.SwipeFlingAdapterView
 import kotlinx.android.synthetic.main.frag_swipe.*
 
@@ -24,6 +31,9 @@ class SwipeFragment : Fragment() {
 
     var REQUEST_VOTE = 0
     lateinit var mCardAdapter: CardAdapter
+
+    var mSwipeCnt = 0
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -55,10 +65,10 @@ class SwipeFragment : Fragment() {
             it.startAnimation(btnAnim)
         }
         btn_prv.setOnClickListener {
-            swipeView.topCardListener.selectLeft()
+            sv_swipeView.topCardListener.selectLeft()
         }
         btn_next.setOnClickListener {
-            swipeView.topCardListener.selectRight()
+            sv_swipeView.topCardListener.selectRight()
         }
 
 
@@ -72,8 +82,13 @@ class SwipeFragment : Fragment() {
             return
 
         if(requestCode == REQUEST_VOTE)
-            swipeView.topCardListener.selectLeft()
+            sv_swipeView.topCardListener.selectLeft()
     }
+
+
+
+
+
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     private fun readySwipeView() {
@@ -83,24 +98,30 @@ class SwipeFragment : Fragment() {
         }
 
         //craete cardAdapter
-        mCardAdapter = CardAdapter(
-            context!!,
-            R.layout.swipe_item
-        )
+        mCardAdapter = CardAdapter(context!!, R.layout.swipe_item) { sv_swipeView.topCardListener.selectLeft()}
 
         //set the listener and the adapter
-        swipeView.adapter = mCardAdapter
+        sv_swipeView.adapter = mCardAdapter
 
         mCardAdapter.addCardData(resources.getInteger(R.integer.CardRequestAtOnce))
 
-        swipeView.setFlingListener(object : SwipeFlingAdapterView.onFlingListener {
+        sv_swipeView.setFlingListener(object : SwipeFlingAdapterView.onFlingListener {
 
             override fun removeFirstObjectInAdapter() {
                 // this is the simplest way to delete an object from the Adapter (/AdapterView)
                 Log.d("LIST", "removed object!")
 
                 mCardAdapter.removeCardAtFront()
+                if(++mSwipeCnt > 8)
+                {
+                    mCardAdapter.loadAd()
 
+                    if(mSwipeCnt > 10)
+                    {
+                        mCardAdapter.addAdData()
+                        mSwipeCnt = 0
+                    }
+                }
 
                 /*
                 사진이 하나 remove됬을때 어댑터에게 그 사실을 알린다.
@@ -142,5 +163,10 @@ class SwipeFragment : Fragment() {
         })
     }
 
+
+    override fun onDestroy() {
+        mCardAdapter.onDestroy()
+        super.onDestroy()
+    }
 
 }

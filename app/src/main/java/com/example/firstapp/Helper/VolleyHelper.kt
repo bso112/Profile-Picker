@@ -1,4 +1,4 @@
-package com.example.firstapp.Activity.Helper
+package com.example.firstapp.Helper
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -12,7 +12,6 @@ import com.android.volley.Response
 import com.android.volley.toolbox.ImageRequest
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
-import com.example.firstapp.Default.EXTRA_POSTID
 import com.example.firstapp.Default.MyPicture
 import com.example.firstapp.Default.PostInfo
 import com.example.firstapp.R

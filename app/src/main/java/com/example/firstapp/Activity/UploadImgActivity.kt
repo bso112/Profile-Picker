@@ -15,8 +15,6 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore.ACTION_IMAGE_CAPTURE
 import android.provider.MediaStore.Images
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.WindowManager
 import android.widget.Toast
@@ -28,7 +26,7 @@ import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.android.volley.Response
 import com.android.volley.toolbox.Volley
-import com.example.firstapp.Activity.Helper.VolleyHelper
+import com.example.firstapp.Helper.VolleyHelper
 import com.example.firstapp.Adapter.UploadImgAdapter
 import com.example.firstapp.Default.*
 import com.example.firstapp.R
@@ -36,7 +34,6 @@ import com.example.firstapp.VolleyMultipartRequest
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.android.synthetic.main.activity_upload_img.*
-import kotlinx.android.synthetic.main.activity_upload_img.view.*
 import java.io.ByteArrayOutputStream
 import java.io.File
 

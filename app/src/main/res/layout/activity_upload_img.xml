@@ -38,7 +38,7 @@
             android:layout_below="@+id/tv_upload_save"
             android:layout_marginTop="5dp"
             android:backgroundTint="@color/Black"
-            android:hint="제목"
+            android:hint="카드에 표시할 제목"
             android:maxLength="25"
             android:textSize="20sp"
             android:textStyle="bold" />
