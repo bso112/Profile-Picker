@@ -17,13 +17,11 @@ import com.android.volley.toolbox.Volley
 import com.example.firstapp.Activity.LoginActivity
 import com.example.firstapp.Default.Card
 import com.example.firstapp.Default.MyPicture
-import com.example.firstapp.Helper.AdHelper
 import com.example.firstapp.R
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdLoader
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.VideoOptions
-import com.google.android.gms.ads.formats.MediaView
 import com.google.android.gms.ads.formats.NativeAdOptions
 import com.google.android.gms.ads.formats.UnifiedNativeAd
 import com.google.android.gms.ads.formats.UnifiedNativeAdView
@@ -53,31 +51,59 @@ class CardAdapter(context: Context, resourceID: Int, onAdClick : (()->Unit)? = n
         private set;
 
 
+    class ViewHolder(
+        val layout: View, val rl_swipeCard: RelativeLayout, val uv_ad: UnifiedNativeAdView,
+        val swipImg: ImageView, val tv_swipe_title: TextView, val tv_swipe_userName: TextView, val tv_swipe_content: TextView
+    )
+
+
     //getView는 view가 필요할때 즉, 화면에 view가 보여야할때 불린다.
     //view마다 불리기 때문에 여러번 불린다.
     //position 은 어떤 포지션이지?
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val card: Card? = getItem(position)
+
         var view: View
 
         if (null != convertView)
             view = convertView
         else
+        {
             view = LayoutInflater.from(context).inflate(R.layout.swipe_item, parent, false)
 
-        if (card != null) {
+            val newViewHolder = ViewHolder(view, view.rl_swipeCard, view.uv_ad, view.swipImg, view.tv_swipe_title, view.tv_swipe_userName, view.tv_swipe_content)
+            val adView = newViewHolder.uv_ad
+            // Set the media view.
+            adView.mediaView = adView.mv_ad
+            // Set other ad assets.
+            adView.headlineView = adView.tv_ad_headline
+            adView.bodyView = adView.tv_ad_body
+            adView.callToActionView = adView.btn_ad_learnMore
+            adView.iconView = adView.iv_ad_icon
+            adView.priceView = adView.tv_ad_price
+            adView.starRatingView = adView.rb_ad_stars
+            adView.storeView = adView.tv_ad_store
+            adView.advertiserView = adView.tv_ad_advertiser
+
+            view.tag = newViewHolder
+        }
+
+
+        val viewHolder = view.tag as? ViewHolder
+
+        if (card != null && viewHolder != null) {
             if (card.isAd)
             {
-                view.rl_swipeCard.visibility = View.INVISIBLE
-                view.uv_ad.visibility = View.VISIBLE
-                setCardAdData(view.uv_ad)
+                viewHolder.rl_swipeCard.visibility = View.INVISIBLE
+                viewHolder.uv_ad.visibility = View.VISIBLE
+                setCardAdData(viewHolder.uv_ad)
             }
             else
             {
-                view.rl_swipeCard.visibility = View.VISIBLE
-                view.uv_ad.visibility = View.INVISIBLE
-                setCardData(card!!, view)
+                viewHolder.rl_swipeCard.visibility = View.VISIBLE
+                viewHolder.uv_ad.visibility = View.INVISIBLE
+                setCardData(card, viewHolder)
             }
         }
 
@@ -87,14 +113,14 @@ class CardAdapter(context: Context, resourceID: Int, onAdClick : (()->Unit)? = n
     }
 
 
-    private fun setCardData(card: Card, view: View) {
+    private fun setCardData(card: Card, holder: ViewHolder) {
         //썸네일을 설정. pictures에는 하나의 사진밖에 없음.
         if (card.pictures.isNotEmpty())
-            view.swipImg?.setImageBitmap(card.pictures.first().bitmap)
+            holder.swipImg.setImageBitmap(card.pictures.first().bitmap)
 
-        view.tv_swipe_title.text = card.title
-        view.tv_swipe_userName.text = card.writer
-        view.tv_swipe_content.text = card.content
+        holder.tv_swipe_title.text = card.title
+        holder.tv_swipe_userName.text = card.writer
+        holder.tv_swipe_content.text = card.content
 
 
     }
@@ -244,24 +270,11 @@ class CardAdapter(context: Context, resourceID: Int, onAdClick : (()->Unit)? = n
     }
 
 
-    private fun setCardAdData(adView : UnifiedNativeAdView) {
+    private fun setCardAdData(adView: UnifiedNativeAdView) {
         // You must call destroy on old ads when you are done with them,
         // otherwise you will have a memory leak.
 
         val nativeAd: UnifiedNativeAd = mCurrentNativeAd ?: return
-
-        // Set the media view.
-        adView.mediaView = adView.findViewById(R.id.mv_ad)
-
-        // Set other ad assets.
-        adView.headlineView = adView.findViewById(R.id.tv_ad_headline)
-        adView.bodyView = adView.findViewById(R.id.tv_ad_body)
-        adView.callToActionView = adView.findViewById(R.id.btn_ad_learnMore)
-        adView.iconView = adView.findViewById(R.id.iv_ad_icon)
-        adView.priceView = adView.findViewById(R.id.tv_ad_price)
-        adView.starRatingView = adView.findViewById(R.id.rb_ad_stars)
-        adView.storeView = adView.findViewById(R.id.tv_ad_store)
-        adView.advertiserView = adView.findViewById(R.id.tv_ad_advertiser)
 
         // The headline and media content are guaranteed to be in every UnifiedNativeAd.
         (adView.headlineView as TextView).text = nativeAd.headline
