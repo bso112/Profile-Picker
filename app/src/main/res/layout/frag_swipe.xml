@@ -6,12 +6,20 @@
     android:weightSum="1">
 
 
-    <com.yuyakaido.android.cardstackview.CardStackView
-        android:id="@+id/sv_swipeView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.8"
-        />
+<!--    <com.yuyakaido.android.cardstackview.CardStackView-->
+<!--        android:id="@+id/sv_swipeView"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="0dp"-->
+<!--        android:layout_weight="0.8"-->
+<!--        />-->
+
+    <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.8"
+        android:id="@+id/sv_swipeView">
+
+    </androidx.recyclerview.widget.RecyclerView>
 
 
     <LinearLayout

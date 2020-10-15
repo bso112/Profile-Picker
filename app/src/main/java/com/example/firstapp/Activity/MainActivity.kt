@@ -16,7 +16,6 @@ import com.android.volley.toolbox.StringRequest
 import com.example.firstapp.Helper.VolleyHelper
 import com.example.firstapp.Helper.showSimpleAlert
 import com.example.firstapp.Adapter.ViewPageAdapter
-import com.example.firstapp.Helper.AdHelper
 import com.example.firstapp.Helper.UtiliyHelper
 import com.example.firstapp.R
 import com.google.android.gms.ads.MobileAds
@@ -26,7 +25,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var viewPageAdapter: ViewPageAdapter
+    private lateinit var mViewPageAdapter: ViewPageAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,12 +95,15 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun ready_UI() {
-        viewPageAdapter = ViewPageAdapter(supportFragmentManager, lifecycle)
-        mainPager.adapter = viewPageAdapter
+        mViewPageAdapter = ViewPageAdapter(supportFragmentManager, lifecycle)
+        vp_mainPager.adapter = mViewPageAdapter
+        //스와이프 비활성화
+        vp_mainPager.isUserInputEnabled = false
+
 
         //TabLayoutMediator를 만들고, 그 임시객체를 이용해 tab의 제목가 아이콘을 동적으로 설정한뒤
         //탭 레이아웃에 메인페이저를 붙인다.(연동한다)
-        TabLayoutMediator(tabLayout, mainPager) { tab, position ->
+        TabLayoutMediator(tabLayout, vp_mainPager) { tab, position ->
             when (position) {
                 0 -> {
                     tab.text = "둘러보기"

@@ -11,24 +11,27 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.firstapp.Adapter.CardAdapter
 import com.example.firstapp.Default.EXTRA_POSTID
 import com.example.firstapp.Activity.PostActivity
 import com.example.firstapp.R
-import com.yuyakaido.android.cardstackview.CardStackLayoutManager
-import com.yuyakaido.android.cardstackview.CardStackListener
-import com.yuyakaido.android.cardstackview.Direction
+import com.yuyakaido.android.cardstackview.*
+import kotlinx.android.synthetic.main.activity_upload_img.*
 import kotlinx.android.synthetic.main.frag_swipe.*
 import java.util.*
 
 
 class SwipeFragment : Fragment() {
 
-    var REQUEST_VOTE = 0
-    lateinit var mCardAdapter: CardAdapter
+    private var REQUEST_VOTE = 0
+    private  lateinit var mCardAdapter: CardAdapter
 
-    var mAdRequestCnt = 0
-    var mAdShowCnt = 0
+    private var mAdRequestCnt = 0
+    private var mAdShowCnt = 0
+    private lateinit var mSwipeLeftSetting : SwipeAnimationSetting
+    private lateinit var mSwipeRightSetting : SwipeAnimationSetting
+    private lateinit var mSwipeLayoutManager: CardStackLayoutManager
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,6 +48,7 @@ class SwipeFragment : Fragment() {
 
         readyFragementView()
     }
+
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     private fun readyFragementView() {
@@ -72,12 +76,28 @@ class SwipeFragment : Fragment() {
         btn_prv.setOnClickListener {
             if (mCardAdapter.isEmpty())
                 return@setOnClickListener
-            sv_swipeView.swipe()
+
+//            mSwipeLayoutManager.setSwipeAnimationSetting(mSwipeLeftSetting)
+//            sv_swipeView.swipe()
         }
         btn_next.setOnClickListener {
             if (mCardAdapter.isEmpty())
                 return@setOnClickListener
-            sv_swipeView.swipe()
+//            mSwipeLayoutManager.setSwipeAnimationSetting(mSwipeRightSetting)
+//            sv_swipeView.swipe()
+
+            mCardAdapter.removeCardAtFront()
+            ++mAdShowCnt
+            ++mAdRequestCnt
+            if (mAdRequestCnt >= 5) {
+                mCardAdapter.loadAd()
+                mAdRequestCnt = 0
+
+                if (mAdShowCnt >= 10) {
+                    mCardAdapter.addAdData()
+                    mAdShowCnt = 0
+                }
+            }
         }
 
 
@@ -89,8 +109,8 @@ class SwipeFragment : Fragment() {
         if (resultCode != RESULT_OK)
             return
 
-        if (requestCode == REQUEST_VOTE)
-            sv_swipeView.swipe()
+//        if (requestCode == REQUEST_VOTE)
+//            sv_swipeView.swipe()
     }
 
 
@@ -144,9 +164,14 @@ class SwipeFragment : Fragment() {
 
 
 
-        sv_swipeView.layoutManager = CardStackLayoutManager(context, cardListener)
+        mSwipeLeftSetting = SwipeAnimationSetting.Builder().setDirection(Direction.Left).build()
+        mSwipeRightSetting = SwipeAnimationSetting.Builder().setDirection(Direction.Right).build()
+
+        mSwipeLayoutManager = CardStackLayoutManager(context, cardListener)
+        //sv_swipeView.layoutManager = mSwipeLayoutManager
         mCardAdapter = CardAdapter(context!!, LinkedList()) { }
         sv_swipeView.adapter = mCardAdapter
+        sv_swipeView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 
         mCardAdapter.requestAndAddCardDatas(resources.getInteger(R.integer.CardRequestAtOnce))
 

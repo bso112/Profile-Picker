@@ -246,13 +246,6 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
 
                 mCurrentNativeAd?.destroy()
                 mCurrentNativeAd = ad
-//                //광고 로드가 완료되었을때
-//
-//                if(null == mCardAdView)
-//                    mCardAdView = LayoutInflater.from(context).inflate(R.layout.swipe_item, null) as UnifiedNativeAdView
-//
-//                //adView에 광고데이터 붙임
-//                populateUnifiedNativeAdView(ad, mCardAdView!!)
             }
             .withAdListener(object : AdListener() {
                 override fun onAdFailedToLoad(errorCode: Int) {
@@ -298,6 +291,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
             adView.bodyView.visibility = View.VISIBLE
             (adView.bodyView as TextView).text = nativeAd.body
         }
+
 
         if (nativeAd.callToAction == null) {
             adView.callToActionView.visibility = View.INVISIBLE
