@@ -56,6 +56,9 @@ class SwipeFragment : Fragment() {
         val btnAnim = AnimationUtils.loadAnimation(context!!, R.anim.anim_flinch)
         //게시물보기 버튼 눌렀을때
         btn_like.setOnClickListener {
+            if(mCardAdapter.isEmpty)
+                return@setOnClickListener
+
             mCardAdapter.getItem(0)?.let {
                 val intent = Intent(context, PostActivity::class.java).apply {
                     putExtra(EXTRA_POSTID, it.postId)
