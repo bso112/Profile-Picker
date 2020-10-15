@@ -77,27 +77,15 @@ class SwipeFragment : Fragment() {
             if (mCardAdapter.isEmpty())
                 return@setOnClickListener
 
-//            mSwipeLayoutManager.setSwipeAnimationSetting(mSwipeLeftSetting)
-//            sv_swipeView.swipe()
+            mSwipeLayoutManager.setSwipeAnimationSetting(mSwipeLeftSetting)
+            sv_swipeView.swipe()
         }
         btn_next.setOnClickListener {
             if (mCardAdapter.isEmpty())
                 return@setOnClickListener
-//            mSwipeLayoutManager.setSwipeAnimationSetting(mSwipeRightSetting)
-//            sv_swipeView.swipe()
+            mSwipeLayoutManager.setSwipeAnimationSetting(mSwipeRightSetting)
+            sv_swipeView.swipe()
 
-            mCardAdapter.removeCardAtFront()
-            ++mAdShowCnt
-            ++mAdRequestCnt
-            if (mAdRequestCnt >= 5) {
-                mCardAdapter.loadAd()
-                mAdRequestCnt = 0
-
-                if (mAdShowCnt >= 10) {
-                    mCardAdapter.addAdData()
-                    mAdShowCnt = 0
-                }
-            }
         }
 
 
@@ -109,8 +97,8 @@ class SwipeFragment : Fragment() {
         if (resultCode != RESULT_OK)
             return
 
-//        if (requestCode == REQUEST_VOTE)
-//            sv_swipeView.swipe()
+        if (requestCode == REQUEST_VOTE)
+            sv_swipeView.swipe()
     }
 
 
@@ -121,8 +109,6 @@ class SwipeFragment : Fragment() {
             return
         }
 
-        //craete cardAdapter
-        //mCardAdapter = CardAdapter(context!!, R.layout.swipe_item) { sv_swipeView.topCardListener.selectLeft()}
 
         val cardListener = object : CardStackListener {
             override fun onCardDisappeared(view: View?, position: Int) {
@@ -168,10 +154,10 @@ class SwipeFragment : Fragment() {
         mSwipeRightSetting = SwipeAnimationSetting.Builder().setDirection(Direction.Right).build()
 
         mSwipeLayoutManager = CardStackLayoutManager(context, cardListener)
-        //sv_swipeView.layoutManager = mSwipeLayoutManager
+        sv_swipeView.layoutManager = mSwipeLayoutManager
         mCardAdapter = CardAdapter(context!!, LinkedList()) { }
         sv_swipeView.adapter = mCardAdapter
-        sv_swipeView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+
 
         mCardAdapter.requestAndAddCardDatas(resources.getInteger(R.integer.CardRequestAtOnce))
 
