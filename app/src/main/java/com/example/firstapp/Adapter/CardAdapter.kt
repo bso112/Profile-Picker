@@ -2,21 +2,20 @@ package com.example.firstapp.Adapter
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.os.Build
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.annotation.RequiresApi
+import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.ImageRequest
 import com.android.volley.toolbox.JsonArrayRequest
-import com.android.volley.toolbox.Volley
 import com.example.firstapp.Activity.LoginActivity
 import com.example.firstapp.Default.Card
 import com.example.firstapp.Default.MyPicture
+import com.example.firstapp.Helper.VolleyHelper
 import com.example.firstapp.R
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdLoader
@@ -26,94 +25,80 @@ import com.google.android.gms.ads.formats.NativeAdOptions
 import com.google.android.gms.ads.formats.UnifiedNativeAd
 import com.google.android.gms.ads.formats.UnifiedNativeAdView
 import kotlinx.android.synthetic.main.swipe_item.view.*
+import java.util.*
+import kotlin.collections.ArrayList
 
-class CardAdapter(context: Context, resourceID: Int, onAdClick : (()->Unit)? = null) :
-    ArrayAdapter<Card>(context, resourceID) {
+class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>, onAdClick: (() -> Unit)? = null) :
+    RecyclerView.Adapter<CardAdapter.ViewHolder>() {
+
+    class ViewHolder(
+        val layout: View, val rl_swipeCard: RelativeLayout, val uv_ad: UnifiedNativeAdView,
+        val swipImg: ImageView, val tv_swipe_title: TextView, val tv_swipe_userName: TextView, val tv_swipe_content: TextView
+    ) : RecyclerView.ViewHolder(layout)
+
 
     init {
-        initializeCardAd(context, onAdClick)
+        mContext?.let { initializeCardAd(it, onAdClick) }
     }
 
     private lateinit var mCardAd: AdLoader
     private var mCurrentNativeAd: UnifiedNativeAd? = null
 
 
-    /**
-     *     DB로부터 받아올 카드 데이터의 시작인덱스
-     */
+    // DB로부터 받아올 카드 데이터의 시작인덱스
     private var mCardDataIndex: Int = 0
 
-
-    /**
-     * 네트워크에서 카드데이터를 받아오는 중인가?
-     */
+    //네트워크에서 카드데이터를 받아오는 중인가?
     var mIsBusy: Boolean = false
         private set;
 
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val layout: View = LayoutInflater.from(parent.context).inflate(R.layout.swipe_item, parent, false)
 
-    class ViewHolder(
-        val layout: View, val rl_swipeCard: RelativeLayout, val uv_ad: UnifiedNativeAdView,
-        val swipImg: ImageView, val tv_swipe_title: TextView, val tv_swipe_userName: TextView, val tv_swipe_content: TextView
-    )
-
-
-    //getView는 view가 필요할때 즉, 화면에 view가 보여야할때 불린다.
-    //view마다 불리기 때문에 여러번 불린다.
-    //position 은 어떤 포지션이지?
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val card: Card? = getItem(position)
-
-        var view: View
-
-        if (null != convertView)
-            view = convertView
-        else
-        {
-            view = LayoutInflater.from(context).inflate(R.layout.swipe_item, parent, false)
-
-            val newViewHolder = ViewHolder(view, view.rl_swipeCard, view.uv_ad, view.swipImg, view.tv_swipe_title, view.tv_swipe_userName, view.tv_swipe_content)
-            val adView = newViewHolder.uv_ad
-            // Set the media view.
-            adView.mediaView = adView.mv_ad
-            // Set other ad assets.
-            adView.headlineView = adView.tv_ad_headline
-            adView.bodyView = adView.tv_ad_body
-            adView.callToActionView = adView.btn_ad_learnMore
-            adView.iconView = adView.iv_ad_icon
-            adView.priceView = adView.tv_ad_price
-            adView.starRatingView = adView.rb_ad_stars
-            adView.storeView = adView.tv_ad_store
-            adView.advertiserView = adView.tv_ad_advertiser
-
-            view.tag = newViewHolder
-        }
-
-
-        val viewHolder = view.tag as? ViewHolder
-
-        if (card != null && viewHolder != null) {
-            if (card.isAd)
-            {
-                viewHolder.rl_swipeCard.visibility = View.INVISIBLE
-                viewHolder.uv_ad.visibility = View.VISIBLE
-                setCardAdData(viewHolder.uv_ad)
-            }
-            else
-            {
-                viewHolder.rl_swipeCard.visibility = View.VISIBLE
-                viewHolder.uv_ad.visibility = View.INVISIBLE
-                setCardData(card, viewHolder)
-            }
-        }
-
-
-        //만든 카드뷰를 리턴한다.
-        return view
+        val viewHolder = ViewHolder(layout, layout.rl_swipeCard, layout.uv_ad, layout.swipImg, layout.tv_swipe_title, layout.tv_swipe_userName, layout.tv_swipe_content)
+        val adView = viewHolder.uv_ad
+        // Set the media view.
+        adView.mediaView = adView.mv_ad
+        // Set other ad assets.
+        adView.headlineView = adView.tv_ad_headline
+        adView.bodyView = adView.tv_ad_body
+        adView.callToActionView = adView.btn_ad_learnMore
+        adView.iconView = adView.iv_ad_icon
+        adView.priceView = adView.tv_ad_price
+        adView.starRatingView = adView.rb_ad_stars
+        adView.storeView = adView.tv_ad_store
+        adView.advertiserView = adView.tv_ad_advertiser
+        return viewHolder
     }
 
 
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        if (mDataset.size > position) {
+            if (mDataset[position].isAd) {
+                holder.rl_swipeCard.visibility = View.INVISIBLE
+                holder.uv_ad.visibility = View.VISIBLE
+                setCardAdData(holder.uv_ad)
+            } else {
+                holder.rl_swipeCard.visibility = View.VISIBLE
+                holder.uv_ad.visibility = View.INVISIBLE
+                setCardData(mDataset[position], holder)
+            }
+        }
+
+    }
+
+    override fun getItemCount(): Int {
+        return mDataset.size
+    }
+
+
+    fun isEmpty(): Boolean {
+        return mDataset.isEmpty()
+    }
+
     private fun setCardData(card: Card, holder: ViewHolder) {
+
+
         //썸네일을 설정. pictures에는 하나의 사진밖에 없음.
         if (card.pictures.isNotEmpty())
             holder.swipImg.setImageBitmap(card.pictures.first().bitmap)
@@ -126,30 +111,58 @@ class CardAdapter(context: Context, resourceID: Int, onAdClick : (()->Unit)? = n
     }
 
     fun removeCardAtFront() {
-        if (!super.isEmpty())
-            super.remove(super.getItem(0))
+        if (mDataset.isNotEmpty()) {
+            mDataset.removeFirst()
+            notifyItemRemoved(0)
+        }
+
+        //http 요청중이 아니고, 카드 데이터가 비려고 하면 더 받아온다.
+        if (!mIsBusy && mDataset.count() < 3)
+            onItemAboutToEmpty()
     }
 
-    fun loadAd()
-    {
+    private fun onItemAboutToEmpty() {
+        requestAndAddCardDatas(R.integer.CardRequestAtOnce)
+    }
+
+    fun loadAd() {
         mCardAd.loadAd(AdRequest.Builder().build())
     }
 
     fun addAdData() {
-        super.add(Card(isAd = true))
+        //맨앞에 집어넣으면 notifyItemInserted 하는 순간 맨위의 카드가 바뀌어버림.
+        //현재 맨위 카드 다음장에 넣자.
+        if (mDataset.size >= 1) {
+            mDataset.add(1, Card(isAd = true))
+            // 리사이클러뷰의 mState(리사이클러뷰의 상태. 다른 객체들이 참조한다) 갱신
+            notifyItemInserted(1)
+        }
     }
 
-    fun addCardData(postCnt: Int) {
+    fun getItemAt(index: Int): Card? {
+        if (index >= mDataset.size)
+            return null
+        else {
+            return mDataset[index]
+        }
+    }
+
+    fun addCardData(card: Card) {
+        mDataset.add(card)
+        notifyItemInserted(mDataset.size - 1)
+    }
+
+    fun requestAndAddCardDatas(postCnt: Int) {
 
         mIsBusy = true
-
-        // Instantiate the RequestQueue.
-        val queue = Volley.newRequestQueue(context!!)
 
 
         var cardList = ArrayList<Card>()
 
-        var url = context.getString(R.string.urlToServer) + "getRandomPost/" + postCnt.toString() + "/" + mCardDataIndex.toString() +
+        if (mContext == null)
+            return
+
+        var url = mContext!!.getString(R.string.urlToServer) + "getRandomPost/" + postCnt.toString() + "/" + mCardDataIndex.toString() +
                 "/" + LoginActivity.mAccount?.email
         //랜덤한 유저의 게시글을 얻는다.
         //현재 로그인된 유저정보를 바탕으로
@@ -184,14 +197,14 @@ class CardAdapter(context: Context, resourceID: Int, onAdClick : (()->Unit)? = n
                     if (null == card)
                         return@Listener
 
-                    val url = context.getString(R.string.urlToServer) + "getImage/" +
+                    val url = mContext!!.getString(R.string.urlToServer) + "getImage/" +
                             card.pictures.first().file_name;
 
                     val imgRequest = ImageRequest(url,
                         { bitmap ->
                             card.pictures.first().bitmap = bitmap
                             //완성한 카드를 어레디어댑터에 추가
-                            super.add(card)
+                            addCardData(card)
 
                             mCardDataIndex++
 
@@ -210,21 +223,18 @@ class CardAdapter(context: Context, resourceID: Int, onAdClick : (()->Unit)? = n
                         { err ->
                             Log.e("volley", err.message ?: "err ocurr!")
                         })
-
-                    queue.add(imgRequest)
+                    VolleyHelper.getInstance(mContext!!).addRequestQueue(imgRequest)
 
                 }
             },
             Response.ErrorListener {
                 Log.e("Volley", it.toString())
             })
-
-        queue.add(postInfoRequest)
+        VolleyHelper.getInstance(mContext!!).addRequestQueue(postInfoRequest)
     }
 
 
-    private fun initializeCardAd(context: Context, onAdClick : (()->Unit)? = null)
-    {
+    private fun initializeCardAd(context: Context, onAdClick: (() -> Unit)? = null) {
 
         //비디오는 일단 음소거
         val videoOptions = VideoOptions.Builder()
@@ -342,10 +352,9 @@ class CardAdapter(context: Context, resourceID: Int, onAdClick : (()->Unit)? = n
 
     fun onDestroy() {
         //메모리릭 방지
+        mContext = null
         mCurrentNativeAd?.destroy()
     }
-
-
 
 
 }

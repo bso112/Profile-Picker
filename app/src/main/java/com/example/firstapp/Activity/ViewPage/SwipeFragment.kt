@@ -1,7 +1,6 @@
 package com.example.firstapp.Activity.ViewPage
 
 import android.app.Activity.RESULT_OK
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -15,16 +14,12 @@ import androidx.fragment.app.Fragment
 import com.example.firstapp.Adapter.CardAdapter
 import com.example.firstapp.Default.EXTRA_POSTID
 import com.example.firstapp.Activity.PostActivity
-import com.example.firstapp.Helper.AdHelper
-import com.example.firstapp.Helper.UtiliyHelper
 import com.example.firstapp.R
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdLoader
-import com.google.android.gms.ads.VideoOptions
-import com.google.android.gms.ads.formats.NativeAdOptions
-import com.google.android.gms.ads.formats.UnifiedNativeAd
-import com.lorentzos.flingswipe.SwipeFlingAdapterView
+import com.yuyakaido.android.cardstackview.CardStackLayoutManager
+import com.yuyakaido.android.cardstackview.CardStackListener
+import com.yuyakaido.android.cardstackview.Direction
 import kotlinx.android.synthetic.main.frag_swipe.*
+import java.util.*
 
 
 class SwipeFragment : Fragment() {
@@ -32,7 +27,8 @@ class SwipeFragment : Fragment() {
     var REQUEST_VOTE = 0
     lateinit var mCardAdapter: CardAdapter
 
-    var mSwipeCnt = 0
+    var mAdRequestCnt = 0
+    var mAdShowCnt = 0
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,13 +49,16 @@ class SwipeFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     private fun readyFragementView() {
 
+        readySwipeView()
+
         val btnAnim = AnimationUtils.loadAnimation(context!!, R.anim.anim_flinch)
         //게시물보기 버튼 눌렀을때
         btn_like.setOnClickListener {
-            if(mCardAdapter.isEmpty)
+
+            if (mCardAdapter.isEmpty())
                 return@setOnClickListener
 
-            mCardAdapter.getItem(0)?.let {
+            mCardAdapter.getItemAt(0)?.let {
                 val intent = Intent(context, PostActivity::class.java).apply {
                     putExtra(EXTRA_POSTID, it.postId)
                 }
@@ -67,30 +66,32 @@ class SwipeFragment : Fragment() {
             }
             it.startAnimation(btnAnim)
         }
+
+
+
         btn_prv.setOnClickListener {
-            sv_swipeView.topCardListener.selectLeft()
+            if (mCardAdapter.isEmpty())
+                return@setOnClickListener
+            sv_swipeView.swipe()
         }
         btn_next.setOnClickListener {
-            sv_swipeView.topCardListener.selectRight()
+            if (mCardAdapter.isEmpty())
+                return@setOnClickListener
+            sv_swipeView.swipe()
         }
 
 
-        readySwipeView()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if(resultCode != RESULT_OK)
+        if (resultCode != RESULT_OK)
             return
 
-        if(requestCode == REQUEST_VOTE)
-            sv_swipeView.topCardListener.selectLeft()
+        if (requestCode == REQUEST_VOTE)
+            sv_swipeView.swipe()
     }
-
-
-
-
 
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
@@ -101,71 +102,56 @@ class SwipeFragment : Fragment() {
         }
 
         //craete cardAdapter
-        mCardAdapter = CardAdapter(context!!, R.layout.swipe_item) { sv_swipeView.topCardListener.selectLeft()}
+        //mCardAdapter = CardAdapter(context!!, R.layout.swipe_item) { sv_swipeView.topCardListener.selectLeft()}
 
-        //set the listener and the adapter
-        sv_swipeView.adapter = mCardAdapter
+        val cardListener = object : CardStackListener {
+            override fun onCardDisappeared(view: View?, position: Int) {
 
-        mCardAdapter.addCardData(resources.getInteger(R.integer.CardRequestAtOnce))
+            }
 
-        sv_swipeView.setFlingListener(object : SwipeFlingAdapterView.onFlingListener {
+            override fun onCardDragging(direction: Direction?, ratio: Float) {
 
-            override fun removeFirstObjectInAdapter() {
-                // this is the simplest way to delete an object from the Adapter (/AdapterView)
-                Log.d("LIST", "removed object!")
+            }
 
+            override fun onCardSwiped(direction: Direction?) {
                 mCardAdapter.removeCardAtFront()
-                if(++mSwipeCnt > 8)
-                {
+                ++mAdShowCnt
+                ++mAdRequestCnt
+                if (mAdRequestCnt >= 5) {
                     mCardAdapter.loadAd()
+                    mAdRequestCnt = 0
 
-                    if(mSwipeCnt > 10)
-                    {
+                    if (mAdShowCnt >= 10) {
                         mCardAdapter.addAdData()
-                        mSwipeCnt = 0
+                        mAdShowCnt = 0
                     }
                 }
-
-                /*
-                사진이 하나 remove됬을때 어댑터에게 그 사실을 알린다.
-                그러면 CardAdapter의 부모클래스의 내부에 있는 옵저버들에게(이 옵저버들은 화면을 갱신하기 위해서 설정된 다른 오브젝트들일듯?)
-                그 사실이 알려진다.
-                그러면서 CardAdapter의 getView가 불리면서 4개의 뷰를 생성한다. (디버그해본 결과 한번에 최대 4개를 생성하는듯)
-                 */
-                mCardAdapter.notifyDataSetChanged()
             }
 
-            override fun onLeftCardExit(dataObject: Any) {
-                //Do something on the left!
-                //You also have access to the original object.
-                //If you want to use it just cast it (String) dataObject
-            }
-
-            override fun onRightCardExit(dataObject: Any) {
-            }
-
-            override fun onAdapterAboutToEmpty(itemsInAdapter: Int) {
-                // 여기서 더 많은 데이터를 가져온다.
-
-                //아직 데이터를 받아오고 있는 중이면
-                if (mCardAdapter.mIsBusy) {
-//                    Toast.makeText(context, "카드 데이터를 받아오는 중입니다.", Toast.LENGTH_SHORT).show()
-                    return
-                }
-
-                //남은 아이템수가 2이하일때
-                if (itemsInAdapter <= 2) {
-                    mCardAdapter.addCardData(resources.getInteger(R.integer.CardRequestAtOnce))
-                }
+            override fun onCardCanceled() {
 
             }
 
-            override fun onScroll(p0: Float) {
-                // not implemented
+            override fun onCardAppeared(view: View?, position: Int) {
+
             }
-        })
+
+            override fun onCardRewound() {
+
+            }
+
+        }
+
+
+
+        sv_swipeView.layoutManager = CardStackLayoutManager(context, cardListener)
+        mCardAdapter = CardAdapter(context!!, LinkedList()) { }
+        sv_swipeView.adapter = mCardAdapter
+
+        mCardAdapter.requestAndAddCardDatas(resources.getInteger(R.integer.CardRequestAtOnce))
+
+
     }
-
 
     override fun onDestroy() {
         mCardAdapter.onDestroy()
