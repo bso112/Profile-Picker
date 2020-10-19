@@ -59,10 +59,12 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        //전에 로그인한 적이 있으면 해당 구글계정을 그대로 저장한다.
+        //로그인된 상태인지 확인
         mAccount = GoogleSignIn.getLastSignedInAccount(this)
+
+        //전에 로그인한 적이 있으면 바로 로그인처리
         //DB에 해당 구글계정이 있는지 확인한다. 있으면 MainActivity, 없으면 SignUpActivity로 간다.
-        checkIfAccountExist()
+        mAccount?.email?.let { checkIfAccountExist(it) }
 
     }
 
@@ -91,12 +93,11 @@ class LoginActivity : AppCompatActivity() {
     }
 
 
+    private fun checkIfAccountExist(email: String) {
 
-    private fun checkIfAccountExist() {
-
-        UtiliyHelper.getInstance().requestUserInfo(this,
-            { startActivity(Intent(this, MainActivity::class.java))},
-            { startActivity(Intent(this, SignUpActivity::class.java))}
+        UtiliyHelper.getInstance().requestUserInfo(this, email,
+            { startActivity(Intent(this, MainActivity::class.java)) },
+            { startActivity(Intent(this, SignUpActivity::class.java)) }
         )
 
     }
@@ -108,7 +109,10 @@ class LoginActivity : AppCompatActivity() {
             //로그인된 구글계정을 저장한다.
             mAccount = completedTask.getResult(ApiException::class.java)
             //해당 구글계정이 데이터베이스에 등록되어있는지 확인한다.
-            checkIfAccountExist()
+            if(mAccount == null)
+                Toast.makeText(this, "로그인에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_SHORT)
+
+            mAccount?.email?.let { checkIfAccountExist(it) }
 
         } catch (e: ApiException) {
             // The ApiException status code indicates the detailed failure reason.

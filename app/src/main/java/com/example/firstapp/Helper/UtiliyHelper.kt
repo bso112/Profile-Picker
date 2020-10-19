@@ -11,6 +11,7 @@ import com.android.volley.toolbox.StringRequest
 import com.example.firstapp.Activity.LoginActivity
 import com.example.firstapp.Default.UserInfo
 import com.example.firstapp.R
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.gson.Gson
 import org.json.JSONArray
 import org.json.JSONObject
@@ -19,7 +20,6 @@ import java.io.File
 //그냥 잡일하는 헬퍼
 class UtiliyHelper {
 
-    val mUserInfoFileName = "userInfo"
     var mUserInfo: UserInfo? = null
         private set;
     private var backBtnTimeInMillis: Long = 0
@@ -64,22 +64,16 @@ class UtiliyHelper {
         //캐싱
 
         val fileContents = Gson().toJson(userInfo)
-        val file = File(context.cacheDir, mUserInfoFileName)
+        val file = File(context.cacheDir, "account_" + userInfo.email)
         file.writeText(fileContents)
 
         mUserInfo = userInfo
     }
 
-    fun requestUserInfo(context: Context, onResponse: (() -> Unit)? = null, onFailed: (() -> Unit)? = null) {
-
-        //정보가 이미 있는지 확인
-        mUserInfo?.let {
-           if(onResponse != null) onResponse()
-            return;
-        }
+    fun requestUserInfo(context: Context, email : String, onResponse: (() -> Unit)? = null, onFailed: (() -> Unit)? = null) {
 
         //기기내에 캐싱된 정보가 있는지 확인
-        mUserInfo = getUserInfoFromFile(context)
+        mUserInfo = getUserInfoFromFile(context, email)
         mUserInfo?.let {
             if(onResponse != null) onResponse()
             return;
@@ -90,7 +84,7 @@ class UtiliyHelper {
         val url = context.getString(R.string.urlToServer) + "getUserInfo/"
         var request = JsonObjectRequest(
             Request.Method.POST, url,
-            JSONObject(mapOf(Pair("email", LoginActivity.mAccount?.email.toString()))),
+            JSONObject(mapOf(Pair("email", email))),
             {
                 if (it == null || it.isNull("email"))
                     if(onFailed != null) onFailed()
@@ -117,8 +111,8 @@ class UtiliyHelper {
 
     }
 
-    private fun getUserInfoFromFile(context: Context): UserInfo? {
-        val file = File(context.cacheDir, mUserInfoFileName)
+    private fun getUserInfoFromFile(context: Context, email : String): UserInfo? {
+        val file = File(context.cacheDir, "account_" + email)
         if (file.exists())
             return Gson().fromJson(file.readText(), UserInfo::class.java)
 
