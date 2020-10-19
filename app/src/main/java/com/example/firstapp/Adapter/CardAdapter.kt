@@ -123,8 +123,15 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
             onItemAboutToEmpty()
     }
 
-    private fun onItemAboutToEmpty() {
-        requestAndAddCardDatas(R.integer.CardRequestAtOnce)
+    fun refresh(onSuccess: (() -> Unit)? = null, onFailed: (() -> Unit)? = null)
+    {
+        mDataset.clear()
+        notifyDataSetChanged()
+        onItemAboutToEmpty(onSuccess, onFailed)
+    }
+
+    private fun onItemAboutToEmpty(onSuccess: (() -> Unit)? = null, onFailed: (() -> Unit)? = null) {
+        requestAndAddCardDatas(R.integer.CardRequestAtOnce, onSuccess, onFailed)
     }
 
     fun loadAd() {
@@ -154,7 +161,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
         notifyItemInserted(mDataset.size - 1)
     }
 
-    fun requestAndAddCardDatas(postCnt: Int) {
+    fun requestAndAddCardDatas(postCnt: Int, onSuccess: (() -> Unit)? = null, onFailed: (() -> Unit)? = null) {
 
         mIsBusy = true
 
@@ -179,13 +186,23 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
 
 
         var url = mContext!!.getString(R.string.urlToServer) + "getRandomPost/" + postCnt.toString() + "/" + mCardDataIndex.toString() +
-                "/" + LoginActivity.mAccount?.email +"/" + UtiliyHelper.getInstance().mUserInfo?.categorys.toString()
+                "/" + LoginActivity.mAccount?.email + "/" + UtiliyHelper.getInstance().mUserInfo?.categorys.toString()
         //랜덤한 유저의 게시글을 얻는다.
         //현재 로그인된 유저정보를 바탕으로
         val postInfoRequest = JsonArrayRequest(
             Request.Method.GET, url, null,
             Response.Listener { res ->
                 res?.let { jsonArr ->
+                    if (jsonArr.length() <= 0) {
+                        if (onFailed != null) {
+                            onFailed()
+                            return@Listener
+                        }
+                    }
+                    if (onSuccess != null) {
+                        onSuccess()
+                    }
+
                     for (i in 0 until jsonArr.length()) {
                         val obj = jsonArr.getJSONObject(i);
                         val postId = obj.getInt("postId")
@@ -245,7 +262,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
                 }
             },
             Response.ErrorListener {
-                Log.e("Volley", it.toString())
+                throw it
             })
         VolleyHelper.getInstance(mContext!!).addRequestQueue(postInfoRequest)
     }

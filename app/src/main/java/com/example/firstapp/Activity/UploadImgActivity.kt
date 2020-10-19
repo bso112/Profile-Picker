@@ -401,7 +401,7 @@ class UploadImgActivity : AppCompatActivity() {
             data?.data?.let { uriList.add(it) };
         else {
             if (clipData.itemCount > 5)
-                Toast.makeText(this, "사진은 5장까지 추가가능합니다.", Toast.LENGTH_SHORT)
+                Toast.makeText(this, "사진은 5장까지 추가가능합니다.", Toast.LENGTH_SHORT).show()
 
             for (i in 0 until clipData.itemCount.coerceAtMost(5)) {
                 uriList.add(clipData.getItemAt(i).uri)

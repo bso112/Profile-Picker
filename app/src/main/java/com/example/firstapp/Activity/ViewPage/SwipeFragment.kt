@@ -15,11 +15,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.firstapp.Adapter.CardAdapter
 import com.example.firstapp.Default.EXTRA_POSTID
 import com.example.firstapp.Activity.PostActivity
+import com.example.firstapp.Helper.UtiliyHelper
 import com.example.firstapp.R
 import com.yuyakaido.android.cardstackview.*
 import kotlinx.android.synthetic.main.activity_upload_img.*
 import kotlinx.android.synthetic.main.frag_swipe.*
+import kotlinx.android.synthetic.main.swipe_item.*
 import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashSet
 
 
 class SwipeFragment : Fragment() {
@@ -32,6 +36,8 @@ class SwipeFragment : Fragment() {
     private lateinit var mSwipeLeftSetting : SwipeAnimationSetting
     private lateinit var mSwipeRightSetting : SwipeAnimationSetting
     private lateinit var mSwipeLayoutManager: CardStackLayoutManager
+
+    private var mOldCategory = HashSet<Int>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,6 +53,30 @@ class SwipeFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
 
         readyFragementView()
+
+        UtiliyHelper.getInstance().mUserInfo?.categorys?.let { mOldCategory = it }
+
+    }
+
+
+    override fun onStart() {
+        super.onStart()
+    
+        //만약 카테고리가 바뀌었으면
+        val currCategory = UtiliyHelper.getInstance().mUserInfo?.categorys
+        currCategory?.let{
+            if(mOldCategory != it)
+            {
+                //리프레쉬
+                refresh()
+                mOldCategory = it
+            }
+        }
+    }
+
+    private fun refresh()
+    {
+        mCardAdapter.refresh({tv_swipe_empty.visibility = View.INVISIBLE}, {tv_swipe_empty.visibility = View.VISIBLE})
     }
 
 
@@ -159,7 +189,7 @@ class SwipeFragment : Fragment() {
         sv_swipeView.adapter = mCardAdapter
 
 
-        mCardAdapter.requestAndAddCardDatas(resources.getInteger(R.integer.CardRequestAtOnce))
+        mCardAdapter.requestAndAddCardDatas(resources.getInteger(R.integer.CardRequestAtOnce), {tv_swipe_empty.visibility = View.INVISIBLE}, {tv_swipe_empty.visibility = View.VISIBLE})
 
 
     }

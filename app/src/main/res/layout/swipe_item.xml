@@ -186,6 +186,8 @@
         android:layout_height="match_parent"
         android:visibility="visible">
 
+
+
         <TextView
             android:id="@+id/tv_swipe_title"
             style="@style/AudioFileInfoOverlayText"
@@ -257,7 +259,6 @@
             android:layout_margin="5dp"
             app:cardCornerRadius="20dp"
             app:cardElevation="5dp">
-
 
             <ImageView
                 android:id="@+id/swipImg"

@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity() {
 
                 loadingDialog.dismiss()
 
-                Toast.makeText(this, "탈퇴가 완료되었습니다.", Toast.LENGTH_SHORT)
+                Toast.makeText(this, "탈퇴가 완료되었습니다.", Toast.LENGTH_SHORT).show()
                 Intent(this, LoginActivity::class.java).apply { startActivity(this) };
 
 

@@ -6,20 +6,33 @@
     android:weightSum="1">
 
 
-<!--    <com.yuyakaido.android.cardstackview.CardStackView-->
-<!--        android:id="@+id/sv_swipeView"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="0dp"-->
-<!--        android:layout_weight="0.8"-->
-<!--        />-->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.8">
 
     <com.yuyakaido.android.cardstackview.CardStackView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.8"
+            android:layout_height="match_parent"
         android:id="@+id/sv_swipeView">
 
+
     </com.yuyakaido.android.cardstackview.CardStackView>
+
+        <TextView
+            android:id="@+id/tv_swipe_empty"
+            android:visibility="invisible"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="표시할 카드가 없어요"
+            android:textColor="@color/Black"
+            android:elevation="100dp"
+            android:textSize="15sp"
+            />
+
+    </FrameLayout>
 
 
     <LinearLayout

@@ -105,7 +105,7 @@ class ProfileFragment : Fragment() {
     private fun deletePost(post: Post) {
         val url = getString(R.string.urlToServer) + "deletePost/${post.postInfo.postId}"
         val request = StringRequest(Request.Method.GET, url, {
-            Toast.makeText(context, "삭제되었습니다.", Toast.LENGTH_SHORT)
+            Toast.makeText(context, "삭제되었습니다.", Toast.LENGTH_SHORT).show()
             refreshView()
         }, null)
 
