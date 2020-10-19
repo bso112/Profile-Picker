@@ -183,10 +183,7 @@ class UploadImgActivity : AppCompatActivity() {
                 //key는 html form뷰의 name 항목. 즉, 파라미터가 되는듯
                 for (picture in mPostInfo.myPictures) {
                     params.add(Pair("image", DataPart(System.currentTimeMillis().toString(),
-                        picture.bitmap?.let { getFileDataFromDrawable(it) }, "image/webp"
-                    )
-                    )
-                    )
+                        picture.bitmap?.let { getFileDataFromDrawable(it) }, "image/webp")))
                 }
 
                 return params
@@ -205,10 +202,13 @@ class UploadImgActivity : AppCompatActivity() {
                         for (picture in it.myPictures)
                             likes.add(picture.likes)
                         params.put("likes", likes.toString())
+
+                        params.put("warn", it.warn.toString())
                     }
                 }
                 params.put("content", et_upload_content.text.toString())
                 params.put("title", et_upload_title.text.toString())
+                params.put("category", sp_upload_category.selectedItem.toString())
                 LoginActivity.mAccount?.email?.let {
                     params.put("email", it)
                 }

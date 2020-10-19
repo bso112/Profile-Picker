@@ -18,6 +18,33 @@
             android:layout_alignBottom="@id/tv_upload_save"
             android:background="@drawable/ic_insert_photo_black_24dp" />
 
+        <LinearLayout
+            android:id="@+id/ll_upload_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_below="@id/btn_upload_addPicture"
+            android:gravity="center"
+            android:layout_marginVertical="10dp">
+
+            <TextView
+                android:id="@+id/tv_upload_category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="카테고리"
+                android:textColor="@color/Black"
+                />
+
+            <Spinner
+                android:layout_marginStart="5dp"
+                android:id="@+id/sp_upload_category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/category_post"
+                />
+        </LinearLayout>
+
+
 
         <TextView
             android:id="@+id/tv_upload_save"
@@ -35,7 +62,7 @@
             android:id="@+id/et_upload_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_upload_save"
+            android:layout_below="@+id/ll_upload_category"
             android:layout_marginTop="5dp"
             android:backgroundTint="@color/Black"
             android:hint="카드에 표시할 제목"

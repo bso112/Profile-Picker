@@ -47,7 +47,7 @@ class VolleyHelper (val context : Context){
         val postInfoRequest = JsonArrayRequest(
             Request.Method.GET, context.resources.getString(R.string.urlToServer) + "getPost/" + postId.toString(),
             null,
-            Response.Listener {
+            {
                 it?.let { jsonArr ->
                     for (i in 0 until jsonArr.length()) {
                         val obj = jsonArr.getJSONObject(i);
@@ -94,7 +94,7 @@ class VolleyHelper (val context : Context){
 
                 //Response.Listener End
             },
-            Response.ErrorListener {
+            {
                 Log.e("Volley", it.toString())
             })
 

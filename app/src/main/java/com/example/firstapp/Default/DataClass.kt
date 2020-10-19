@@ -3,12 +3,15 @@ package com.example.firstapp.Default
 import android.graphics.Bitmap
 import java.io.Serializable
 
+data class UserInfo(val email : String = "", val nickname : String = "", val sex : Int = 0, val age : Int = 10,
+                    val categorys : HashSet<Int> = hashSetOf())
 
 data class Card(
     var postId: Int = 0,
     var title : String = "",
     var content: String = "",
     var writer: String = "",
+    var nickname : String = "",
     var pictures : ArrayList<MyPicture> = ArrayList<MyPicture>(),
     var isAd : Boolean = false
 );
@@ -56,7 +59,7 @@ data class MyPicture(var bitmap: Bitmap?, val file_name: String, val path: Strin
 data class PostInfo(
     var title: String = "", val date: String = "", val viewCnt: Int = 0,
     var postId: Int = 0, var myPictures: ArrayList<MyPicture> = ArrayList(),
-    var content: String = "", var writer: String = ""
+    var content: String = "", var writer: String = "", val warn : Int = 0
 ) : Serializable {
 
     var mOnInitialized : (() -> Unit)? = null

@@ -29,7 +29,7 @@ import kotlinx.android.synthetic.main.post_img_item.view.*
 class PostActivity : AppCompatActivity() {
 
     private var mCard: Card =
-        Card(-1, "", "", "", ArrayList())
+        Card(-1, "", "", "", "", ArrayList())
     private var mSelected = ArrayList<Boolean>()
 
     private var mIsBusy: Boolean = false
@@ -123,8 +123,8 @@ class PostActivity : AppCompatActivity() {
 
         mIsBusy = true
 
-        val postId = intent.getIntExtra(EXTRA_POSTID, -1)
-        if (postId < 0)
+        val extra_postId = intent.getIntExtra(EXTRA_POSTID, -1)
+        if (extra_postId < 0)
             return
 
         // Instantiate the RequestQueue.
@@ -132,9 +132,9 @@ class PostActivity : AppCompatActivity() {
 
         //게시물 하나의 정보를 얻는다.
         val postInfoRequest = JsonArrayRequest(
-            Request.Method.GET, getString(R.string.urlToServer) + "getPost/" + postId.toString(),
+            Request.Method.GET, getString(R.string.urlToServer) + "getPost/" + extra_postId.toString(),
             null,
-            Response.Listener {
+            {
                 it?.let { jsonArr ->
                     for (i in 0 until jsonArr.length()) {
                         val obj = jsonArr.getJSONObject(i);
@@ -180,7 +180,7 @@ class PostActivity : AppCompatActivity() {
 
                 //Response.Listener End
             },
-            Response.ErrorListener {
+            {
                 Log.e("Volley", it.toString())
             })
 

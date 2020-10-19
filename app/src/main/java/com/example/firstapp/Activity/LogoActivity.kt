@@ -19,16 +19,8 @@ class LogoActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        val intent: Intent
 
-//        //로그인한 기록이 있으면 바로 메인액티비티로
-//        if (LoginActivity.mAccount != null)
-//            intent = Intent(this, MainActivity::class.java)
-//        //아니면 로그인 액티비티로
-//        else
-//            intent = Intent(this, LoginActivity::class.java)
-
-        intent = Intent(this, LoginActivity::class.java)
+        val intent: Intent = Intent(this, LoginActivity::class.java)
 
 
         val anim = AnimationUtils.loadAnimation(this, R.anim.anim_fadein)

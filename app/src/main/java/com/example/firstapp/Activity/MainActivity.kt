@@ -1,6 +1,7 @@
 package com.example.firstapp.Activity
 
 import LoadingDialogFragment
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -12,10 +13,13 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import com.android.volley.Request
+import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.example.firstapp.Helper.VolleyHelper
 import com.example.firstapp.Helper.showSimpleAlert
 import com.example.firstapp.Adapter.ViewPageAdapter
+import com.example.firstapp.Default.UserInfo
 import com.example.firstapp.Helper.UtiliyHelper
 import com.example.firstapp.R
 import com.google.android.gms.ads.MobileAds
@@ -27,6 +31,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var mViewPageAdapter: ViewPageAdapter
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -35,6 +40,8 @@ class MainActivity : AppCompatActivity() {
 
         ready_UI()
 
+        //유저정보 받아둠
+        UtiliyHelper.getInstance().requestUserInfo(this)
 
     }
 
@@ -61,6 +68,13 @@ class MainActivity : AppCompatActivity() {
                             LoginActivity.mGoogleSignInClient?.revokeAccess()
                                 ?.addOnCompleteListener { withdrawAccount() }
                         })
+                    true
+                }
+                R.id.it_setting -> {
+                    Intent(this, SettingActivity::class.java).apply{
+                        startActivity(this)
+                    }
+
                     true
                 }
                 else -> false
@@ -123,7 +137,6 @@ class MainActivity : AppCompatActivity() {
     override fun onBackPressed() {
         UtiliyHelper.getInstance().exitApp(this)
     }
-
 
 
 }

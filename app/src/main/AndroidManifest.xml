@@ -17,16 +17,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-
-<!--        <service android:name="yourpackage.SturkoPlayerService" />-->
-
+        <activity android:name=".Activity.SettingActivity"></activity>
+        <!-- <service android:name="yourpackage.SturkoPlayerService" /> -->
         <!-- Sample AdMob App ID: ca-app-pub-3940256099942544~3347511713 -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-1414195121638464~4457423094"/>
+            android:value="ca-app-pub-1414195121638464~4457423094" />
 
-
-        <activity android:name=".Activity.SingUpActivity"></activity>
+        <activity android:name=".Activity.SignUpActivity" />
         <activity
             android:name=".Activity.LogoActivity"
             android:noHistory="true">

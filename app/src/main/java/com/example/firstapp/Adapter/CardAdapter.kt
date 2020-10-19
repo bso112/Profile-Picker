@@ -15,6 +15,8 @@ import com.android.volley.toolbox.JsonArrayRequest
 import com.example.firstapp.Activity.LoginActivity
 import com.example.firstapp.Default.Card
 import com.example.firstapp.Default.MyPicture
+import com.example.firstapp.Helper.GlobalHelper
+import com.example.firstapp.Helper.UtiliyHelper
 import com.example.firstapp.Helper.VolleyHelper
 import com.example.firstapp.R
 import com.google.android.gms.ads.AdListener
@@ -104,7 +106,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
             holder.swipImg.setImageBitmap(card.pictures.first().bitmap)
 
         holder.tv_swipe_title.text = card.title
-        holder.tv_swipe_userName.text = card.writer
+        holder.tv_swipe_userName.text = card.nickname
         holder.tv_swipe_content.text = card.content
 
 
@@ -162,8 +164,22 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
         if (mContext == null)
             return
 
+
+//        //DB로보낼때는 카테고리를 문자열로 치환..
+//        val categorys = ArrayList<String>()
+//        mContext?.let {
+//            UtiliyHelper.getInstance().mUserInfo?.categorys?.forEach { index ->
+//                val helper = GlobalHelper.getInstance(it)
+//                if(index >= 0 && index < helper.mCategory.size)
+//                    categorys.add(helper.mCategory[index])
+//            }
+//        }
+        //category.toString 하면 [asdas,sdff,afd] 이렇게 나와서 안됨
+        // ["asdas","sdff","afd"] 이래되야될듯?
+
+
         var url = mContext!!.getString(R.string.urlToServer) + "getRandomPost/" + postCnt.toString() + "/" + mCardDataIndex.toString() +
-                "/" + LoginActivity.mAccount?.email
+                "/" + LoginActivity.mAccount?.email +"/" + UtiliyHelper.getInstance().mUserInfo?.categorys.toString()
         //랜덤한 유저의 게시글을 얻는다.
         //현재 로그인된 유저정보를 바탕으로
         val postInfoRequest = JsonArrayRequest(
@@ -183,8 +199,9 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
                         if (cardList.isEmpty() || cardList.last().postId != postId) {
                             val content = obj.getString("content")
                             val writer = obj.getString("writer")
+                            val nickname = obj.getString("nickname")
                             val picture = MyPicture(null, fileName, filePath, 0)
-                            cardList.add(Card(postId, title, content, writer, arrayListOf(picture)))
+                            cardList.add(Card(postId, title, content, writer, nickname, arrayListOf(picture)))
                         }
 
                     }

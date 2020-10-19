@@ -1,14 +1,80 @@
 package com.example.firstapp
 
-import android.util.Log
-import org.json.JSONArray
-
 data class CloneTest(var a: Int, var arr: ArrayList<Int>) {
     constructor(other: CloneTest) : this(other.a, ArrayList(other.arr))
 }
 
 
+data class ATest(var a : Int, var b : ArrayList<Int>, var bTest : test)
+interface test
+class BDataTest(var a : Int) : test
+class BTest(var a : Int) : test
+
+
+class MyData(val index : Int, val value : String)
 fun main() {
+
+
+    val arr = arrayOf("sad")
+    arr[0] = "asdfff" //가능
+
+    val list1 = listOf("asd", "ㄴㅁㅇ") //변경불가능한 arrayList를 만드는듯(추측)
+    //list1[0] = "asdasd" 불가, add도 없음
+
+    val list2 = arrayListOf("asd", ":sd")
+    list2[0] = "asd"
+    list2.add("asddd")
+
+    //문자열과 숫자 바인딩 (문자열로 숫자를 찾고, 숫자로 문자열를 찾는다)
+    //1. 배열 (배열이 크지 않은경우)
+    val category = arrayListOf("a","b","c")
+    category[0] // "a"
+    category.indexOf("a") // 0
+
+    //2. 객체
+    val category_selfy = MyData(0, "a")
+    category_selfy.index // 0
+    category_selfy.value // a
+
+
+
+
+
+
+
+    //arrayList는 기본적으로 == 연산이 요소별 비교로 정의되어있는듯
+    System.out.println(arrayListOf(3,2) == arrayListOf(3,2)) // true
+    System.out.println(arrayListOf(3,2) === arrayListOf(3,2)) // false
+
+    //일반 클래스는 == 연산이 오버라이딩되있지 않으면 false를 반환하는듯
+    val instanceB = BTest(3)
+    val instanceB2 = BTest(3)
+    System.out.println(instanceB == instanceB2) //false
+    System.out.println(instanceB === instanceB2) //false
+
+
+    /*
+    dataclass는 equal(==)을 자동으로 만든다.
+    arrayList는 equal(==)연산이 요소끼리 비교하는걸로 만들어져있는듯.
+    dataclass의 equal은 각 요소끼리 eqaul 연산을 하는 것 같다.
+     */
+    var instanceA = ATest(3, arrayListOf(3,2), BDataTest(3))
+    var instanceA2 = ATest(3, arrayListOf(3,2), BDataTest(3))
+    System.out.println(instanceA == instanceA2) // true
+    System.out.println(instanceA === instanceA2) //false
+
+    //BTest는 dataclass가 아니므로 equal을 오버라이딩하지 않아서 false
+    instanceA = ATest(3, arrayListOf(3,2), BTest(3))
+    instanceA2 = ATest(3, arrayListOf(3,2), BTest(3))
+    System.out.println(instanceA == instanceA2) // false
+    System.out.println(instanceA === instanceA2) //false
+
+
+
+//[(가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9)]{3,10}
+    val mathResult = Regex("""[(가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9)]+""").matchEntire("assdㅁㄴㄴㅇㄹㄴㅇㄹ")
+    System.out.println(mathResult?.value)
+
 
 
     var likes = arrayListOf<Int>()

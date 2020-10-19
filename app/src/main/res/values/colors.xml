@@ -12,4 +12,5 @@
     <color name="Black">#000000</color>
     <color name="Black_alpha">#4D000000</color>
     <color name="CobaltBlue">#00498c</color>
+    <color name="disable">#dbdbdb</color>
 </resources>

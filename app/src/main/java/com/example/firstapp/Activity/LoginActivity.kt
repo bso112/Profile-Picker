@@ -9,9 +9,13 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
+import com.android.volley.Request.Method.GET
+import com.android.volley.VolleyError
+import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.example.firstapp.Helper.UtiliyHelper
+import com.example.firstapp.Helper.VolleyHelper
 
 import com.example.firstapp.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -21,6 +25,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import kotlinx.android.synthetic.main.activity_login.*
+import java.lang.reflect.Method
 
 
 /*
@@ -34,29 +39,8 @@ class LoginActivity : AppCompatActivity() {
 
     companion object {
         var mGoogleSignInClient: GoogleSignInClient? = null
-        private set
+            private set
         var mAccount: GoogleSignInAccount? = null
-        private set
-
-
-        //이미 로그인한적이 있는경우 이것만 부르면 로그인 정보를 셋팅할 수 있다.
-        fun setAccountInfo(activity: Activity)
-        {
-            // Configure sign-in to request the user's ID, email address, and basic
-            // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build()
-
-            // Build a GoogleSignInClient with the options specified by gso.
-            mGoogleSignInClient = GoogleSignIn.getClient(activity, gso);
-            mAccount = GoogleSignIn.getLastSignedInAccount(activity)
-        }
-
-        fun clearLoginInfo()
-        {
-            mAccount = null
-        }
 
     }
 
@@ -79,14 +63,13 @@ class LoginActivity : AppCompatActivity() {
 
     }
 
-
     override fun onStart() {
         super.onStart()
-        //로그인이 이미 되어있는지 확인
         mAccount = GoogleSignIn.getLastSignedInAccount(this)
-        mAccount?.let { onLoginSuccess(mAccount) } 
-        
+        mAccount?.email?.let { checkIfAccountExist(it) }
+
     }
+
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onBackPressed() {
@@ -124,14 +107,39 @@ class LoginActivity : AppCompatActivity() {
         startActivityForResult(mGoogleSignInClient?.signInIntent, RC_SIGN_IN)
     }
 
+    private fun checkIfAccountExist(email: String) {
+        val url = getString(R.string.urlToServer) + "checkIfAccountExist/" + email
+        val request = StringRequest(Request.Method.GET, url,
+            {
+                it?.let { res ->
+                    var intent: Intent? = null
+                    if (res == "0")
+                        intent = Intent(this, SignUpActivity::class.java)
+                    else if (res == "1")
+                        intent = Intent(this, MainActivity::class.java)
+
+                    intent?.let { action -> startActivity(action) }
+                }
+            },
+            { throw it })
+
+        VolleyHelper.getInstance(this).addRequestQueue(request)
+
+    }
+
+
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
         try {
-            val account = completedTask.getResult(ApiException::class.java)
+            //처음 로그인한경우
+            mAccount = completedTask.getResult(ApiException::class.java)
 
-            //데이터베이스에 이메일 저장
-            sendUserInfoToDB()
-            // Signed in successfully, show authenticated UI.
-            onLoginSuccess(account)
+            val email = if (mAccount == null || mAccount!!.email == null) {
+                Toast.makeText(this, "로그인에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_LONG)
+                return
+            } else mAccount!!.email!!
+
+            checkIfAccountExist(email)
+
         } catch (e: ApiException) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
@@ -142,25 +150,5 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun sendUserInfoToDB() {
-        val queue = Volley.newRequestQueue(applicationContext)
-
-        val url = getString(R.string.urlToServer) + "writeUserInfo/"
-        val req = object : StringRequest(Request.Method.POST, url,
-            {
-                Log.d("volley", it)
-            },
-            {
-                Log.d("volleyError", it.message.toString())
-            }
-        ) {
-            override fun getParams(): MutableMap<String, String> {
-                return mutableMapOf(Pair("email", mAccount?.email.toString()))
-            }
-        }
-
-        queue.add(req)
-    }
 
 }
