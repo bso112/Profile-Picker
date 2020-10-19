@@ -1,6 +1,5 @@
 package com.example.firstapp.Activity
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -9,11 +8,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
-import com.android.volley.Request.Method.GET
-import com.android.volley.VolleyError
-import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
 import com.example.firstapp.Helper.UtiliyHelper
 import com.example.firstapp.Helper.VolleyHelper
 
@@ -25,7 +20,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import kotlinx.android.synthetic.main.activity_login.*
-import java.lang.reflect.Method
 
 
 /*
@@ -65,8 +59,10 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        //전에 로그인한 적이 있으면 해당 구글계정을 그대로 저장한다.
         mAccount = GoogleSignIn.getLastSignedInAccount(this)
-        mAccount?.email?.let { checkIfAccountExist(it) }
+        //DB에 해당 구글계정이 있는지 확인한다. 있으면 MainActivity, 없으면 SignUpActivity로 간다.
+        checkIfAccountExist()
 
     }
 
@@ -89,62 +85,35 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun onLoginSuccess(account: GoogleSignInAccount?) {
-
-        //로그인에 성공했다면
-        if (null != account) {
-            //계정 저장
-            mAccount = account
-            //main activity로 가기
-            val intent = Intent(this, MainActivity::class.java)
-
-            startActivity(intent)
-        }
-
-    }
 
     private fun signIn() {
         startActivityForResult(mGoogleSignInClient?.signInIntent, RC_SIGN_IN)
     }
 
-    private fun checkIfAccountExist(email: String) {
-        val url = getString(R.string.urlToServer) + "checkIfAccountExist/" + email
-        val request = StringRequest(Request.Method.GET, url,
-            {
-                it?.let { res ->
-                    var intent: Intent? = null
-                    if (res == "0")
-                        intent = Intent(this, SignUpActivity::class.java)
-                    else if (res == "1")
-                        intent = Intent(this, MainActivity::class.java)
 
-                    intent?.let { action -> startActivity(action) }
-                }
-            },
-            { throw it })
 
-        VolleyHelper.getInstance(this).addRequestQueue(request)
+    private fun checkIfAccountExist() {
+
+        UtiliyHelper.getInstance().requestUserInfo(this,
+            { startActivity(Intent(this, MainActivity::class.java))},
+            { startActivity(Intent(this, SignUpActivity::class.java))}
+        )
 
     }
 
-
+    //유저가 이메일을 선택했을때
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
+
         try {
-            //처음 로그인한경우
+            //로그인된 구글계정을 저장한다.
             mAccount = completedTask.getResult(ApiException::class.java)
-
-            val email = if (mAccount == null || mAccount!!.email == null) {
-                Toast.makeText(this, "로그인에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_LONG)
-                return
-            } else mAccount!!.email!!
-
-            checkIfAccountExist(email)
+            //해당 구글계정이 데이터베이스에 등록되어있는지 확인한다.
+            checkIfAccountExist()
 
         } catch (e: ApiException) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
             Log.w("MainActivity", "signInResult:failed code=" + e.statusCode)
-            onLoginSuccess(null)
             Toast.makeText(applicationContext, "로그인에 실패하였습니다!", Toast.LENGTH_SHORT).show()
 
         }

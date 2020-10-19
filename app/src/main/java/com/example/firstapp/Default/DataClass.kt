@@ -1,10 +1,20 @@
 package com.example.firstapp.Default
 
 import android.graphics.Bitmap
+import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
-data class UserInfo(val email : String = "", val nickname : String = "", val sex : Int = 0, val age : Int = 10,
-                    val categorys : HashSet<Int> = hashSetOf())
+data class UserInfo(
+    @SerializedName("email")
+    val email : String = "",
+    @SerializedName("nickname")
+    val nickname : String = "",
+    @SerializedName("sex")
+    val sex : Int = 0,
+    @SerializedName("age")
+    val age : Int = 10,
+    @SerializedName("categorys")
+    val categorys : HashSet<Int> = hashSetOf()) : Serializable
 
 data class Card(
     var postId: Int = 0,

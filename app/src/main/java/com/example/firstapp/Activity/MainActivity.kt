@@ -40,8 +40,6 @@ class MainActivity : AppCompatActivity() {
 
         ready_UI()
 
-        //유저정보 받아둠
-        UtiliyHelper.getInstance().requestUserInfo(this)
 
     }
 

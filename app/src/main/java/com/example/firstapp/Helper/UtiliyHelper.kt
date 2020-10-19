@@ -11,13 +11,15 @@ import com.android.volley.toolbox.StringRequest
 import com.example.firstapp.Activity.LoginActivity
 import com.example.firstapp.Default.UserInfo
 import com.example.firstapp.R
+import com.google.gson.Gson
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 
 //그냥 잡일하는 헬퍼
 class UtiliyHelper {
 
-
+    val mUserInfoFileName = "userInfo"
     var mUserInfo: UserInfo? = null
         private set;
     private var backBtnTimeInMillis: Long = 0
@@ -57,47 +59,52 @@ class UtiliyHelper {
             }
         }
 
-        //유저가 선호하는 카테고리를 내부저장소에 저장
-        val filename = "category"
-        val fileContents = userInfo.categorys
-        val file = File(context.filesDir, filename)
-        val writer = file.printWriter()
-        for (category in fileContents) {
-            //내부적으로 write(String.valueOf(i)); 처럼 int를 String으로 만들고 씀.
-            if(category >= 0)
-            {
-                //인자로 들어온 string을 byteArray로 바꿔서 쓰고 파일을 열고 닫는다.(매번)
-                //file.writeText(category.toString())
-
-                //printWriter.write(int) 는 int를 그냥 char로 강제형변환해서 저장함. int가 아스키코드로서 저장되는듯.
-                //따라서 printWritter.write(string을 쓰자.)
-                //한줄씩 쓰려면 printWritter.println(string)
-                writer.println(category.toString())
-
-            }
-
-        }
-
-        writer.close()
         VolleyHelper.getInstance(context).addRequestQueue(req)
+
+        //캐싱
+
+        val fileContents = Gson().toJson(userInfo)
+        val file = File(context.cacheDir, mUserInfoFileName)
+        file.writeText(fileContents)
 
         mUserInfo = userInfo
     }
 
-    fun requestUserInfo(context: Context) {
-        //이게 sendUserInfoToDB보다 먼저 결과가 올수있을듯
+    fun requestUserInfo(context: Context, onResponse: (() -> Unit)? = null, onFailed: (() -> Unit)? = null) {
 
+        //정보가 이미 있는지 확인
+        mUserInfo?.let {
+           if(onResponse != null) onResponse()
+            return;
+        }
+
+        //기기내에 캐싱된 정보가 있는지 확인
+        mUserInfo = getUserInfoFromFile(context)
+        mUserInfo?.let {
+            if(onResponse != null) onResponse()
+            return;
+        }
+
+
+        //서버에 요청
         val url = context.getString(R.string.urlToServer) + "getUserInfo/"
         var request = JsonObjectRequest(
             Request.Method.POST, url,
             JSONObject(mapOf(Pair("email", LoginActivity.mAccount?.email.toString()))),
             {
+                if (it == null || it.isNull("email"))
+                    if(onFailed != null) onFailed()
+
                 it?.let { obj ->
                     val email = obj.getString("email")
                     val nickname = obj.getString("nickname")
                     val sex = obj.getInt("sex")
                     val age = obj.getInt("age")
-                    mUserInfo = UserInfo(email, nickname, sex, age, getCategoryFromFile(context))
+                    val category = hashSetOf<Int>()
+                    GlobalHelper.getInstance(context).mCategory.forEachIndexed { index, s -> category.add(index) }
+                    mUserInfo = UserInfo(email, nickname, sex, age, category)
+
+                    onResponse?.let { it() }
                 }
 
             },
@@ -108,43 +115,20 @@ class UtiliyHelper {
         VolleyHelper.getInstance(context).addRequestQueue(request)
 
 
-
     }
 
-    private fun getCategoryFromFile(context: Context) : HashSet<Int>
-    {
-        //만약 정보가이미 있으면 그냥 리턴
-       mUserInfo?.let{
-           return it.categorys
-       }
+    private fun getUserInfoFromFile(context: Context): UserInfo? {
+        val file = File(context.cacheDir, mUserInfoFileName)
+        if (file.exists())
+            return Gson().fromJson(file.readText(), UserInfo::class.java)
 
-        var result: String = ""
-        //내부저장소에서 카테고리 파일 찾음
-        val filename = "category"
-
-        //중복제거
-        val category = hashSetOf<Int>()
-        val file = File(context.filesDir, filename)
-        if(file.exists())
-        {
-            file.forEachLine {
-                    line -> category.add(line.toInt())
-            }
-
-        }
-        else
-            //모든 카테고리 추가
-            GlobalHelper.getInstance(context).mCategory.forEachIndexed { index, s -> category.add(index) }
-
-        return category
+        return null
 
     }
 
     fun exitApp(activity: Activity) {
         if (System.currentTimeMillis() < backBtnTimeInMillis + backBtnTimeDelay) {
             finishAffinity(activity);
-            //System.runFinalization();
-            // android.os.Process.killProcess(android.os.Process.myPid());
             return;
         }
         backBtnTimeInMillis = System.currentTimeMillis()
