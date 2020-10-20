@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Activity.LogoActivity"
-    android:background="@drawable/back"
     >
 
 
@@ -14,9 +13,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="voter"
-        android:textSize="400sp"
-        android:fontFamily="@font/font_logo"
+        android:text="보트보트"
+        android:textSize="70sp"
+        android:fontFamily="@font/gmarket_light"
         android:textColor="@color/Black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

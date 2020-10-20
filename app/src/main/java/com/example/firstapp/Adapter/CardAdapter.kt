@@ -15,37 +15,58 @@ import com.android.volley.toolbox.JsonArrayRequest
 import com.example.firstapp.Activity.LoginActivity
 import com.example.firstapp.Default.Card
 import com.example.firstapp.Default.MyPicture
-import com.example.firstapp.Helper.GlobalHelper
 import com.example.firstapp.Helper.UtiliyHelper
 import com.example.firstapp.Helper.VolleyHelper
 import com.example.firstapp.R
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdLoader
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.VideoOptions
+import com.google.android.gms.ads.*
 import com.google.android.gms.ads.formats.NativeAdOptions
 import com.google.android.gms.ads.formats.UnifiedNativeAd
 import com.google.android.gms.ads.formats.UnifiedNativeAdView
+import kotlinx.android.synthetic.main.swipe_ad.view.*
 import kotlinx.android.synthetic.main.swipe_item.view.*
 import java.util.*
 import kotlin.collections.ArrayList
 
 class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>, onAdClick: (() -> Unit)? = null) :
-    RecyclerView.Adapter<CardAdapter.ViewHolder>() {
-
-    class ViewHolder(
-        val layout: View, val rl_swipeCard: RelativeLayout, val uv_ad: UnifiedNativeAdView,
-        val swipImg: ImageView, val tv_swipe_title: TextView, val tv_swipe_userName: TextView, val tv_swipe_content: TextView
-    ) : RecyclerView.ViewHolder(layout)
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
 
     init {
         mContext?.let { initializeCardAd(it, onAdClick) }
     }
 
+    class CardViewHolder(
+        val layout: View, val rl_swipeCard: RelativeLayout,
+        val swipImg: ImageView, val tv_swipe_title: TextView, val tv_swipe_userName: TextView, val tv_swipe_content: TextView
+    ) : RecyclerView.ViewHolder(layout)
+
+    class AdViewHolder(val view: UnifiedNativeAdView) : RecyclerView.ViewHolder(view)
+    {
+        init {
+            view.mediaView = view.mv_ad
+            // Set other ad assets.
+            view.headlineView = view.tv_ad_headline
+            view.bodyView = view.tv_ad_body
+            view.callToActionView = view.btn_ad_learnMore
+            view.iconView = view.iv_ad_icon
+            view.priceView = view.tv_ad_price
+            view.starRatingView = view.rb_ad_stars
+            view.storeView = view.tv_ad_store
+            view.advertiserView = view.tv_ad_advertiser
+        }
+    }
+
+
+
+
     private lateinit var mCardAd: AdLoader
     private var mCurrentNativeAd: UnifiedNativeAd? = null
-
+    private val DATA_VIEW_TYPE = 0
+    private val NATIVE_AD_VIEW_TYPE = 1
+    private val SPACE_BETWEEN_ADS = 10
+    private val SPACE_BETWEEN_REQUEST_AD = 5
+    private var requestAdCnt = 0
+    private var showAdCnt = 0
 
     // DB로부터 받아올 카드 데이터의 시작인덱스
     private var mCardDataIndex: Int = 0
@@ -54,40 +75,38 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
     var mIsBusy: Boolean = false
         private set;
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val layout: View = LayoutInflater.from(parent.context).inflate(R.layout.swipe_item, parent, false)
 
-        val viewHolder = ViewHolder(layout, layout.rl_swipeCard, layout.uv_ad, layout.swipImg, layout.tv_swipe_title, layout.tv_swipe_userName, layout.tv_swipe_content)
-        val adView = viewHolder.uv_ad
-        // Set the media view.
-        adView.mediaView = adView.mv_ad
-        // Set other ad assets.
-        adView.headlineView = adView.tv_ad_headline
-        adView.bodyView = adView.tv_ad_body
-        adView.callToActionView = adView.btn_ad_learnMore
-        adView.iconView = adView.iv_ad_icon
-        adView.priceView = adView.tv_ad_price
-        adView.starRatingView = adView.rb_ad_stars
-        adView.storeView = adView.tv_ad_store
-        adView.advertiserView = adView.tv_ad_advertiser
-        return viewHolder
+    override fun getItemViewType(position: Int): Int {
+        return if(mDataset[position].isAd) NATIVE_AD_VIEW_TYPE else DATA_VIEW_TYPE
     }
-
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        if (mDataset.size > position) {
-            if (mDataset[position].isAd) {
-                holder.rl_swipeCard.visibility = View.INVISIBLE
-                holder.uv_ad.visibility = View.VISIBLE
-                setCardAdData(holder.uv_ad)
-            } else {
-                holder.rl_swipeCard.visibility = View.VISIBLE
-                holder.uv_ad.visibility = View.INVISIBLE
-
-                setCardData(mDataset[position], holder)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when(viewType){
+            DATA_VIEW_TYPE -> {
+                val layout: View = LayoutInflater.from(parent.context).inflate(R.layout.swipe_item, parent, false)
+                CardViewHolder(layout, layout.rl_swipeCard, layout.swipImg, layout.tv_swipe_title, layout.tv_swipe_userName, layout.tv_swipe_content)
+            }
+            NATIVE_AD_VIEW_TYPE -> {
+               AdViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.swipe_ad, parent, false) as UnifiedNativeAdView)
+            }
+            else->{
+                AdViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.swipe_ad, parent, false) as UnifiedNativeAdView)
             }
         }
 
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+
+        when (getItemViewType(position)) {
+            DATA_VIEW_TYPE -> {
+                val cardViewHolder = holder as CardViewHolder
+                setCardData(mDataset[position], cardViewHolder)
+            }
+            NATIVE_AD_VIEW_TYPE -> {
+                val adViewHolder = holder as AdViewHolder
+                setCardAdData(adViewHolder.view)
+            }
+        }
     }
 
     override fun getItemCount(): Int {
@@ -99,7 +118,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
         return mDataset.isEmpty()
     }
 
-    private fun setCardData(card: Card, holder: ViewHolder) {
+    private fun setCardData(card: Card, holder: CardViewHolder) {
 
 
         //썸네일을 설정. pictures에는 하나의 사진밖에 없음.
@@ -117,6 +136,20 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
         if (mDataset.isNotEmpty()) {
             mDataset.removeFirst()
             notifyItemRemoved(0)
+            requestAdCnt++
+            showAdCnt++
+        }
+
+        if(requestAdCnt >= SPACE_BETWEEN_REQUEST_AD)
+        {
+            loadAd()
+            requestAdCnt = 0
+        }
+
+        if(showAdCnt >= SPACE_BETWEEN_ADS)
+        {
+            addAdData(Card(isAd = true))
+            showAdCnt = 0
         }
 
         //http 요청중이 아니고, 카드 데이터가 비려고 하면 더 받아온다.
@@ -132,22 +165,13 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
     }
 
     private fun onItemAboutToEmpty(onSuccess: (() -> Unit)? = null, onFailed: (() -> Unit)? = null) {
-        requestAndAddCardDatas(R.integer.CardRequestAtOnce, onSuccess, onFailed)
+        requestAndAddCardData(R.integer.CardRequestAtOnce, onSuccess, onFailed)
     }
 
-    fun loadAd() {
+    private fun loadAd() {
         mCardAd.loadAd(AdRequest.Builder().build())
     }
 
-    fun addAdData() {
-        //맨앞에 집어넣으면 notifyItemInserted 하는 순간 맨위의 카드가 바뀌어버림.
-        //현재 맨위 카드 다음장에 넣자.
-        if (mDataset.size >= 1) {
-            mDataset.add(1, Card(isAd = true))
-            // 리사이클러뷰의 mState(리사이클러뷰의 상태. 다른 객체들이 참조한다) 갱신
-            notifyItemInserted(1)
-        }
-    }
 
     fun getItemAt(index: Int): Card? {
         if (index >= mDataset.size)
@@ -157,12 +181,21 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
         }
     }
 
-    fun addCardData(card: Card) {
+    private fun addCardData(card: Card) {
         mDataset.add(card)
         notifyItemInserted(mDataset.size - 1)
     }
 
-    fun requestAndAddCardDatas(postCnt: Int, onSuccess: (() -> Unit)? = null, onFailed: (() -> Unit)? = null) {
+    private fun addAdData(card: Card) {
+        if(mDataset.size > 1)
+        {
+            mDataset.add(1, card)
+            notifyItemInserted(1)
+        }
+    }
+
+
+    fun requestAndAddCardData(postCnt: Int, onSuccess: (() -> Unit)? = null, onFailed: (() -> Unit)? = null) {
 
         mIsBusy = true
 
@@ -384,6 +417,8 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
         mContext = null
         mCurrentNativeAd?.destroy()
     }
+
+
 
 
 }

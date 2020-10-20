@@ -5,24 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Activity.LoginActivity"
-    android:background="@drawable/back"
     >
 
-
-    <TextView
-        android:id="@+id/tv_login_logo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/font_logo"
-        android:gravity="center"
-        android:text="voter"
-        android:textColor="@color/Black"
-        android:textSize="400sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.289" />
 
     <RelativeLayout
         android:id="@+id/sign_in_button"
@@ -36,7 +20,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.622"
+        app:layout_constraintVertical_bias="0.585"
         app:layout_constraintWidth_percent="0.8">
 
         <ImageView
@@ -61,6 +45,23 @@
             app:layout_constraintStart_toStartOf="@+id/imageButton"
             app:layout_constraintTop_toTopOf="parent" />
     </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tv_login_logo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/gmarket_light"
+        android:gravity="center"
+        android:text="보트보트"
+        android:textColor="@color/colorPrimary"
+        android:textSize="70sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.336"
+        />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

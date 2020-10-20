@@ -23,6 +23,7 @@ import com.example.firstapp.Adapter.MyPostAdapter
 import com.example.firstapp.Default.*
 import com.example.firstapp.Helper.UtiliyHelper
 import com.example.firstapp.R
+import com.google.android.gms.ads.AdRequest
 import kotlinx.android.synthetic.main.frag_profile.*
 
 
@@ -68,6 +69,11 @@ class ProfileFragment : Fragment() {
 
         //lv_myPosts의 아이템을 길게누르면 메뉴가 생성되며 onCreateContextMenu가 불림.
         registerForContextMenu(lv_myPosts)
+
+
+        val adRequest = AdRequest.Builder().build()
+        av_profile_banner.loadAd(adRequest)
+
 
 
     }
@@ -190,7 +196,6 @@ class ProfileFragment : Fragment() {
 
         //사용자정보
         tv_profile_nickname.text = UtiliyHelper.getInstance().mUserInfo?.nickname
-        tv_profile_email.text = LoginActivity.mAccount?.email
 
         //갱신하기 전의 포스트들
         val oldPosts = ArrayList<Post>(mPosts)

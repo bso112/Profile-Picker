@@ -13,6 +13,9 @@ import kotlinx.android.synthetic.main.activity_logo.*
 import java.util.*
 
 class LogoActivity : AppCompatActivity() {
+
+    private var isMinimumWaitPassed = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_logo)
@@ -36,8 +39,8 @@ class LogoActivity : AppCompatActivity() {
             LoginActivity.mAccount?.email?.let {
                 UtiliyHelper.getInstance().requestUserInfo(
                     this, it,
-                    { intent = Intent(this, MainActivity::class.java) },
-                    { intent = Intent(this, LoginActivity::class.java) })
+                    { intent = Intent(this, MainActivity::class.java) ; if(isMinimumWaitPassed) startActivity(intent)},
+                    { intent = Intent(this, LoginActivity::class.java) ; if(isMinimumWaitPassed) startActivity(intent)})
             }
         }
 
@@ -47,8 +50,10 @@ class LogoActivity : AppCompatActivity() {
         val anim = AnimationUtils.loadAnimation(this, R.anim.anim_fadein)
         tv_logo.startAnimation(anim)
 
+        //최소 0.5초는 로고를 보여준다.
         Timer().schedule(object : TimerTask() {
             override fun run() {
+                isMinimumWaitPassed = true
                 if(intent != null)
                     startActivity(intent)
             }

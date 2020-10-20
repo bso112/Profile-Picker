@@ -121,7 +121,7 @@ class MainActivity : AppCompatActivity() {
                     tab.text = "둘러보기"
                 }
                 1 -> {
-                    tab.text = "내정보"
+                    tab.text = "내 투표"
                 }
 
             }

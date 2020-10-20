@@ -63,31 +63,36 @@ class UtiliyHelper {
 
         //캐싱
 
-        val fileContents = Gson().toJson(userInfo)
-        val file = File(context.cacheDir, "account_" + userInfo.email)
-        file.writeText(fileContents)
+//        val fileContents = Gson().toJson(userInfo)
+//        val file = File(context.cacheDir, "account_" + userInfo.email)
+//        file.writeText(fileContents)
 
         mUserInfo = userInfo
     }
 
     fun requestUserInfo(context: Context, email : String, onResponse: (() -> Unit)? = null, onFailed: (() -> Unit)? = null) {
+//        //이러면 데베에 유저정보가 없어도 로컬에 캐싱된 데이터가 있으면 접속되버림.
+         //이메일만 조작하면 다른 계정으로도 접속됨
+//        //기기내에 캐싱된 정보가 있는지 확인
+//        mUserInfo = getUserInfoFromFile(context, email)
+//        mUserInfo?.let {
+//            if(onResponse != null) onResponse()
+//            return;
+//        }
 
-        //기기내에 캐싱된 정보가 있는지 확인
-        mUserInfo = getUserInfoFromFile(context, email)
-        mUserInfo?.let {
-            if(onResponse != null) onResponse()
-            return;
-        }
 
-
-        //서버에 요청
+        //없으면 서버에 요청
         val url = context.getString(R.string.urlToServer) + "getUserInfo/"
         var request = JsonObjectRequest(
             Request.Method.POST, url,
             JSONObject(mapOf(Pair("email", email))),
             {
-                if (it == null || it.isNull("email"))
+
+                if (it == null || it.length() <= 0)
+                {
                     if(onFailed != null) onFailed()
+                    return@JsonObjectRequest
+                }
 
                 it?.let { obj ->
                     val email = obj.getString("email")
@@ -103,7 +108,8 @@ class UtiliyHelper {
 
             },
             {
-                throw  it
+                it.message?.let { it1 -> Log.d("volley", it1) }
+                if(onFailed != null) onFailed()
             })
 
         VolleyHelper.getInstance(context).addRequestQueue(request)

@@ -22,7 +22,7 @@
             android:id="@+id/tabLayout"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            app:tabIndicatorColor="@color/Black"
+            app:tabIndicatorColor="@color/colorPrimary"
             app:tabIndicator="@drawable/rounded_corner_fg"
             app:tabIndicatorHeight="40dp"
             app:tabIndicatorGravity="center"

@@ -198,7 +198,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/rounded_corner_fg"
-        android:backgroundTint="@color/Black"
+        android:backgroundTint="@color/colorPrimary"
         android:text="제출"
         android:textColor="@color/White"
         android:textSize="15sp"
