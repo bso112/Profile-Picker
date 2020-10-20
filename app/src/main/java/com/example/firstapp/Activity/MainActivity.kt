@@ -53,8 +53,8 @@ class MainActivity : AppCompatActivity() {
                 R.id.it_logout -> {
                     showSimpleAlert(this@MainActivity, "로그아웃", "로그아웃 하시겠습니까?",
                         {
-                            LoginActivity.mGoogleSignInClient?.signOut();
-                            Intent(this@MainActivity, LoginActivity::class.java).apply { startActivity(this) };
+                            LoginActivity.mGoogleSignInClient?.signOut()?.addOnCompleteListener {
+                                Intent(this@MainActivity, LoginActivity::class.java).apply { startActivity(this) }; }
                         })
 
                     true

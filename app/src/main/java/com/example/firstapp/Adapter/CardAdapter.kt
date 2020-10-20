@@ -27,12 +27,15 @@ import kotlinx.android.synthetic.main.swipe_item.view.*
 import java.util.*
 import kotlin.collections.ArrayList
 
-class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>, onAdClick: (() -> Unit)? = null) :
+/**
+ * mDataset : UnifiedNativeAd or Card
+ */
+class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Any>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
 
     init {
-        mContext?.let { initializeCardAd(it, onAdClick) }
+        mContext?.let { initializeCardAd(it) }
     }
 
     class CardViewHolder(
@@ -60,13 +63,10 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
 
 
     private lateinit var mCardAd: AdLoader
-    private var mCurrentNativeAd: UnifiedNativeAd? = null
     private val DATA_VIEW_TYPE = 0
     private val NATIVE_AD_VIEW_TYPE = 1
-    private val SPACE_BETWEEN_ADS = 10
-    private val SPACE_BETWEEN_REQUEST_AD = 5
+    private val SPACE_BETWEEN_REQUEST_AD = 10
     private var requestAdCnt = 0
-    private var showAdCnt = 0
 
     // DB로부터 받아올 카드 데이터의 시작인덱스
     private var mCardDataIndex: Int = 0
@@ -77,7 +77,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
 
 
     override fun getItemViewType(position: Int): Int {
-        return if(mDataset[position].isAd) NATIVE_AD_VIEW_TYPE else DATA_VIEW_TYPE
+        return if(mDataset[position] as? UnifiedNativeAd != null) NATIVE_AD_VIEW_TYPE else DATA_VIEW_TYPE
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when(viewType){
@@ -100,11 +100,11 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
         when (getItemViewType(position)) {
             DATA_VIEW_TYPE -> {
                 val cardViewHolder = holder as CardViewHolder
-                setCardData(mDataset[position], cardViewHolder)
+                setCardData(mDataset[position] as Card, cardViewHolder)
             }
             NATIVE_AD_VIEW_TYPE -> {
                 val adViewHolder = holder as AdViewHolder
-                setCardAdData(adViewHolder.view)
+                setCardAdData(mDataset[position] as UnifiedNativeAd, adViewHolder.view)
             }
         }
     }
@@ -137,7 +137,6 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
             mDataset.removeFirst()
             notifyItemRemoved(0)
             requestAdCnt++
-            showAdCnt++
         }
 
         if(requestAdCnt >= SPACE_BETWEEN_REQUEST_AD)
@@ -146,11 +145,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
             requestAdCnt = 0
         }
 
-        if(showAdCnt >= SPACE_BETWEEN_ADS)
-        {
-            addAdData(Card(isAd = true))
-            showAdCnt = 0
-        }
+
 
         //http 요청중이 아니고, 카드 데이터가 비려고 하면 더 받아온다.
         if (!mIsBusy && mDataset.count() < 3)
@@ -173,7 +168,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
     }
 
 
-    fun getItemAt(index: Int): Card? {
+    fun getItemAt(index: Int): Any? {
         if (index >= mDataset.size)
             return null
         else {
@@ -186,7 +181,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
         notifyItemInserted(mDataset.size - 1)
     }
 
-    private fun addAdData(card: Card) {
+    private fun addAdData(card: Any) {
         if(mDataset.size > 1)
         {
             mDataset.add(1, card)
@@ -302,7 +297,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
     }
 
 
-    private fun initializeCardAd(context: Context, onAdClick: (() -> Unit)? = null) {
+    private fun initializeCardAd(context: Context) {
 
         //비디오는 일단 음소거
         val videoOptions = VideoOptions.Builder()
@@ -311,9 +306,8 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
 
         mCardAd = AdLoader.Builder(context, "ca-app-pub-3940256099942544/2247696110")
             .forUnifiedNativeAd { ad: UnifiedNativeAd ->
-
-                mCurrentNativeAd?.destroy()
-                mCurrentNativeAd = ad
+                //앞쪽에 광고데이터를 넣는다.
+                addAdData(ad)
             }
             .withAdListener(object : AdListener() {
                 override fun onAdFailedToLoad(errorCode: Int) {
@@ -321,13 +315,6 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
                     Log.d("swipe", "광고 로드 실패")
                 }
 
-                override fun onAdClicked() {
-                    super.onAdClicked()
-                    if (onAdClick != null) {
-                        onAdClick()
-                    }
-
-                }
 
             })
             .withNativeAdOptions(
@@ -341,11 +328,11 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
     }
 
 
-    private fun setCardAdData(adView: UnifiedNativeAdView) {
+    private fun setCardAdData(nativeAd : UnifiedNativeAd, adView: UnifiedNativeAdView) {
         // You must call destroy on old ads when you are done with them,
         // otherwise you will have a memory leak.
 
-        val nativeAd: UnifiedNativeAd = mCurrentNativeAd ?: return
+
 
         // The headline and media content are guaranteed to be in every UnifiedNativeAd.
         (adView.headlineView as TextView).text = nativeAd.headline
@@ -415,7 +402,6 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
     fun onDestroy() {
         //메모리릭 방지
         mContext = null
-        mCurrentNativeAd?.destroy()
     }
 
 

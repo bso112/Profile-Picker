@@ -3,6 +3,9 @@ package com.example.firstapp.Default
 import android.graphics.Bitmap
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashSet
 
 data class UserInfo(
     @SerializedName("email")
@@ -24,7 +27,7 @@ data class Card(
     var nickname : String = "",
     var pictures : ArrayList<MyPicture> = ArrayList<MyPicture>(),
     var isAd : Boolean = false
-);
+) ;
 
 
 class Post(var tumbnail: Bitmap?, var postInfo: PostInfo) {
