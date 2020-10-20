@@ -4,19 +4,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activity.LoginActivity">
+    tools:context=".Activity.LoginActivity"
+    android:background="@drawable/back"
+    >
 
 
-    <ImageView
-        android:id="@+id/Logo"
-        android:layout_width="300dp"
+    <TextView
+        android:id="@+id/tv_login_logo"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@drawable/logo_eng"
+        android:fontFamily="@font/font_logo"
+        android:gravity="center"
+        android:text="voter"
+        android:textColor="@color/Black"
+        android:textSize="400sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.343" />
+        app:layout_constraintVertical_bias="0.289" />
 
     <RelativeLayout
         android:id="@+id/sign_in_button"
@@ -30,7 +36,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.57"
+        app:layout_constraintVertical_bias="0.622"
         app:layout_constraintWidth_percent="0.8">
 
         <ImageView

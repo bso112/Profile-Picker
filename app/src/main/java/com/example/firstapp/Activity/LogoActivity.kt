@@ -45,7 +45,7 @@ class LogoActivity : AppCompatActivity() {
 
 
         val anim = AnimationUtils.loadAnimation(this, R.anim.anim_fadein)
-        iv_logo.startAnimation(anim)
+        tv_logo.startAnimation(anim)
 
         Timer().schedule(object : TimerTask() {
             override fun run() {

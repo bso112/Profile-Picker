@@ -8,7 +8,6 @@
     android:orientation="vertical"
     android:weightSum="1"
     tools:context=".Activity.MainActivity"
-    android:background="@color/White"
     >
 
     <LinearLayout

@@ -4,20 +4,37 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activity.LogoActivity">
+    tools:context=".Activity.LogoActivity"
+    android:background="@drawable/back"
+    >
 
 
-
-    <ImageView
-        android:id="@+id/iv_logo"
-        android:layout_width="300dp"
+    <TextView
+        android:id="@+id/tv_logo"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@drawable/logo_eng"
+        android:gravity="center"
+        android:text="voter"
+        android:textSize="400sp"
+        android:fontFamily="@font/font_logo"
+        android:textColor="@color/Black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintVertical_bias="0.5"/>
+
+
+<!--    <ImageView-->
+<!--        android:id="@+id/iv_logo"-->
+<!--        android:layout_width="300dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:src="@drawable/logo_eng"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:layout_constraintVertical_bias="0.5" />-->
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

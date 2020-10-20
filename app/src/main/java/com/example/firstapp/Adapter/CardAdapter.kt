@@ -83,6 +83,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
             } else {
                 holder.rl_swipeCard.visibility = View.VISIBLE
                 holder.uv_ad.visibility = View.INVISIBLE
+
                 setCardData(mDataset[position], holder)
             }
         }

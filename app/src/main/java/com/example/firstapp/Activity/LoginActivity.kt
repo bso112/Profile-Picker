@@ -57,16 +57,6 @@ class LoginActivity : AppCompatActivity() {
 
     }
 
-    override fun onStart() {
-        super.onStart()
-//        //로그인된 상태인지 확인
-//        mAccount = GoogleSignIn.getLastSignedInAccount(this)
-//
-//        //전에 로그인한 적이 있으면 바로 로그인처리
-//        //DB에 해당 구글계정이 있는지 확인한다. 있으면 MainActivity, 없으면 SignUpActivity로 간다.
-//        mAccount?.email?.let { checkIfAccountExist(it) }
-
-    }
 
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)

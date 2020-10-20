@@ -6,12 +6,14 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.firstapp.Adapter.CardAdapter
 import com.example.firstapp.Default.EXTRA_POSTID
 import com.example.firstapp.Activity.PostActivity
@@ -119,6 +121,7 @@ class SwipeFragment : Fragment() {
         }
 
 
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -187,6 +190,7 @@ class SwipeFragment : Fragment() {
         sv_swipeView.layoutManager = mSwipeLayoutManager
         mCardAdapter = CardAdapter(context!!, LinkedList()) { }
         sv_swipeView.adapter = mCardAdapter
+
 
 
         mCardAdapter.requestAndAddCardDatas(resources.getInteger(R.integer.CardRequestAtOnce), {tv_swipe_empty.visibility = View.INVISIBLE}, {tv_swipe_empty.visibility = View.VISIBLE})
