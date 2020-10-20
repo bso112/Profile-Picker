@@ -187,6 +187,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Any>)
             mDataset.add(1, card)
             notifyItemInserted(1)
         }
+
     }
 
 
@@ -291,7 +292,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Any>)
                 }
             },
             Response.ErrorListener {
-                throw it
+                it.message?.let { it1 -> Log.d("volley", it1) }
             })
         VolleyHelper.getInstance(mContext!!).addRequestQueue(postInfoRequest)
     }
