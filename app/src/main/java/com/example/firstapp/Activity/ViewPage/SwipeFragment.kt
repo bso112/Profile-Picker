@@ -42,8 +42,8 @@ class SwipeFragment : Fragment() {
     private lateinit var mCardAdapter: CardAdapter
 
 
-    private lateinit var mSwipeLeftSetting: SwipeAnimationSetting
-    private lateinit var mSwipeRightSetting: SwipeAnimationSetting
+//    private lateinit var mSwipeLeftSetting: SwipeAnimationSetting
+//    private lateinit var mSwipeRightSetting: SwipeAnimationSetting
     private lateinit var mSwipeLayoutManager: CardStackLayoutManager
 
     private var mOldCategory = HashSet<Int>()
@@ -64,7 +64,6 @@ class SwipeFragment : Fragment() {
         readyFragementView()
 
         UtiliyHelper.getInstance().mUserInfo?.categorys?.let { mOldCategory = it }
-
 
 
     }
@@ -96,40 +95,38 @@ class SwipeFragment : Fragment() {
 
         val btnAnim = AnimationUtils.loadAnimation(context!!, R.anim.anim_flinch)
         //게시물보기 버튼 눌렀을때
-        btn_like.setOnClickListener { it ->
+        btn_like.setOnClickListener {btn->
 
             if (mCardAdapter.isEmpty())
                 return@setOnClickListener
 
-            mCardAdapter.getItemAt(0)?.let {
-                val card = it as? Card
-                if (card != null) {
-
-                    val intent = Intent(context, PostActivity::class.java).apply {
-                        putExtra(EXTRA_POSTID, card.postId)
-                        startActivityForResult(this, REQUEST_VOTE)
-                    }
+            mCardAdapter.getItemAt(0)?.let { card ->
+                val intent = Intent(context, PostActivity::class.java).apply {
+                    putExtra(EXTRA_POSTID, card.postId)
+                    startActivityForResult(this, REQUEST_VOTE)
                 }
             }
-            it.startAnimation(btnAnim)
+
+            btn.startAnimation(btnAnim)
         }
 
 
 
-        btn_prv.setOnClickListener {
-            if (mCardAdapter.isEmpty())
-                return@setOnClickListener
-
-            mSwipeLayoutManager.setSwipeAnimationSetting(mSwipeLeftSetting)
-            sv_swipeView.swipe()
-        }
-        btn_next.setOnClickListener {
-            if (mCardAdapter.isEmpty())
-                return@setOnClickListener
-            mSwipeLayoutManager.setSwipeAnimationSetting(mSwipeRightSetting)
-            sv_swipeView.swipe()
-
-        }
+        // 수동으로 swipe하면 버그생김..
+//        btn_prv.setOnClickListener {
+//            if (mCardAdapter.isEmpty())
+//                return@setOnClickListener
+//
+//            mSwipeLayoutManager.setSwipeAnimationSetting(mSwipeLeftSetting)
+//            sv_swipeView.swipe()
+//        }
+//        btn_next.setOnClickListener {
+//            if (mCardAdapter.isEmpty())
+//                return@setOnClickListener
+//            mSwipeLayoutManager.setSwipeAnimationSetting(mSwipeRightSetting)
+//            sv_swipeView.swipe()
+//
+//        }
 
 
     }
@@ -182,10 +179,12 @@ class SwipeFragment : Fragment() {
 
 
 
-        mSwipeLeftSetting = SwipeAnimationSetting.Builder().setDirection(Direction.Left).build()
-        mSwipeRightSetting = SwipeAnimationSetting.Builder().setDirection(Direction.Right).build()
+//        mSwipeLeftSetting = SwipeAnimationSetting.Builder().setDirection(Direction.Left).build()
+//        mSwipeRightSetting = SwipeAnimationSetting.Builder().setDirection(Direction.Right).build()
+
 
         mSwipeLayoutManager = CardStackLayoutManager(context, cardListener)
+        mSwipeLayoutManager.setSwipeThreshold(0.1F)
         sv_swipeView.layoutManager = mSwipeLayoutManager
         mCardAdapter = CardAdapter(context!!, LinkedList())
         sv_swipeView.adapter = mCardAdapter
@@ -199,7 +198,6 @@ class SwipeFragment : Fragment() {
 
 
     }
-
 
 
     override fun onDestroy() {

@@ -33,7 +33,6 @@ class LoginActivity : AppCompatActivity() {
 
     companion object {
         var mGoogleSignInClient: GoogleSignInClient? = null
-            private set
         var mAccount: GoogleSignInAccount? = null
 
     }
@@ -44,20 +43,29 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        // Configure sign-in to request the user's ID, email address, and basic
-        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestEmail()
-            .build()
+        if(mGoogleSignInClient == null)
+        {
+            // Configure sign-in to request the user's ID, email address, and basic
+            // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build()
 
-        // Build a GoogleSignInClient with the options specified by gso.
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+            // Build a GoogleSignInClient with the options specified by gso.
+            mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        }
 
         sign_in_button.setOnClickListener { signIn() }
 
     }
 
 
+    override fun onStart() {
+        super.onStart()
+        if(mAccount == null)
+            mAccount = GoogleSignIn.getLastSignedInAccount(this)
+    }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onBackPressed() {

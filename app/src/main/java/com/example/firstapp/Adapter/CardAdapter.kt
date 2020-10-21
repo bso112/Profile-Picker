@@ -24,15 +24,15 @@ import com.google.android.gms.ads.formats.UnifiedNativeAd
 import com.google.android.gms.ads.formats.UnifiedNativeAdView
 import kotlinx.android.synthetic.main.swipe_ad.view.*
 import kotlinx.android.synthetic.main.swipe_item.view.*
+import java.lang.Integer.max
 import java.util.*
 import kotlin.collections.ArrayList
 
 /**
  * mDataset : UnifiedNativeAd or Card
  */
-class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Any>) :
+class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
 
     init {
         mContext?.let { initializeCardAd(it) }
@@ -59,25 +59,36 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Any>)
         }
     }
 
-
-
-
-    private lateinit var mCardAd: AdLoader
     private val DATA_VIEW_TYPE = 0
     private val NATIVE_AD_VIEW_TYPE = 1
+
+
+    //카드를 더 받아오는 기준점
+    private val CARD_DATA_ABOUT_TO_EMPTY =  3
+
+    //한번에 요청할 광고의 수
+    private val REQUEST_AD_AT_ONECE = 5
+    //광고를 더 받아오는 기준점
+    private val AD_DATA_ABOUT_TO_EMPTY = 2
+    //광고를 표시하는 간격
     private val SPACE_BETWEEN_REQUEST_AD = 10
-    private var requestAdCnt = 0
 
     // DB로부터 받아올 카드 데이터의 시작인덱스
     private var mCardDataIndex: Int = 0
-
     //네트워크에서 카드데이터를 받아오는 중인가?
     var mIsBusy: Boolean = false
         private set;
 
+    //광고요청 가산기
+    private var mSwipeAcc = 0
+    //광고로더
+    private lateinit var mCardAd: AdLoader
+    //광고데이터 큐
+    private val mAdQueue : Queue<UnifiedNativeAd> = LinkedList<UnifiedNativeAd>()
+
 
     override fun getItemViewType(position: Int): Int {
-        return if(mDataset[position] as? UnifiedNativeAd != null) NATIVE_AD_VIEW_TYPE else DATA_VIEW_TYPE
+        return if(mDataset[position].isAd) NATIVE_AD_VIEW_TYPE else DATA_VIEW_TYPE
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when(viewType){
@@ -100,12 +111,12 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Any>)
         when (getItemViewType(position)) {
             DATA_VIEW_TYPE -> {
                 val cardViewHolder = holder as CardViewHolder
-                setCardData(mDataset[position] as Card, cardViewHolder)
+                setCardData(mDataset[position], cardViewHolder)
             }
             NATIVE_AD_VIEW_TYPE -> {
                 val adViewHolder = holder as AdViewHolder
-                setCardAdData(mDataset[position] as UnifiedNativeAd, adViewHolder.view)
-            }
+                mAdQueue.peek()?.let { setCardAdData(it, adViewHolder.view) }
+        }
         }
     }
 
@@ -134,21 +145,31 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Any>)
 
     fun removeCardAtFront() {
         if (mDataset.isNotEmpty()) {
+            //만약 광고면 파괴한다.
+            if(mDataset.first().isAd)
+                mAdQueue.poll()?.destroy()
+
             mDataset.removeFirst()
             notifyItemRemoved(0)
-            requestAdCnt++
+            mSwipeAcc++
         }
 
-        if(requestAdCnt >= SPACE_BETWEEN_REQUEST_AD)
+
+        if(mSwipeAcc >= SPACE_BETWEEN_REQUEST_AD)
         {
-            loadAd()
-            requestAdCnt = 0
+            ShowAd()
+            mSwipeAcc = 0
+        }
+
+        if(mAdQueue.size <= AD_DATA_ABOUT_TO_EMPTY && !mCardAd.isLoading)
+        {
+            loadAds()
         }
 
 
 
         //http 요청중이 아니고, 카드 데이터가 비려고 하면 더 받아온다.
-        if (!mIsBusy && mDataset.count() < 3)
+        if (!mIsBusy && mDataset.count() < CARD_DATA_ABOUT_TO_EMPTY)
             onItemAboutToEmpty()
     }
 
@@ -163,12 +184,13 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Any>)
         requestAndAddCardData(R.integer.CardRequestAtOnce, onSuccess, onFailed)
     }
 
-    private fun loadAd() {
-        mCardAd.loadAd(AdRequest.Builder().build())
+    private fun loadAds() {
+        //광고요청하고 올때까지 꽤걸리니까 한번에 요청한다.
+        mCardAd.loadAds(AdRequest.Builder().build(), REQUEST_AD_AT_ONECE)
     }
 
 
-    fun getItemAt(index: Int): Any? {
+    fun getItemAt(index: Int): Card? {
         if (index >= mDataset.size)
             return null
         else {
@@ -181,17 +203,21 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Any>)
         notifyItemInserted(mDataset.size - 1)
     }
 
-    private fun addAdData(card: Any) {
-        if(mDataset.size > 1)
+
+    private  fun ShowAd()
+    {
+        if(mDataset.size >= 1)
         {
-            mDataset.add(1, card)
+            mDataset.add(1, Card(isAd = true))
             notifyItemInserted(1)
         }
-
+        else
+            Toast.makeText(mContext, "무시", Toast.LENGTH_SHORT).show()
     }
 
 
-    fun requestAndAddCardData(postCnt: Int, onSuccess: (() -> Unit)? = null, onFailed: (() -> Unit)? = null) {
+
+    fun requestAndAddCardData(postSize: Int, onSuccess: (() -> Unit)? = null, onFailed: (() -> Unit)? = null) {
 
         mIsBusy = true
 
@@ -215,7 +241,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Any>)
         // ["asdas","sdff","afd"] 이래되야될듯?
 
 
-        var url = mContext!!.getString(R.string.urlToServer) + "getRandomPost/" + postCnt.toString() + "/" + mCardDataIndex.toString() +
+        var url = mContext!!.getString(R.string.urlToServer) + "getRandomPost/" + postSize.toString() + "/" + mCardDataIndex.toString() +
                 "/" + LoginActivity.mAccount?.email + "/" + UtiliyHelper.getInstance().mUserInfo?.categorys.toString()
         //랜덤한 유저의 게시글을 얻는다.
         //현재 로그인된 유저정보를 바탕으로
@@ -270,16 +296,34 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Any>)
                             //완성한 카드를 어레디어댑터에 추가
                             addCardData(card)
 
-                            mCardDataIndex++
+                          //  mCardDataIndex++
 
                             //마지막 루프면
                             if (card === cardList.last()) {
                                 mIsBusy = false
 
-                                //만약 받았은 포스트의 수가 요청한 것보다 적으면 마지막 데이터셋이라는 뜻
-                                //그때는 mCardDataIndex를 0으로 돌린다.
-                                if (cardList.count() < postCnt)
-                                    mCardDataIndex = 0
+                                //만약에 20개보다 포스트가 적으면 반복해서 20개 채운다.
+                                if(cardList.count() < 20)
+                                {
+
+                                    for(i in 0 until ((mContext!!.resources.getInteger(R.integer.CardRequestAtOnce) / cardList.size) -1).coerceAtLeast(0))
+                                        cardList.forEach { mDataset.add(it) }
+
+                                   val remainderSize = mContext!!.resources.getInteger(R.integer.CardRequestAtOnce) % cardList.size
+                                    for(i in 0 until remainderSize)
+                                        mDataset.add(cardList[i])
+
+                                    mCardDataIndex = remainderSize
+
+                                    notifyDataSetChanged()
+
+                                }
+
+
+//                                //만약 받았은 포스트의 수가 요청한 것보다 적으면 마지막 데이터셋이라는 뜻
+//                                //그때는 mCardDataIndex를 0으로 돌린다.
+//                                if (cardList.count() < postSize)
+//                                    mCardDataIndex = 0
 
                             }
 
@@ -307,8 +351,8 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Any>)
 
         mCardAd = AdLoader.Builder(context, "ca-app-pub-3940256099942544/2247696110")
             .forUnifiedNativeAd { ad: UnifiedNativeAd ->
-                //앞쪽에 광고데이터를 넣는다.
-                addAdData(ad)
+
+                mAdQueue.add(ad)
             }
             .withAdListener(object : AdListener() {
                 override fun onAdFailedToLoad(errorCode: Int) {
@@ -332,6 +376,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Any>)
     private fun setCardAdData(nativeAd : UnifiedNativeAd, adView: UnifiedNativeAdView) {
         // You must call destroy on old ads when you are done with them,
         // otherwise you will have a memory leak.
+
 
 
 
@@ -403,6 +448,8 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Any>)
     fun onDestroy() {
         //메모리릭 방지
         mContext = null
+        //불러온 광고 다 폐기
+        mAdQueue.forEach { it.destroy() }
     }
 
 

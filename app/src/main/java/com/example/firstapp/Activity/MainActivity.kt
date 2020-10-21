@@ -25,6 +25,7 @@ import com.example.firstapp.R
 import com.google.android.gms.ads.MobileAds
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -53,8 +54,15 @@ class MainActivity : AppCompatActivity() {
                 R.id.it_logout -> {
                     showSimpleAlert(this@MainActivity, "로그아웃", "로그아웃 하시겠습니까?",
                         {
-                            LoginActivity.mGoogleSignInClient?.signOut()?.addOnCompleteListener {
+                            val task = LoginActivity.mGoogleSignInClient?.signOut()
+
+                            task?.addOnCompleteListener {
                                 Intent(this@MainActivity, LoginActivity::class.java).apply { startActivity(this) }; }
+                            task?.addOnFailureListener {
+                                Toast.makeText(this, "실패했습니다. 다시한번 시도해주세요.", Toast.LENGTH_SHORT).show() }
+
+
+
                         })
 
                     true
@@ -62,9 +70,16 @@ class MainActivity : AppCompatActivity() {
                 R.id.it_withdraw -> {
                     showSimpleAlert(this@MainActivity, "회원탈퇴", "회원탈퇴를 하시겠습니까? 모든 게시글은 삭제됩니다.",
                         {
-                            //Disconnect accounts ..? https://developers.google.com/identity/sign-in/android/disconnect
-                            LoginActivity.mGoogleSignInClient?.revokeAccess()
-                                ?.addOnCompleteListener { withdrawAccount() }
+                            //delete the information that your app obtained from the Google APIs.
+                            val task = LoginActivity.mGoogleSignInClient?.revokeAccess()
+
+                            task?.addOnCompleteListener {  withdrawAccount() }
+                            task?.addOnFailureListener {
+
+                                Toast.makeText(this, "실패했습니다. 다시한번 시도해주세요.", Toast.LENGTH_SHORT).show()
+                            }
+
+
                         })
                     true
                 }
