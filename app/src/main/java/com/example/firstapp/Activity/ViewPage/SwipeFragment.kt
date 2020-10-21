@@ -101,9 +101,11 @@ class SwipeFragment : Fragment() {
                 return@setOnClickListener
 
             mCardAdapter.getItemAt(0)?.let { card ->
-                val intent = Intent(context, PostActivity::class.java).apply {
-                    putExtra(EXTRA_POSTID, card.postId)
-                    startActivityForResult(this, REQUEST_VOTE)
+                if(!card.isAd)
+                {
+                    val intent = Intent(context, PostActivity::class.java).apply {
+                        putExtra(EXTRA_POSTID, card.postId)
+                        startActivityForResult(this, REQUEST_VOTE) }
                 }
             }
 
