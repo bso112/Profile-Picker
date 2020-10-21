@@ -1,71 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:weightSum="1">
 
 
-    <FrameLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.8">
+        android:layout_height="wrap_content"
+        >
 
-    <com.yuyakaido.android.cardstackview.CardStackView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-        android:id="@+id/sv_swipeView">
-
-
-    </com.yuyakaido.android.cardstackview.CardStackView>
-
-        <TextView
-            android:id="@+id/tv_swipe_empty"
-            android:visibility="invisible"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="표시할 카드가 없어요"
-            android:textColor="@color/Black"
-            android:elevation="11dp"
-            android:textSize="15sp"
-            />
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cv_swipe_ad"
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:elevation="11dp"
-            android:visibility="visible"
-            >
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="3:4"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
 
-        </androidx.cardview.widget.CardView>
+            <com.yuyakaido.android.cardstackview.CardStackView
+                android:id="@+id/sv_swipeView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
 
-    </FrameLayout>
+            </com.yuyakaido.android.cardstackview.CardStackView>
 
+
+            <TextView
+                android:id="@+id/tv_swipe_empty"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:elevation="11dp"
+                android:gravity="center"
+                android:text="표시할 카드가 없어요"
+                android:textColor="@color/Black"
+                android:textSize="15sp"
+                android:visibility="invisible" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv_swipe_ad"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:elevation="11dp"
+                android:visibility="visible">
+
+
+            </androidx.cardview.widget.CardView>
+
+
+        </FrameLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
         android:layout_marginTop="15dp"
-        android:layout_weight="0.2"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center">
 
-<!--        <ImageButton-->
-<!--            android:id="@+id/btn_prv"-->
-<!--            android:layout_width="50dp"-->
-<!--            android:layout_height="50dp"-->
-<!--            android:layout_margin="20dp"-->
-<!--            android:background="@drawable/circle"-->
-<!--            android:elevation="10dp"-->
-<!--            android:padding="5dp"-->
-<!--            android:scaleType="fitCenter"-->
-<!--            android:src="@drawable/ic_baseline_keyboard_arrow_left_24"-->
-<!--            android:tint="@color/Black" />-->
+        <!--        <ImageButton-->
+        <!--            android:id="@+id/btn_prv"-->
+        <!--            android:layout_width="50dp"-->
+        <!--            android:layout_height="50dp"-->
+        <!--            android:layout_margin="20dp"-->
+        <!--            android:background="@drawable/circle"-->
+        <!--            android:elevation="10dp"-->
+        <!--            android:padding="5dp"-->
+        <!--            android:scaleType="fitCenter"-->
+        <!--            android:src="@drawable/ic_baseline_keyboard_arrow_left_24"-->
+        <!--            android:tint="@color/Black" />-->
 
 
         <ImageButton
@@ -79,17 +90,17 @@
             android:src="@drawable/like"
             android:tint="@color/Red" />
 
-<!--        <ImageButton-->
-<!--            android:id="@+id/btn_next"-->
-<!--            android:layout_width="50dp"-->
-<!--            android:layout_height="50dp"-->
-<!--            android:layout_margin="20dp"-->
-<!--            android:background="@drawable/circle"-->
-<!--            android:elevation="10dp"-->
-<!--            android:padding="5dp"-->
-<!--            android:scaleType="fitCenter"-->
-<!--            android:src="@drawable/ic_baseline_keyboard_arrow_right_24"-->
-<!--            android:tint="@color/Black" />-->
+        <!--        <ImageButton-->
+        <!--            android:id="@+id/btn_next"-->
+        <!--            android:layout_width="50dp"-->
+        <!--            android:layout_height="50dp"-->
+        <!--            android:layout_margin="20dp"-->
+        <!--            android:background="@drawable/circle"-->
+        <!--            android:elevation="10dp"-->
+        <!--            android:padding="5dp"-->
+        <!--            android:scaleType="fitCenter"-->
+        <!--            android:src="@drawable/ic_baseline_keyboard_arrow_right_24"-->
+        <!--            android:tint="@color/Black" />-->
 
     </LinearLayout>
 

@@ -18,6 +18,16 @@
             android:layout_alignBottom="@id/tv_upload_save"
             android:background="@drawable/ic_insert_photo_black_24dp" />
 
+        <ImageButton
+            android:id="@+id/btn_upload_camera"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/btn_upload_addPicture"
+            android:layout_alignBottom="@id/btn_upload_addPicture"
+            android:backgroundTint="@color/Black"
+            android:background="@drawable/ic_baseline_camera_alt_24"/>
+
         <LinearLayout
             android:id="@+id/ll_upload_category"
             android:layout_width="wrap_content"

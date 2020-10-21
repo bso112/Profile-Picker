@@ -63,22 +63,19 @@ class UtiliyHelper {
 
         //캐싱
 
-//        val fileContents = Gson().toJson(userInfo)
-//        val file = File(context.cacheDir, "account_" + userInfo.email)
-//        file.writeText(fileContents)
+        val fileContents = Gson().toJson(userInfo)
+        val file = File(context.cacheDir, "account_" + userInfo.email)
+        file.writeText(fileContents)
 
         mUserInfo = userInfo
     }
 
-    fun requestUserInfo(context: Context, email : String, onResponse: (() -> Unit)? = null, onFailed: (() -> Unit)? = null) {
-//        //이러면 데베에 유저정보가 없어도 로컬에 캐싱된 데이터가 있으면 접속되버림.
-         //이메일만 조작하면 다른 계정으로도 접속됨
-//        //기기내에 캐싱된 정보가 있는지 확인
-//        mUserInfo = getUserInfoFromFile(context, email)
-//        mUserInfo?.let {
-//            if(onResponse != null) onResponse()
-//            return;
-//        }
+    fun requestUserInfo(context: Context, email: String, onResponse: (() -> Unit)? = null, onFailed: (() -> Unit)? = null) {
+
+        //만약 로컬에 저장한 데이터로만 로그인 판단해버리면 데베에 유저정보가 없어도 로컬에 캐싱된 데이터가 있으면 접속되버림.
+        // 이메일만 조작하면 다른 계정으로도 접속됨
+        //그니까 카테고리만 쓰자.
+
 
 
         //없으면 서버에 요청
@@ -88,9 +85,8 @@ class UtiliyHelper {
             JSONObject(mapOf(Pair("email", email))),
             {
 
-                if (it == null || it.length() <= 0)
-                {
-                    if(onFailed != null) onFailed()
+                if (it == null || it.length() <= 0) {
+                    if (onFailed != null) onFailed()
                     return@JsonObjectRequest
                 }
 
@@ -100,7 +96,18 @@ class UtiliyHelper {
                     val sex = obj.getInt("sex")
                     val age = obj.getInt("age")
                     val category = hashSetOf<Int>()
-                    GlobalHelper.getInstance(context).mCategory.forEachIndexed { index, s -> category.add(index) }
+
+                    //카테고리를 내장메모리에서  얻는다.
+                    val userInfoFromFile = getUserInfoFromFile(context, email)
+                    if (userInfoFromFile != null) {
+                        mUserInfo?.categorys?.clear();
+                        category.addAll(userInfoFromFile.categorys)
+                    }
+                    //만약 없으면 모든 카테고리를 추가한다.
+                    else
+                        GlobalHelper.getInstance(context).mCategory.forEachIndexed { index, s -> category.add(index) }
+
+
                     mUserInfo = UserInfo(email, nickname, sex, age, category)
 
                     onResponse?.let { it() }
@@ -109,7 +116,7 @@ class UtiliyHelper {
             },
             {
                 it.message?.let { it1 -> Log.d("volley", it1) }
-                if(onFailed != null) onFailed()
+                if (onFailed != null) onFailed()
             })
 
         VolleyHelper.getInstance(context).addRequestQueue(request)
@@ -117,7 +124,7 @@ class UtiliyHelper {
 
     }
 
-    private fun getUserInfoFromFile(context: Context, email : String): UserInfo? {
+    private fun getUserInfoFromFile(context: Context, email: String): UserInfo? {
         val file = File(context.cacheDir, "account_" + email)
         if (file.exists())
             return Gson().fromJson(file.readText(), UserInfo::class.java)

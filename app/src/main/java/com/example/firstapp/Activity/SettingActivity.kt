@@ -29,11 +29,11 @@ class SettingActivity : AppCompatActivity() {
         if (selectionForAge > 0)
             sp_setting_age.setSelection(selectionForAge)
 
-        for (check in mUserInfo.categorys) {
-            if (check >= 0)
+        for (index in mUserInfo.categorys) {
+            if (index >= 0)
             {
-                (gl_setting_category.getChildAt(check) as? CheckBox)?.isChecked = true
-                mCategorys.add(check)
+                (gl_setting_category.getChildAt(index) as? CheckBox)?.isChecked = true
+                mCategorys.add(index)
             }
         }
 

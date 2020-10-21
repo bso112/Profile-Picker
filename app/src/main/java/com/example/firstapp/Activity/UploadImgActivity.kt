@@ -3,18 +3,17 @@ package com.example.firstapp.Activity
 import LoadingDialogFragment
 import android.Manifest
 import android.content.Intent
-import android.content.Intent.ACTION_GET_CONTENT
-import android.content.Intent.createChooser
+import android.content.Intent.*
 import android.content.pm.PackageManager
-import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.provider.MediaStore.ACTION_IMAGE_CAPTURE
-import android.provider.MediaStore.Images
 import android.util.Log
 import android.view.WindowManager
 import android.widget.Toast
@@ -22,6 +21,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.android.volley.Response
@@ -36,6 +36,11 @@ import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.android.synthetic.main.activity_upload_img.*
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 data class MyBitmap(val imgName: String, val bitmap: Bitmap)
 
@@ -46,6 +51,9 @@ class UploadImgActivity : AppCompatActivity() {
     private val REQUEST_PICK_FROM_ALBUM = 2
     private val REQUEST_PERMISSIONS = 3
     private lateinit var mUploadImgAdapter: UploadImgAdapter
+
+    //카메라로 찍은 사진을 저장할 경로
+    lateinit var currentPhotoPath: String
 
     /**
      * 기존 게시글을 수정하는 중인가?
@@ -83,7 +91,18 @@ class UploadImgActivity : AppCompatActivity() {
 
         }
 
+        //카메라로 사진추가
+        btn_upload_camera.setOnClickListener {
+            if(!packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY))
+                Toast.makeText(this, "카메라를 사용할 수 없습니다.", Toast.LENGTH_SHORT).show()
+            else if (mPostInfo.myPictures.size >= 5)
+                Toast.makeText(this, "사진은 5장까지만 등록할 수 있습니다.", Toast.LENGTH_LONG).show()
+            else
+                dispatchTakePictureIntent()
+        }
 
+
+        //앨범에서 사진추가
         btn_upload_addPicture.setOnClickListener {
             if (mPostInfo.myPictures.size >= 5) {
                 Toast.makeText(this, "사진은 5장까지만 등록할 수 있습니다.", Toast.LENGTH_LONG).show()
@@ -137,17 +156,22 @@ class UploadImgActivity : AppCompatActivity() {
 
 
         //카메라 리퀘스트
-        if (requestCode === REQUEST_IMAGE_CAPTURE) {
-            //데이터에서 번들을 뽑아내고, 번들에서 비트맵을 뽑아내서 iv_profile1에 적용한다.
-            val extras: Bundle? = data?.extras
-            val bitmap = extras?.get("data") as Bitmap
-            //임시
-            mPostInfo.myPictures.add(MyPicture(bitmap, "unnamed", "", 0))
+        if (requestCode == REQUEST_IMAGE_CAPTURE) {
 
+            //내부 DB에 사진 저장?
+            galleryAddPic()
+            
+            //저장한 파일 불러와서 추가
+            val f = File(currentPhotoPath) // /storage/emulated/0/Android/data/com.example.firstapp/files/Pictures/JPEG_20201021_184543_5177963341725398557.jpg
+            val uri = Uri.fromFile(f) // file:///storage/emulated/0/Android/data/com.example.firstapp/files/Pictures/JPEG_20201021_184543_5177963341725398557.jpg
+            launchImageCrop(uri)
 
         } else if (requestCode == REQUEST_PICK_FROM_ALBUM) {
             //이미지크롭 요청
-            launchImageCrop(data?.data)
+            val uris = getUrisFromData(data)
+            for (uri in uris) {
+                launchImageCrop(uri)
+            }
         } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             var result = CropImage.getActivityResult(data);
             getBitmapFromUri(result.uri)?.let { mPostInfo.myPictures.add(MyPicture(it, "", "", 0)) }
@@ -182,8 +206,14 @@ class UploadImgActivity : AppCompatActivity() {
                 //모든 사진을 바이트배열로 변환해서 바디에 쓴다.
                 //key는 html form뷰의 name 항목. 즉, 파라미터가 되는듯
                 for (picture in mPostInfo.myPictures) {
-                    params.add(Pair("image", DataPart(System.currentTimeMillis().toString(),
-                        picture.bitmap?.let { getFileDataFromDrawable(it) }, "image/webp")))
+                    params.add(
+                        Pair(
+                            "image", DataPart(
+                                System.currentTimeMillis().toString(),
+                                picture.bitmap?.let { getFileDataFromDrawable(it) }, "image/webp"
+                            )
+                        )
+                    )
                 }
 
                 return params
@@ -234,11 +264,8 @@ class UploadImgActivity : AppCompatActivity() {
     }
 
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray)
+    {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         var isDenied: Boolean = false;
@@ -252,7 +279,8 @@ class UploadImgActivity : AppCompatActivity() {
         //권한이 거부되었을때
         if (isDenied) {
 
-        } else
+        }
+        else
             pickPictureFromGallay()
 
     }
@@ -260,7 +288,7 @@ class UploadImgActivity : AppCompatActivity() {
     private fun launchImageCrop(uri: Uri?) {
         CropImage.activity(uri).setGuidelines(CropImageView.Guidelines.ON)
             .setCropShape(CropImageView.CropShape.RECTANGLE)
-            .setAspectRatio(1, 1)
+            .setAspectRatio(3, 4)
             .setFixAspectRatio(true)
             .setInitialCropWindowPaddingRatio(0.0F)
             .setScaleType(CropImageView.ScaleType.CENTER_CROP)
@@ -273,7 +301,7 @@ class UploadImgActivity : AppCompatActivity() {
         Intent(ACTION_GET_CONTENT).let {
 //            it.type = Images.Media.CONTENT_TYPE
             it.type = "image/*"
-            // it.putExtra(EXTRA_ALLOW_MULTIPLE, true)
+            it.putExtra(EXTRA_ALLOW_MULTIPLE, true)
             intent.putExtra("crop", true)
             startActivityForResult(createChooser(it, "Select Picture"), REQUEST_PICK_FROM_ALBUM)
         }
@@ -283,35 +311,25 @@ class UploadImgActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.M)
     private fun dispatchGalleryIntent() {
         //외부 스토리지 쓰기, 읽기 퍼미션이 있는지 먼저 확인한다.
-        if ((ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED) &&
-            (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED)
-        ) {
+        if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) &&
+            (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED))
+        {
             //이미 퍼미션을 받았으면 바로 그냥 갤러리로
             pickPictureFromGallay()
 
-        } else {
+        }
+        else
+        {
             //만약 교육용 UI를 표시해야한다면 (사용자가 퍼미션을 거부한적이 있으면)
             if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE) ||
-                shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)
-            ) {
+                shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE))
+            {
                 //교육용 UI보여주기
                 Toast.makeText(applicationContext, "권한이 필요합니다", Toast.LENGTH_SHORT).show()
             }
-
             //퍼미션 요청
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                ), REQUEST_PERMISSIONS
-            )
+            ActivityCompat.requestPermissions(this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_PERMISSIONS)
 
         }
 
@@ -338,11 +356,26 @@ class UploadImgActivity : AppCompatActivity() {
         만약, 그런 앱이 없는데  startActivity()를 호출하면 앱이 정지된다.
         따라서 resolveActivity로 그 결과가 null인지 아닌지에 따라서 startActivity를 수행한다.
          */
-        Intent(ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
-            //packageManager가 null이 아니면 수행하라.
-            packageManager?.let {
-                //resolveActivity 의 결과가 null이 아니면 수행하라.
-                takePictureIntent.resolveActivity(it)?.also {
+        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+            // Ensure that there's a camera activity to handle the intent
+            takePictureIntent.resolveActivity(packageManager)?.also {
+                // Create the File where the photo should go
+                val photoFile: File? = try {
+                    createImageFile()
+                } catch (ex: IOException) {
+                    // Error occurred while creating the File
+                    null
+                }
+                // Continue only if the File was successfully created
+                photoFile?.also {file ->
+                    //찍은 사진 저장경로 얻기. 오류나서 지움
+                    val photoURI: Uri = FileProvider.getUriForFile(
+                        this,
+                        "com.example.firstapp.fileprovider",
+                        file
+                    )
+                   takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+
                     startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
                 }
             }
@@ -350,49 +383,10 @@ class UploadImgActivity : AppCompatActivity() {
     }
 
 
-    private fun getBitmapFromData2(data: Intent?): ArrayList<MyBitmap> {
-        var test = data?.data;
-        val clipData = data?.clipData ?: return ArrayList<MyBitmap>()
-        var result = ArrayList<MyBitmap>()
-        for (i in 0 until clipData.itemCount) {
-            val photoUri: Uri = clipData.getItemAt(i).uri
-            //데이터베이스 쿼리를 받기 위한 객체. 쿼리 결과에 대한 랜덤액세스를 제공한다.
-            var cursor: Cursor? = null
-
-            //Uri 스키마를 content:/// 에서 file:/// 로  변경한다.
-            val proj = arrayOf(Images.Media.DATA)
-            //contentResolver를 통해 contentProvider에 쿼리한다. photoUri 에 있는 Images.Media.DATA에 해당하는 데이터를 가져와라.
-            cursor = photoUri?.let { contentResolver.query(it, proj, null, null, null) }
-
-            //cursor은 Closeable 을 구현하기 때문에 use를 쓸수있다.
-            //익셉션이 발생하건 말건 마지막에 close(리소스반환)한다. 자바의 try-with-resource와 유사하다.
-            cursor?.use {
-                //받아온 데이터가 있으면
-                if (it.moveToFirst()) {
-                    //쿼리결과에서 Images.Media.DATA를 가져올 수 있는 인덱스를 얻는다.
-                    val columnIndex: Int = it?.getColumnIndexOrThrow(Images.Media.DATA) ?: -1
-
-                    //파일을 얻는다.
-                    val file = File(it?.getString(columnIndex))
-
-                    //그냥 빈 옵션을 준비
-                    val options = BitmapFactory.Options()
-                    //파일을 디코딩해서 비트맵으로 만든다.
-                    result.add(
-                        MyBitmap(file.name, BitmapFactory.decodeFile(file.absolutePath, options))
-                    )
-                }
-            }
-        }
-        return result
-    }
-
-
-    private fun getBitmapFromData(data: Intent?): ArrayList<MyBitmap> {
+    private fun getUrisFromData(data: Intent?): ArrayList<Uri> {
 
         //하나 이상을 선택할경우 clipData에 uri가  들어가고
         //하나만 선택할경우 data.data에 uri가 들어감.. 왜 그렇게 만들었는지 모르겠음.
-        val result = ArrayList<MyBitmap>()
         val uriList = ArrayList<Uri>()
 
         val clipData = data?.clipData
@@ -408,23 +402,35 @@ class UploadImgActivity : AppCompatActivity() {
             }
         }
 
-        var cnt = 0
-        for (photoUri in uriList) {
-            val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                val source = ImageDecoder.createSource(contentResolver, photoUri)
-                ImageDecoder.decodeBitmap(source);
-            } else {
-                contentResolver.openInputStream(photoUri)?.use { inputStream ->
-                    BitmapFactory.decodeStream(inputStream)
-                }
-            }
-            bitmap?.let {
-                result.add(MyBitmap(System.currentTimeMillis().toString() + cnt++, it))
-            }
-        }
-        return result
+
+        return uriList
     }
 
+
+    
+
+    @Throws(IOException::class)
+    private fun createImageFile(): File {
+        // Create an image file name
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(
+            "JPEG_${timeStamp}_", /* prefix */
+            ".jpg", /* suffix */
+            storageDir /* directory */
+        ).apply {
+            // Save a file: path for use with ACTION_VIEW intents
+            currentPhotoPath = absolutePath
+        }
+    }
+
+    private fun galleryAddPic() {
+        Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE).also { mediaScanIntent ->
+            val f = File(currentPhotoPath)
+            mediaScanIntent.data = Uri.fromFile(f)
+            sendBroadcast(mediaScanIntent)
+        }
+    }
 
     override fun onDestroy() {
         //상호참조 끊기
