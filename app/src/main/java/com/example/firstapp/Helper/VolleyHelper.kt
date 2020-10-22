@@ -40,7 +40,7 @@ class VolleyHelper (val context : Context){
 
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
-    public fun getPostInfo(postId : Int , postInfo : PostInfo) {
+    public fun getPostInfo(postId : Long , postInfo : PostInfo) {
 
 
         //게시물 하나의 정보를 얻는다.
