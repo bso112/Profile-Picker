@@ -77,7 +77,7 @@ class UploadImgActivity : AppCompatActivity() {
 
 
         //내 게시물 수정시, 내 게시물 정보를 불러와서 표시해줌.
-        val postId = intent.getIntExtra(EXTRA_POSTID, -1)
+        val postId = intent.getLongExtra(EXTRA_POSTID, -1)
         if (postId >= 0) {
             mIsModify = true
 
