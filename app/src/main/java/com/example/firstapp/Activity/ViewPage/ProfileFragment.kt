@@ -25,6 +25,7 @@ import com.example.firstapp.Helper.UtiliyHelper
 import com.example.firstapp.R
 import com.google.android.gms.ads.AdRequest
 import kotlinx.android.synthetic.main.frag_profile.*
+import java.math.BigInteger
 
 
 class ProfileFragment : Fragment() {
@@ -211,7 +212,9 @@ class ProfileFragment : Fragment() {
                         val obj = it.getJSONObject(i)
                         val title = obj.getString("title")
                         val date = obj.getString("date")
-                        val postId = obj.getInt("postId")
+                        val postId2 = BigInteger(obj.get("postId").toString())
+
+                        val postId = obj.getLong("postId")
                         val file_name = obj.getString("file_name")
                         val path = obj.getString("path")
                         val likes = obj.getInt("likes")
@@ -249,7 +252,7 @@ class ProfileFragment : Fragment() {
 
     }
 
-    private fun getPostById(postId: Int, posts: ArrayList<Post>): Post? {
+    private fun getPostById(postId: Long, posts: ArrayList<Post>): Post? {
         for (post in posts) {
             if (post.postInfo.postId == postId)
                 return post;

@@ -71,7 +71,7 @@ data class MyPicture(var bitmap: Bitmap?, val file_name: String, val path: Strin
 //Picture를 포함하니 Picture도 Serializable이여야한다.
 data class PostInfo(
     var title: String = "", val date: String = "", val viewCnt: Int = 0,
-    var postId: Int = 0, var myPictures: ArrayList<MyPicture> = ArrayList(),
+    var postId: Long = 0, var myPictures: ArrayList<MyPicture> = ArrayList(),
     var content: String = "", var writer: String = "", val warn : Int = 0
 ) : Serializable {
 

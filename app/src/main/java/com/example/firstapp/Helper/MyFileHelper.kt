@@ -42,6 +42,8 @@ object MyFileHelper {
         }
     }
 
+
+
     //내부 DB에 사진저장
     fun galleryAddPic(context: Context, currentPhotoPath: String) {
         Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE).also { mediaScanIntent ->
