@@ -30,7 +30,8 @@
         <TextView
             android:id="@+id/tv_swipe_title"
             style="@style/AudioFileInfoOverlayText"
-            android:layout_width="wrap_content"
+            android:layout_marginEnd="15dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@id/tv_swipe_content"
             android:layout_alignStart="@id/tv_swipe_content"
@@ -45,10 +46,11 @@
         <TextView
             android:id="@+id/tv_swipe_content"
             style="@style/AudioFileInfoOverlayText"
-            android:layout_width="300dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
             android:layout_alignBottom="@id/cv_swipe"
-            android:layout_marginHorizontal="20dp"
             android:layout_marginBottom="20dp"
             android:elevation="100dp"
             android:lineSpacingExtra="3dp"

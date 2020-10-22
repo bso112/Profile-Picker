@@ -20,7 +20,7 @@ data class UserInfo(
     val categorys : HashSet<Int> = hashSetOf()) : Serializable
 
 data class Card(
-    var postId: Int = 0,
+    var postId: Long = 0,
     var title : String = "",
     var content: String = "",
     var writer: String = "",

@@ -32,7 +32,6 @@ class PictureActivity : AppCompatActivity() {
         else
             Toast.makeText(this, "사진을 로드할 수 없습니다." , Toast.LENGTH_SHORT).show()
 
-
     }
 
 

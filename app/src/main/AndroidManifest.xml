@@ -53,7 +53,7 @@
             android:noHistory="true" />
         <activity
             android:name=".Activity.PostActivity"
-            android:noHistory="true" />
+            />
         <activity android:name=".Activity.UploadImgActivity" />
         <activity android:name=".Activity.LoginActivity" /> <!-- android:icon="@mipmap/ic_launcher" -->
         <activity android:name=".Activity.MainActivity" />

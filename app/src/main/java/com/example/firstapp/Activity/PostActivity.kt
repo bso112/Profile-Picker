@@ -121,15 +121,16 @@ class PostActivity : AppCompatActivity() {
             true
         }
 
-
-    }
-
-
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
-    override fun onStart() {
-        super.onStart()
         getPostInfo()
+
     }
+
+
+//    @RequiresApi(Build.VERSION_CODES.KITKAT)
+//    override fun onStart() {
+//        super.onStart()
+//
+//    }
 
 
     private fun vote() {
@@ -156,7 +157,7 @@ class PostActivity : AppCompatActivity() {
 
         mIsBusy = true
 
-        val extra_postId = intent.getIntExtra(EXTRA_POSTID, -1)
+        val extra_postId = intent.getLongExtra(EXTRA_POSTID, -1)
         if (extra_postId < 0)
             return
 
@@ -171,7 +172,7 @@ class PostActivity : AppCompatActivity() {
                 it?.let { jsonArr ->
                     for (i in 0 until jsonArr.length()) {
                         val obj = jsonArr.getJSONObject(i);
-                        val postId = obj.getInt("postId")
+                        val postId = obj.getLong("postId")
                         val fileName = obj.getString("file_name")
                         val filePath = obj.getString("path")
                         val content = obj.getString("content")

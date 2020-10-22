@@ -277,7 +277,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
 
                     for (i in 0 until jsonArr.length()) {
                         val obj = jsonArr.getJSONObject(i);
-                        val postId = obj.getInt("postId")
+                        val postId = obj.getLong("postId")
                         val title = obj.getString("title")
                         val fileName = obj.getString("file_name")
                         val filePath = obj.getString("path")
@@ -461,7 +461,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
 
     }
 
-    private fun report_post(email : String, postId : Int)
+    private fun report_post(email : String, postId : Long)
     {
         val url = mContext?.getString(R.string.urlToServer) + "report_post/${email}/${postId}"
         val request = StringRequest(Request.Method.GET, url, {
