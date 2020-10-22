@@ -11,6 +11,7 @@ import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.example.firstapp.Helper.UtiliyHelper
 import com.example.firstapp.Helper.VolleyHelper
+import com.example.firstapp.Helper.showAlertWithJustOkButton
 
 import com.example.firstapp.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -92,11 +93,18 @@ class LoginActivity : AppCompatActivity() {
 
 
     private fun checkIfAccountExist(email: String) {
-
-        UtiliyHelper.getInstance().requestUserInfo(this, email,
-            { startActivity(Intent(this, MainActivity::class.java)) },
-            { startActivity(Intent(this, SignUpActivity::class.java)) }
-        )
+        //블랙리스트에 있는지 확인
+        UtiliyHelper.getInstance().checkBlacklisted(this, email, {
+            //있으면 로그인
+            UtiliyHelper.getInstance().requestUserInfo(this, email,
+                { startActivity(Intent(this, MainActivity::class.java)) },
+                { startActivity(Intent(this, SignUpActivity::class.java)) })
+        }, {
+            //있으면 거부
+            showAlertWithJustOkButton(this, null, "해당 계정은 정지조치 되었습니다. 개발팀에 문의해주시기 바랍니다. " +
+                    "\n bso11246@gmail.com",
+                "돌아가기", {finishAffinity()})
+        })
 
     }
 

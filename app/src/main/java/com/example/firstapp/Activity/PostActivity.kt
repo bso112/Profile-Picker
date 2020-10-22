@@ -1,9 +1,10 @@
 package com.example.firstapp.Activity
 
 import android.app.Activity
+import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -11,19 +12,25 @@ import android.view.animation.AnimationUtils
 import android.widget.AbsListView
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
-import com.android.volley.Response
 import com.android.volley.toolbox.ImageRequest
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.example.firstapp.Default.EXTRA_POSTID
-import com.example.firstapp.R
 import com.example.firstapp.Adapter.PostImgAdapter
 import com.example.firstapp.Default.Card
+import com.example.firstapp.Default.EXTRA_FILEPATH
+import com.example.firstapp.Default.EXTRA_POSTID
 import com.example.firstapp.Default.MyPicture
+import com.example.firstapp.Helper.MyFileHelper
+import com.example.firstapp.R
+import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_post.*
 import kotlinx.android.synthetic.main.post_img_item.view.*
+import java.io.File
+import java.io.IOException
+
 
 //다른사람 게시물을 보여주는 액티비티
 class PostActivity : AppCompatActivity() {
@@ -62,6 +69,8 @@ class PostActivity : AppCompatActivity() {
             //parent는 어댑터뷰. 어댑터뷰의 자식수는 화면에 보이는 아이템 수이다.
             //view는 adapter의 getView에서 리턴한 뷰 중에서 선택된 뷰
 
+
+            //false로 다 채움(초기화)
             mSelected.fill(false)
 
             //view에 selected를 저장하면 안되고 이렇게 따로해야함.
@@ -86,6 +95,30 @@ class PostActivity : AppCompatActivity() {
             }
 
 
+        }
+
+        lv_post_picture.setOnItemLongClickListener { parent, view, position, id ->
+
+            //해당 아이템의 비트맵을 외부저장소의 개별디렉토리(캐시 디렉토리)에 저장한다.
+
+            //비트맵을 얻는다.
+            val bitmap = (view.iv_post_image.drawable as BitmapDrawable).bitmap
+
+            val file = MyFileHelper.createImageTempFile(this@PostActivity)
+            try {
+                //비트맵을 압축해서 파일에 쓴다.
+                file.outputStream().use {  bitmap.compress(Bitmap.CompressFormat.WEBP, 60, it) }
+                //공용공간에 쓰는 거였으면 이걸추가
+                //MediaStore.Images.Media.insertImage(getContentResolver(),file.getAbsolutePath(),file.getName(),file.getName());
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+
+            Intent(this, PictureActivity::class.java).apply {
+                putExtra(EXTRA_FILEPATH, file.absolutePath)
+                startActivity(this)
+            }
+            true
         }
 
 

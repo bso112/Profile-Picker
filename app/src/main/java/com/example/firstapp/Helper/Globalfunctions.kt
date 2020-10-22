@@ -4,7 +4,7 @@ import android.app.AlertDialog
 import android.content.Context
 import com.example.firstapp.R
 
-class GlobalHelper(val context: Context){
+class GlobalHelper private constructor (val context: Context){
 
     companion object {
 
@@ -24,6 +24,22 @@ class GlobalHelper(val context: Context){
 
 }
 
+fun showAlertWithJustOkButton(context: Context?, title: String?, message: String, okButtonText : String, onClickOk: () -> Unit)
+{
+    val alertDialog: AlertDialog? = context?.let { context ->
+        val builder = AlertDialog.Builder(context)
+        builder.apply {
+            setPositiveButton(okButtonText) { dialog, which ->
+                onClickOk()
+            }
+
+            title?.let { setTitle(it) }
+            setMessage(message)
+        }
+        builder.create()
+    }
+    alertDialog?.show()
+}
 
 fun showSimpleAlert(context: Context?, title: String?, message: String, onClickOk: () -> Unit, onClickCancle: (() -> Unit)? = null) {
     val alertDialog: AlertDialog? = context?.let { context ->

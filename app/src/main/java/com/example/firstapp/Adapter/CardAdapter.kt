@@ -1,6 +1,7 @@
 package com.example.firstapp.Adapter
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,11 +13,13 @@ import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.ImageRequest
 import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.StringRequest
 import com.example.firstapp.Activity.LoginActivity
 import com.example.firstapp.Default.Card
 import com.example.firstapp.Default.MyPicture
 import com.example.firstapp.Helper.UtiliyHelper
 import com.example.firstapp.Helper.VolleyHelper
+import com.example.firstapp.Helper.showSimpleAlert
 import com.example.firstapp.R
 import com.google.android.gms.ads.*
 import com.google.android.gms.ads.formats.NativeAdOptions
@@ -24,7 +27,6 @@ import com.google.android.gms.ads.formats.UnifiedNativeAd
 import com.google.android.gms.ads.formats.UnifiedNativeAdView
 import kotlinx.android.synthetic.main.swipe_ad.view.*
 import kotlinx.android.synthetic.main.swipe_item.view.*
-import java.lang.Integer.max
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -40,8 +42,8 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
 
     class CardViewHolder(
         val layout: View, val rl_swipeCard: RelativeLayout,
-        val swipImg: ImageView, val tv_swipe_title: TextView, val tv_swipe_userName: TextView, val tv_swipe_content: TextView
-    ) : RecyclerView.ViewHolder(layout)
+        val swipImg: ImageView, val tv_swipe_title: TextView, val tv_swipe_userName: TextView, val tv_swipe_content: TextView,
+        val btn_swipe_report : ImageButton) : RecyclerView.ViewHolder(layout)
 
     class AdViewHolder(val view: UnifiedNativeAdView) : RecyclerView.ViewHolder(view)
     {
@@ -71,7 +73,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
     //광고를 더 받아오는 기준점
     private val AD_DATA_ABOUT_TO_EMPTY = 2
     //광고를 표시하는 간격
-    private val SPACE_BETWEEN_REQUEST_AD = 10
+    private val SPACE_BETWEEN_REQUEST_AD = 20
 
     // DB로부터 받아올 카드 데이터의 시작인덱스
     private var mCardDataIndex: Int = 0
@@ -94,7 +96,8 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
         return when(viewType){
             DATA_VIEW_TYPE -> {
                 val layout: View = LayoutInflater.from(parent.context).inflate(R.layout.swipe_item, parent, false)
-                CardViewHolder(layout, layout.rl_swipeCard, layout.swipImg, layout.tv_swipe_title, layout.tv_swipe_userName, layout.tv_swipe_content)
+                CardViewHolder(layout, layout.rl_swipeCard, layout.swipImg, layout.tv_swipe_title, layout.tv_swipe_userName, layout.tv_swipe_content,
+                layout.btn_swipe_report)
             }
             NATIVE_AD_VIEW_TYPE -> {
                AdViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.swipe_ad, parent, false) as UnifiedNativeAdView)
@@ -139,6 +142,20 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
         holder.tv_swipe_title.text = card.title
         holder.tv_swipe_userName.text = card.nickname
         holder.tv_swipe_content.text = card.content
+        
+        //신고버튼
+        holder.btn_swipe_report.isEnabled = true
+        val enabledColor = mContext?.resources?.getColor(R.color.Black)
+        holder.btn_swipe_report.backgroundTintList = enabledColor?.let { ColorStateList.valueOf(it) }
+        holder.btn_swipe_report.setOnClickListener {
+            showSimpleAlert(mContext, null, "신고하시겠습니까?", {
+                report_post(card.writer, card.postId);
+                holder.btn_swipe_report.isEnabled = false
+                val disabledColor = mContext?.resources?.getColor(R.color.disable)
+                holder.btn_swipe_report.backgroundTintList = disabledColor?.let {  ColorStateList.valueOf(it) }
+
+            })
+        }
 
 
     }
@@ -211,8 +228,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
             mDataset.add(1, Card(isAd = true))
             notifyItemInserted(1)
         }
-        else
-            Toast.makeText(mContext, "무시", Toast.LENGTH_SHORT).show()
+
     }
 
 
@@ -444,6 +460,17 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
 
 
     }
+
+    private fun report_post(email : String, postId : Int)
+    {
+        val url = mContext?.getString(R.string.urlToServer) + "report_post/${email}/${postId}"
+        val request = StringRequest(Request.Method.GET, url, {
+            Toast.makeText(mContext, "신고가 완료되었습니다.", Toast.LENGTH_SHORT).show()
+        }, null)
+
+        mContext?.let { VolleyHelper.getInstance(it).addRequestQueue(request) }
+    }
+
 
     fun onDestroy() {
         //메모리릭 방지

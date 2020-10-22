@@ -5,7 +5,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.animation.AnimationUtils
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import com.example.firstapp.Helper.UtiliyHelper
+import com.example.firstapp.Helper.showAlertWithJustOkButton
+import com.example.firstapp.Helper.showSimpleAlert
 import com.example.firstapp.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -39,22 +42,30 @@ class LogoActivity : AppCompatActivity() {
 
         var intent: Intent? = null
 
-        //전에 로그인한 적이 있으면 바로 로그인처리
-        //DB에 해당 구글계정이 있는지 확인한다. 있으면 MainActivity, 없으면 SignUpActivity로 간다.
-        if(null == LoginActivity.mAccount)
-            intent =Intent(this, LoginActivity::class.java)
-        else
-        {
-            //DB에 계정정보있는지 확인
-            LoginActivity.mAccount?.email?.let {
-                UtiliyHelper.getInstance().requestUserInfo(
-                    this, it,
-                    { intent = Intent(this, MainActivity::class.java) ; if(isMinimumWaitPassed) startActivity(intent)},
-                    { intent = Intent(this, LoginActivity::class.java) ; if(isMinimumWaitPassed) startActivity(intent)})
+        //로그인한적이 없으면 로그인액티비티로
+        if (null == LoginActivity.mAccount)
+            intent = Intent(this, LoginActivity::class.java)
+        //있으면
+        else {
+            LoginActivity.mAccount?.email?.let { email ->
+
+                //블랙리스트에 있는지 확인
+                UtiliyHelper.getInstance().checkBlacklisted(this, email, {
+                    //없으면 로그인처리
+                    UtiliyHelper.getInstance().requestUserInfo(
+                        this, email,
+                        { intent = Intent(this, MainActivity::class.java); if (isMinimumWaitPassed) startActivity(intent) },
+                        { intent = Intent(this, LoginActivity::class.java); if (isMinimumWaitPassed) startActivity(intent) })
+                },
+                    {
+                        //있으면 거부
+                        showAlertWithJustOkButton(this, null, "해당 계정은 정지조치 되었습니다. 개발팀에 문의해주시기 바랍니다." +
+                                "\nbso11246@gmail.com",
+                        "돌아가기", {finishAffinity();})
+
+                    })
             }
         }
-
-
 
 
         val anim = AnimationUtils.loadAnimation(this, R.anim.anim_fadein)
@@ -64,7 +75,7 @@ class LogoActivity : AppCompatActivity() {
         Timer().schedule(object : TimerTask() {
             override fun run() {
                 isMinimumWaitPassed = true
-                if(intent != null)
+                if (intent != null)
                     startActivity(intent)
             }
         }, 500)

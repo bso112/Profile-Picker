@@ -15,6 +15,18 @@
 
 
 
+
+        <ImageButton
+            android:id="@+id/btn_swipe_report"
+            android:layout_width="30dp"
+            android:layout_height="20dp"
+            android:background="@drawable/siren2"
+            android:layout_margin="15dp"
+            android:elevation="10dp"
+            />
+
+
+
         <TextView
             android:id="@+id/tv_swipe_title"
             style="@style/AudioFileInfoOverlayText"

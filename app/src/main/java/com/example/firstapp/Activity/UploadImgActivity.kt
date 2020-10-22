@@ -13,7 +13,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.provider.MediaStore.ACTION_IMAGE_CAPTURE
 import android.util.Log
 import android.view.WindowManager
 import android.widget.Toast
@@ -29,6 +28,7 @@ import com.android.volley.toolbox.Volley
 import com.example.firstapp.Helper.VolleyHelper
 import com.example.firstapp.Adapter.UploadImgAdapter
 import com.example.firstapp.Default.*
+import com.example.firstapp.Helper.MyFileHelper
 import com.example.firstapp.R
 import com.example.firstapp.VolleyMultipartRequest
 import com.theartofdev.edmodo.cropper.CropImage
@@ -52,8 +52,8 @@ class UploadImgActivity : AppCompatActivity() {
     private val REQUEST_PERMISSIONS = 3
     private lateinit var mUploadImgAdapter: UploadImgAdapter
 
-    //카메라로 찍은 사진을 저장할 경로
-    lateinit var currentPhotoPath: String
+    //카메라로 찍은 사진을 저장할 절대경로
+    lateinit var mCurrentPhotoPath: String
 
     /**
      * 기존 게시글을 수정하는 중인가?
@@ -93,7 +93,7 @@ class UploadImgActivity : AppCompatActivity() {
 
         //카메라로 사진추가
         btn_upload_camera.setOnClickListener {
-            if(!packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY))
+            if (!packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY))
                 Toast.makeText(this, "카메라를 사용할 수 없습니다.", Toast.LENGTH_SHORT).show()
             else if (mPostInfo.myPictures.size >= 5)
                 Toast.makeText(this, "사진은 5장까지만 등록할 수 있습니다.", Toast.LENGTH_LONG).show()
@@ -158,19 +158,19 @@ class UploadImgActivity : AppCompatActivity() {
         //카메라 리퀘스트
         if (requestCode == REQUEST_IMAGE_CAPTURE) {
 
-            //내부 DB에 사진 저장?
-            galleryAddPic()
-            
+            MyFileHelper.galleryAddPic(this, mCurrentPhotoPath)
+
             //저장한 파일 불러와서 추가
-            val f = File(currentPhotoPath) // /storage/emulated/0/Android/data/com.example.firstapp/files/Pictures/JPEG_20201021_184543_5177963341725398557.jpg
+            val f = File(mCurrentPhotoPath) // /storage/emulated/0/Android/data/com.example.firstapp/files/Pictures/JPEG_20201021_184543_5177963341725398557.jpg
             val uri = Uri.fromFile(f) // file:///storage/emulated/0/Android/data/com.example.firstapp/files/Pictures/JPEG_20201021_184543_5177963341725398557.jpg
             launchImageCrop(uri)
-
+            // getBitmapFromUri(uri)?.let { mPostInfo.myPictures.add(MyPicture(it, "", "", 0)) }
         } else if (requestCode == REQUEST_PICK_FROM_ALBUM) {
             //이미지크롭 요청
             val uris = getUrisFromData(data)
             for (uri in uris) {
                 launchImageCrop(uri)
+                // getBitmapFromUri(uri)?.let { mPostInfo.myPictures.add(MyPicture(it, "", "", 0)) }
             }
         } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             var result = CropImage.getActivityResult(data);
@@ -264,8 +264,7 @@ class UploadImgActivity : AppCompatActivity() {
     }
 
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray)
-    {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         var isDenied: Boolean = false;
@@ -279,8 +278,7 @@ class UploadImgActivity : AppCompatActivity() {
         //권한이 거부되었을때
         if (isDenied) {
 
-        }
-        else
+        } else
             pickPictureFromGallay()
 
     }
@@ -289,7 +287,8 @@ class UploadImgActivity : AppCompatActivity() {
         CropImage.activity(uri).setGuidelines(CropImageView.Guidelines.ON)
             .setCropShape(CropImageView.CropShape.RECTANGLE)
             .setAspectRatio(3, 4)
-            .setFixAspectRatio(true)
+            .setFixAspectRatio(false)
+            .setGuidelines(CropImageView.Guidelines.ON)
             .setInitialCropWindowPaddingRatio(0.0F)
             .setScaleType(CropImageView.ScaleType.CENTER_CROP)
             .setAutoZoomEnabled(false)
@@ -312,24 +311,24 @@ class UploadImgActivity : AppCompatActivity() {
     private fun dispatchGalleryIntent() {
         //외부 스토리지 쓰기, 읽기 퍼미션이 있는지 먼저 확인한다.
         if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) &&
-            (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED))
-        {
+            (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+        ) {
             //이미 퍼미션을 받았으면 바로 그냥 갤러리로
             pickPictureFromGallay()
 
-        }
-        else
-        {
+        } else {
             //만약 교육용 UI를 표시해야한다면 (사용자가 퍼미션을 거부한적이 있으면)
             if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE) ||
-                shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE))
-            {
+                shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)
+            ) {
                 //교육용 UI보여주기
                 Toast.makeText(applicationContext, "권한이 필요합니다", Toast.LENGTH_SHORT).show()
             }
             //퍼미션 요청
-            ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_PERMISSIONS)
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_PERMISSIONS
+            )
 
         }
 
@@ -351,6 +350,11 @@ class UploadImgActivity : AppCompatActivity() {
 
 
     private fun dispatchTakePictureIntent() {
+
+        if(!MyFileHelper.isExternalStorageWritable())
+            Toast.makeText(this, "저장공간이 부족해서 카메라앱을 실행시킬 수 없습니다.", Toast.LENGTH_SHORT).show()
+
+
         /*
         카메라 기능이 있는 앱을 찾아서 실행시킨다.
         만약, 그런 앱이 없는데  startActivity()를 호출하면 앱이 정지된다.
@@ -361,20 +365,32 @@ class UploadImgActivity : AppCompatActivity() {
             takePictureIntent.resolveActivity(packageManager)?.also {
                 // Create the File where the photo should go
                 val photoFile: File? = try {
-                    createImageFile()
+                    MyFileHelper.createImageTempFile(this).apply {
+                        mCurrentPhotoPath = absolutePath
+                    }
+
                 } catch (ex: IOException) {
                     // Error occurred while creating the File
                     null
                 }
+
                 // Continue only if the File was successfully created
-                photoFile?.also {file ->
-                    //찍은 사진 저장경로 얻기. 오류나서 지움
+                photoFile?.also { file ->
+                    //만든 임시파일 절대경로를 콘텐츠스키마로 변환하기.
+                    //카메라앱이 쓰려면 콘텐츠스키마로 변경해야하는 것인가?
                     val photoURI: Uri = FileProvider.getUriForFile(
                         this,
                         "com.example.firstapp.fileprovider",
                         file
                     )
-                   takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+
+                    //절대경로
+                    //storage/emulated/0/Android/data/com.example.firstapp/files/Pictures/JPEG_20201021_184543_51779633417253985
+                    //photoURI
+                    //content://com.example.firstapp.fileprovider/my_images/Pictures/JPEG_20201022_125001_910373070437525236.jpg
+
+                    //사진을 찍고 photoURI의 경로를 가진 파일에 write한다.
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
 
                     startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
                 }
@@ -406,31 +422,6 @@ class UploadImgActivity : AppCompatActivity() {
         return uriList
     }
 
-
-    
-
-    @Throws(IOException::class)
-    private fun createImageFile(): File {
-        // Create an image file name
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile(
-            "JPEG_${timeStamp}_", /* prefix */
-            ".jpg", /* suffix */
-            storageDir /* directory */
-        ).apply {
-            // Save a file: path for use with ACTION_VIEW intents
-            currentPhotoPath = absolutePath
-        }
-    }
-
-    private fun galleryAddPic() {
-        Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE).also { mediaScanIntent ->
-            val f = File(currentPhotoPath)
-            mediaScanIntent.data = Uri.fromFile(f)
-            sendBroadcast(mediaScanIntent)
-        }
-    }
 
     override fun onDestroy() {
         //상호참조 끊기

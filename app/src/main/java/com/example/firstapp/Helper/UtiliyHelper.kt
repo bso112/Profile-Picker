@@ -70,12 +70,32 @@ class UtiliyHelper {
         mUserInfo = userInfo
     }
 
+    fun checkBlacklisted(context: Context, email : String, onPass : ()->Unit, onRejected : ()->Unit )
+    {
+        val url = context.getString(R.string.urlToServer) + "checkBlacklisted/${email}"
+        var request = JsonObjectRequest(Request.Method.GET, url, null,
+            {
+                it?.let {
+                    val isBlacklisted = it.getInt("isBlacklisted")
+                    if(isBlacklisted == 0)
+                        onPass()
+                    else
+                        onRejected()
+                }
+
+            },
+            {
+                it?.let { Log.d("volley", it.message.toString()) }
+            })
+
+        context?.let { VolleyHelper.getInstance(it).addRequestQueue(request) }
+    }
+
     fun requestUserInfo(context: Context, email: String, onResponse: (() -> Unit)? = null, onFailed: (() -> Unit)? = null) {
 
         //만약 로컬에 저장한 데이터로만 로그인 판단해버리면 데베에 유저정보가 없어도 로컬에 캐싱된 데이터가 있으면 접속되버림.
         // 이메일만 조작하면 다른 계정으로도 접속됨
         //그니까 카테고리만 쓰자.
-
 
 
         //없으면 서버에 요청
@@ -135,7 +155,7 @@ class UtiliyHelper {
 
     fun exitApp(activity: Activity) {
         if (System.currentTimeMillis() < backBtnTimeInMillis + backBtnTimeDelay) {
-            finishAffinity(activity);
+            activity.finishAffinity();
             return;
         }
         backBtnTimeInMillis = System.currentTimeMillis()

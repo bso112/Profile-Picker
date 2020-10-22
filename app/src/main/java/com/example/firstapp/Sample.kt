@@ -12,7 +12,6 @@ class MyData(val index : Int, val value : String)
 fun main() {
 
 
-
     val sdfsdf = arrayListOf("adsf", 22, "dasd")
     println(sdfsdf.toString())
 
