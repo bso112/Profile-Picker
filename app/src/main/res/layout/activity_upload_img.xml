@@ -50,8 +50,8 @@
                 android:id="@+id/sp_upload_category"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:entries="@array/category_post"
                 />
+<!--                android:entries="@array/category_post"-->
         </LinearLayout>
 
 

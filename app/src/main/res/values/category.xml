@@ -6,6 +6,8 @@
         <item>@string/category2</item>
         <item>@string/category3</item>
         <item>@string/category4</item>
+        <item>@string/category5</item>
+        <item>@string/category_end</item>
 
     </string-array>
 </resources>

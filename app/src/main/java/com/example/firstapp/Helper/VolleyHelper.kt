@@ -58,10 +58,12 @@ class VolleyHelper (val context : Context){
                         val content = obj.getString("content")
                         val writer = obj.getString("writer")
                         val likes = obj.getInt("likes")
+                        val category =  obj.getInt("category")
                         postInfo.title = title
                         postInfo.postId = postId
                         postInfo.content = content
                         postInfo.writer = writer
+                        postInfo.category = category
                         postInfo.myPictures.add(MyPicture(null, fileName, filePath, likes))
                     }
 

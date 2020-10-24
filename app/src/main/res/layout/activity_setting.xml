@@ -49,6 +49,7 @@
             />
 
         <LinearLayout
+            android:id="@+id/ll_setting_change_nickname"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -58,20 +59,33 @@
 
             >
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                >
+
             <TextView
                 android:layout_marginTop="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="닉네임"/>
+                android:text="닉네임"
+                android:textColor="@color/Black"
+                />
 
 
-            <EditText
-                android:id="@+id/et_setting_nickname"
+            <TextView
+                android:layout_marginVertical="5dp"
+                android:id="@+id/tv_setting_nickname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/Transparent"
+                android:maxLength="10"
                 android:text="asdasd"
+                android:textColor="@color/Black"
                 />
+
+            </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -135,45 +149,6 @@
             android:background="@color/White"
             >
 
-            <androidx.appcompat.widget.AppCompatCheckBox
-                android:id="@+id/cb_setting_selfy"
-                android:layout_columnWeight="1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/category0"
-                android:onClick="onCheckboxClicked"/>
-
-            <androidx.appcompat.widget.AppCompatCheckBox
-                android:id="@+id/cb_setting_pet"
-                android:layout_columnWeight="1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/category1"
-                android:onClick="onCheckboxClicked"/>
-
-            <androidx.appcompat.widget.AppCompatCheckBox
-                android:id="@+id/cb_setting_fashion"
-                android:layout_columnWeight="1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/category2"
-                android:onClick="onCheckboxClicked"/>
-
-            <androidx.appcompat.widget.AppCompatCheckBox
-                android:id="@+id/cb_setting_shopping"
-                android:layout_columnWeight="1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/category3"
-                android:onClick="onCheckboxClicked"/>
-
-            <androidx.appcompat.widget.AppCompatCheckBox
-                android:id="@+id/cb_setting_etc"
-                android:layout_columnWeight="1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/category4"
-                android:onClick="onCheckboxClicked"/>
         </GridLayout>
 
 

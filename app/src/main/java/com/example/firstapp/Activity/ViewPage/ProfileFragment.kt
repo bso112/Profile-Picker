@@ -21,11 +21,10 @@ import com.example.firstapp.Activity.StatisticActivity
 import com.example.firstapp.Activity.UploadImgActivity
 import com.example.firstapp.Adapter.MyPostAdapter
 import com.example.firstapp.Default.*
-import com.example.firstapp.Helper.UtiliyHelper
+import com.example.firstapp.Helper.NetworkManager
 import com.example.firstapp.R
 import com.google.android.gms.ads.AdRequest
 import kotlinx.android.synthetic.main.frag_profile.*
-import java.math.BigInteger
 
 
 class ProfileFragment : Fragment() {
@@ -196,7 +195,7 @@ class ProfileFragment : Fragment() {
     private fun refreshView() {
 
         //사용자정보
-        tv_profile_nickname.text = UtiliyHelper.getInstance().mUserInfo?.nickname
+        tv_profile_nickname.text = NetworkManager.getInstance().mUserInfo?.nickname
 
         //갱신하기 전의 포스트들
         val oldPosts = ArrayList<Post>(mPosts)
@@ -212,8 +211,6 @@ class ProfileFragment : Fragment() {
                         val obj = it.getJSONObject(i)
                         val title = obj.getString("title")
                         val date = obj.getString("date")
-                        val postId2 = BigInteger(obj.get("postId").toString())
-
                         val postId = obj.getLong("postId")
                         val file_name = obj.getString("file_name")
                         val path = obj.getString("path")

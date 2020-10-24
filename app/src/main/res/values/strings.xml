@@ -6,13 +6,18 @@
         Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.
     </string>
     <string name="ad_attribution">Ad</string>
-    <string name="warn_nickname">닉네임은 특수문자, 공백없이 3자 이상, 10자 이하여야합니다.</string>
+    <string name="warn_nicknameLegnth">닉네임은 특수문자, 공백없이 3자 이상, 10자 이하여야합니다.</string>
+    <string name="warn_nickname_banned">금칙어가 포함되어있습니다.</string>
     <string name="warn_category">하나이상의 관심사를 선택해야합니다.</string>
+    <string name="warn_nickname_duplicated">중복된 닉네임입니다.</string>
+    <string name="warn_nickname_passed">사용할 수 있는 닉네임입니다.</string>
     <string name="category0">셀카</string>
     <string name="category1">반려동물</string>
     <string name="category2">패션</string>
     <string name="category3">쇼핑</string>
-    <string name="category4">기타</string>
+    <string name="category4">음식</string>
+    <string name="category5">풍경</string>
+    <string name="category_end">기타</string>
     <string name="male">남성</string>
     <string name="female">여성</string>
 

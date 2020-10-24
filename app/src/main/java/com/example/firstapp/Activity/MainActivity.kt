@@ -1,7 +1,6 @@
 package com.example.firstapp.Activity
 
 import LoadingDialogFragment
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -13,19 +12,15 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import com.android.volley.Request
-import com.android.volley.toolbox.JsonArrayRequest
-import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.example.firstapp.Helper.VolleyHelper
 import com.example.firstapp.Helper.showSimpleAlert
 import com.example.firstapp.Adapter.ViewPageAdapter
-import com.example.firstapp.Default.UserInfo
-import com.example.firstapp.Helper.UtiliyHelper
+import com.example.firstapp.Helper.NetworkManager
 import com.example.firstapp.R
 import com.google.android.gms.ads.MobileAds
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -148,7 +143,7 @@ class MainActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onBackPressed() {
-        UtiliyHelper.getInstance().exitApp(this)
+        NetworkManager.getInstance().exitApp(this)
     }
 
 

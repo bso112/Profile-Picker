@@ -7,10 +7,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import com.android.volley.Request
-import com.android.volley.toolbox.StringRequest
-import com.example.firstapp.Helper.UtiliyHelper
-import com.example.firstapp.Helper.VolleyHelper
+import com.example.firstapp.Helper.NetworkManager
 import com.example.firstapp.Helper.showAlertWithJustOkButton
 
 import com.example.firstapp.R
@@ -70,7 +67,7 @@ class LoginActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onBackPressed() {
-        UtiliyHelper.getInstance().exitApp(this)
+        NetworkManager.getInstance().exitApp(this)
     }
 
 
@@ -94,9 +91,9 @@ class LoginActivity : AppCompatActivity() {
 
     private fun checkIfAccountExist(email: String) {
         //블랙리스트에 있는지 확인
-        UtiliyHelper.getInstance().checkBlacklisted(this, email, {
-            //있으면 로그인
-            UtiliyHelper.getInstance().requestUserInfo(this, email,
+        NetworkManager.getInstance().checkBlacklisted(this, email, {
+            //없으면 로그인
+            NetworkManager.getInstance().requestUserInfo(this, email,
                 { startActivity(Intent(this, MainActivity::class.java)) },
                 { startActivity(Intent(this, SignUpActivity::class.java)) })
         }, {

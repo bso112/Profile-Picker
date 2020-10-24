@@ -1,6 +1,7 @@
 package com.example.firstapp.Activity
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -9,6 +10,7 @@ import android.os.Bundle
 import android.util.AttributeSet
 import android.view.View
 import android.widget.Toast
+import com.example.firstapp.Default.EXTRA_BIPMAP
 import com.example.firstapp.Default.EXTRA_FILEPATH
 import com.example.firstapp.R
 import kotlinx.android.synthetic.main.activity_picture.*
@@ -23,6 +25,7 @@ class PictureActivity : AppCompatActivity() {
         val file = File(filePath)
         if(file.exists())
         {
+
             file.inputStream().use {
                 val byteArray = it.readBytes()
                 val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)

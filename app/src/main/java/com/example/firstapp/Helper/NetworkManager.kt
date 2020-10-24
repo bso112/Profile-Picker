@@ -4,21 +4,17 @@ import android.app.Activity
 import android.content.Context
 import android.util.Log
 import android.widget.*
-import androidx.core.app.ActivityCompat.finishAffinity
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
-import com.example.firstapp.Activity.LoginActivity
 import com.example.firstapp.Default.UserInfo
 import com.example.firstapp.R
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.gson.Gson
-import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 
-//그냥 잡일하는 헬퍼
-class UtiliyHelper {
+//http 요청을 관리
+class NetworkManager {
 
     var mUserInfo: UserInfo? = null
         private set;
@@ -28,12 +24,12 @@ class UtiliyHelper {
 
     companion object {
 
-        private var INSTANCE: UtiliyHelper? = null
+        private var INSTANCE: NetworkManager? = null
 
-        fun getInstance(): UtiliyHelper =
+        fun getInstance(): NetworkManager =
             INSTANCE ?: synchronized(this) {
-                INSTANCE = UtiliyHelper()
-                return INSTANCE as UtiliyHelper
+                INSTANCE = NetworkManager()
+                return INSTANCE as NetworkManager
             }
     }
 
@@ -66,6 +62,8 @@ class UtiliyHelper {
         val fileContents = Gson().toJson(userInfo)
         val file = File(context.cacheDir, "account_" + userInfo.email)
         file.writeText(fileContents)
+
+
 
         mUserInfo = userInfo
     }

@@ -15,6 +15,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.WindowManager
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -28,6 +29,7 @@ import com.android.volley.toolbox.Volley
 import com.example.firstapp.Helper.VolleyHelper
 import com.example.firstapp.Adapter.UploadImgAdapter
 import com.example.firstapp.Default.*
+import com.example.firstapp.Helper.GlobalHelper
 import com.example.firstapp.Helper.MyFileHelper
 import com.example.firstapp.R
 import com.example.firstapp.VolleyMultipartRequest
@@ -71,9 +73,14 @@ class UploadImgActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_upload_img)
 
+        //리사이클러뷰 셋팅
         mUploadImgAdapter = UploadImgAdapter(mPostInfo.myPictures, this)
         gv_upload_picture.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         gv_upload_picture.adapter = mUploadImgAdapter
+
+        //카테고리 표시하는 스피너셋팅
+        val spinnerAdapter  = ArrayAdapter(this, R.layout.spinner_item, R.id.tv_spinner_item, GlobalHelper.getInstance(this).mCategory)
+        sp_upload_category.adapter = spinnerAdapter
 
 
         //내 게시물 수정시, 내 게시물 정보를 불러와서 표시해줌.
@@ -84,6 +91,9 @@ class UploadImgActivity : AppCompatActivity() {
             VolleyHelper.getInstance(this).getPostInfo(postId, mPostInfo)
             mPostInfo.mOnInitialized =
                 {
+                    if(mPostInfo.category >= 0 && mPostInfo.category < GlobalHelper.getInstance(this).mCategory.size)
+                        sp_upload_category.setSelection(mPostInfo.category)
+
                     et_upload_content.setText(mPostInfo.content)
                     et_upload_title.setText(mPostInfo.title)
                     mUploadImgAdapter.notifyDataSetChanged()
@@ -238,7 +248,7 @@ class UploadImgActivity : AppCompatActivity() {
                 }
                 params.put("content", et_upload_content.text.toString())
                 params.put("title", et_upload_title.text.toString())
-                params.put("category", sp_upload_category.selectedItem.toString())
+                params.put("category", sp_upload_category.selectedItemPosition.toString())
                 LoginActivity.mAccount?.email?.let {
                     params.put("email", it)
                 }

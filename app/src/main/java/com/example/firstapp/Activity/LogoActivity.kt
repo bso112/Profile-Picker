@@ -4,11 +4,8 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.animation.AnimationUtils
-import android.widget.Toast
-import androidx.core.app.ActivityCompat
-import com.example.firstapp.Helper.UtiliyHelper
+import com.example.firstapp.Helper.NetworkManager
 import com.example.firstapp.Helper.showAlertWithJustOkButton
-import com.example.firstapp.Helper.showSimpleAlert
 import com.example.firstapp.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -50,9 +47,9 @@ class LogoActivity : AppCompatActivity() {
             LoginActivity.mAccount?.email?.let { email ->
 
                 //블랙리스트에 있는지 확인
-                UtiliyHelper.getInstance().checkBlacklisted(this, email, {
+                NetworkManager.getInstance().checkBlacklisted(this, email, {
                     //없으면 로그인처리
-                    UtiliyHelper.getInstance().requestUserInfo(
+                    NetworkManager.getInstance().requestUserInfo(
                         this, email,
                         { intent = Intent(this, MainActivity::class.java); if (isMinimumWaitPassed) startActivity(intent) },
                         { intent = Intent(this, LoginActivity::class.java); if (isMinimumWaitPassed) startActivity(intent) })

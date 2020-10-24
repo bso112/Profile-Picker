@@ -12,6 +12,15 @@ class MyData(val index : Int, val value : String)
 fun main() {
 
 
+    val maptest = hashMapOf(Pair(11, 11))
+    maptest.put(11, 10) //덮어씀
+
+    println(maptest[11])
+
+
+    val set = hashSetOf<Int>()
+    println( set.toString())
+
     val sdfsdf = arrayListOf("adsf", 22, "dasd")
     println(sdfsdf.toString())
 

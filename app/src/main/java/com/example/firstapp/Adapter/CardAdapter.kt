@@ -15,9 +15,10 @@ import com.android.volley.toolbox.ImageRequest
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.StringRequest
 import com.example.firstapp.Activity.LoginActivity
+import com.example.firstapp.Default.CARD_REQUEST_AT_ONECE
 import com.example.firstapp.Default.Card
 import com.example.firstapp.Default.MyPicture
-import com.example.firstapp.Helper.UtiliyHelper
+import com.example.firstapp.Helper.NetworkManager
 import com.example.firstapp.Helper.VolleyHelper
 import com.example.firstapp.Helper.showSimpleAlert
 import com.example.firstapp.R
@@ -43,7 +44,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
     class CardViewHolder(
         val layout: View, val rl_swipeCard: RelativeLayout,
         val swipImg: ImageView, val tv_swipe_title: TextView, val tv_swipe_userName: TextView, val tv_swipe_content: TextView,
-        val btn_swipe_report : ImageButton) : RecyclerView.ViewHolder(layout)
+        val btn_swipe_report : View) : RecyclerView.ViewHolder(layout)
 
     class AdViewHolder(val view: UnifiedNativeAdView) : RecyclerView.ViewHolder(view)
     {
@@ -198,7 +199,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
     }
 
     private fun onItemAboutToEmpty(onSuccess: (() -> Unit)? = null, onFailed: (() -> Unit)? = null) {
-        requestAndAddCardData(R.integer.CardRequestAtOnce, onSuccess, onFailed)
+        requestAndAddCardData(CARD_REQUEST_AT_ONECE, onSuccess, onFailed)
     }
 
     private fun loadAds() {
@@ -244,21 +245,9 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
             return
 
 
-//        //DB로보낼때는 카테고리를 문자열로 치환..
-//        val categorys = ArrayList<String>()
-//        mContext?.let {
-//            UtiliyHelper.getInstance().mUserInfo?.categorys?.forEach { index ->
-//                val helper = GlobalHelper.getInstance(it)
-//                if(index >= 0 && index < helper.mCategory.size)
-//                    categorys.add(helper.mCategory[index])
-//            }
-//        }
-        //category.toString 하면 [asdas,sdff,afd] 이렇게 나와서 안됨
-        // ["asdas","sdff","afd"] 이래되야될듯?
-
 
         var url = mContext!!.getString(R.string.urlToServer) + "getRandomPost/" + postSize.toString() + "/" + mCardDataIndex.toString() +
-                "/" + LoginActivity.mAccount?.email + "/" + UtiliyHelper.getInstance().mUserInfo?.categorys.toString()
+                "/" + LoginActivity.mAccount?.email + "/" + NetworkManager.getInstance().mUserInfo?.categorys.toString()
         //랜덤한 유저의 게시글을 얻는다.
         //현재 로그인된 유저정보를 바탕으로
         val postInfoRequest = JsonArrayRequest(
@@ -322,10 +311,10 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
                                 if(cardList.count() < 20)
                                 {
 
-                                    for(i in 0 until ((mContext!!.resources.getInteger(R.integer.CardRequestAtOnce) / cardList.size) -1).coerceAtLeast(0))
+                                    for(i in 0 until ((CARD_REQUEST_AT_ONECE / cardList.size) -1).coerceAtLeast(0))
                                         cardList.forEach { mDataset.add(it) }
 
-                                   val remainderSize = mContext!!.resources.getInteger(R.integer.CardRequestAtOnce) % cardList.size
+                                   val remainderSize = CARD_REQUEST_AT_ONECE % cardList.size
                                     for(i in 0 until remainderSize)
                                         mDataset.add(cardList[i])
 

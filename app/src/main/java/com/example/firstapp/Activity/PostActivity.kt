@@ -1,5 +1,6 @@
 package com.example.firstapp.Activity
 
+import LoadingDialogFragment
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
@@ -19,15 +20,17 @@ import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.example.firstapp.Adapter.PostImgAdapter
-import com.example.firstapp.Default.Card
-import com.example.firstapp.Default.EXTRA_FILEPATH
-import com.example.firstapp.Default.EXTRA_POSTID
-import com.example.firstapp.Default.MyPicture
+import com.example.firstapp.Default.*
 import com.example.firstapp.Helper.MyFileHelper
 import com.example.firstapp.R
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_post.*
 import kotlinx.android.synthetic.main.post_img_item.view.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 
@@ -99,25 +102,42 @@ class PostActivity : AppCompatActivity() {
 
         lv_post_picture.setOnItemLongClickListener { parent, view, position, id ->
 
-            //해당 아이템의 비트맵을 외부저장소의 개별디렉토리(캐시 디렉토리)에 저장한다.
 
-            //비트맵을 얻는다.
-            val bitmap = (view.iv_post_image.drawable as BitmapDrawable).bitmap
+            val loadingDialog = LoadingDialogFragment()
 
-            val file = MyFileHelper.createImageTempFile(this@PostActivity)
-            try {
-                //비트맵을 압축해서 파일에 쓴다.
-                file.outputStream().use {  bitmap.compress(Bitmap.CompressFormat.WEBP, 60, it) }
-                //공용공간에 쓰는 거였으면 이걸추가
-                //MediaStore.Images.Media.insertImage(getContentResolver(),file.getAbsolutePath(),file.getName(),file.getName());
-            } catch (e: IOException) {
-                e.printStackTrace()
+            //멀티스레드가 아니라서 안나오나?
+            loadingDialog.show(supportFragmentManager, "다이어로그")
+
+            //코루틴
+            CoroutineScope(IO).launch {
+                //해당 아이템의 비트맵을 외부저장소의 개별디렉토리(캐시 디렉토리)에 저장한다.
+
+                //비트맵을 얻는다.
+                val bitmap = (view.iv_post_image.drawable as BitmapDrawable).bitmap
+
+
+                val file = MyFileHelper.createImageTempFile(this@PostActivity)
+                try {
+                    //비트맵을 압축해서 파일에 쓴다.
+                    file.outputStream().use {  bitmap.compress(Bitmap.CompressFormat.WEBP, 60, it) }
+                    //공용공간에 쓰는 거였으면 이걸추가
+                    //MediaStore.Images.Media.insertImage(getContentResolver(),file.getAbsolutePath(),file.getName(),file.getName());
+
+                    //메인콘텍스트에서 처리한다
+                    withContext(Main){
+                        loadingDialog.dismiss()
+                        Intent(this@PostActivity, PictureActivity::class.java).apply {
+                            putExtra(EXTRA_FILEPATH, file.absolutePath)
+                            startActivity(this)
+                        }
+                    }
+
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+
             }
-
-            Intent(this, PictureActivity::class.java).apply {
-                putExtra(EXTRA_FILEPATH, file.absolutePath)
-                startActivity(this)
-            }
+            
             true
         }
 

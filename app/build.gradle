@@ -44,6 +44,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-ads:19.4.0'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.0-M1'
 
 }
 
