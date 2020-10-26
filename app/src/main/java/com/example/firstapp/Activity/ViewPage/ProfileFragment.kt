@@ -137,6 +137,7 @@ class ProfileFragment : Fragment() {
 
     private fun requestPostTumbnail(tumbnailName: String, post: Post) {
 
+
         val queue = Volley.newRequestQueue(context)
 
         val url = getString(R.string.urlToServer) + "getImage/${tumbnailName}"
@@ -144,6 +145,7 @@ class ProfileFragment : Fragment() {
         val tumbnailRequest = ImageRequest(url, {
             it?.let { bitmap ->
                 post.tumbnail = it
+                post.onTumbnailSet?.let { it() }
             }
             //썸네일을 적용해서 어댑터뷰를 다시그린다.
             mPostAdapter.notifyDataSetChanged()

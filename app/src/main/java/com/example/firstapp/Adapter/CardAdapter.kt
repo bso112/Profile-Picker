@@ -42,12 +42,12 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
     }
 
     class CardViewHolder(
-        val layout: View, val rl_swipeCard: RelativeLayout,
+        val layout: View,
         val swipImg: ImageView, val tv_swipe_title: TextView, val tv_swipe_userName: TextView, val tv_swipe_content: TextView,
-        val btn_swipe_report : View) : RecyclerView.ViewHolder(layout)
+        val btn_swipe_report: View
+    ) : RecyclerView.ViewHolder(layout)
 
-    class AdViewHolder(val view: UnifiedNativeAdView) : RecyclerView.ViewHolder(view)
-    {
+    class AdViewHolder(val view: UnifiedNativeAdView) : RecyclerView.ViewHolder(view) {
         init {
             view.mediaView = view.mv_ad
             // Set other ad assets.
@@ -67,43 +67,51 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
 
 
     //카드를 더 받아오는 기준점
-    private val CARD_DATA_ABOUT_TO_EMPTY =  3
+    private val CARD_DATA_ABOUT_TO_EMPTY = 3
 
     //한번에 요청할 광고의 수
     private val REQUEST_AD_AT_ONECE = 5
+
     //광고를 더 받아오는 기준점
     private val AD_DATA_ABOUT_TO_EMPTY = 2
+
     //광고를 표시하는 간격
     private val SPACE_BETWEEN_REQUEST_AD = 20
 
     // DB로부터 받아올 카드 데이터의 시작인덱스
     private var mCardDataIndex: Int = 0
+
     //네트워크에서 카드데이터를 받아오는 중인가?
     var mIsBusy: Boolean = false
         private set;
 
     //광고요청 가산기
     private var mSwipeAcc = 0
+
     //광고로더
     private lateinit var mCardAd: AdLoader
+
     //광고데이터 큐
-    private val mAdQueue : Queue<UnifiedNativeAd> = LinkedList<UnifiedNativeAd>()
+    private val mAdQueue: Queue<UnifiedNativeAd> = LinkedList<UnifiedNativeAd>()
 
 
     override fun getItemViewType(position: Int): Int {
-        return if(mDataset[position].isAd) NATIVE_AD_VIEW_TYPE else DATA_VIEW_TYPE
+        return if (mDataset[position].isAd) NATIVE_AD_VIEW_TYPE else DATA_VIEW_TYPE
     }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return when(viewType){
+        return when (viewType) {
             DATA_VIEW_TYPE -> {
                 val layout: View = LayoutInflater.from(parent.context).inflate(R.layout.swipe_item, parent, false)
-                CardViewHolder(layout, layout.rl_swipeCard, layout.swipImg, layout.tv_swipe_title, layout.tv_swipe_userName, layout.tv_swipe_content,
-                layout.btn_swipe_report)
+                CardViewHolder(
+                    layout, layout.swipImg, layout.tv_swipe_title, layout.tv_swipe_userName, layout.tv_swipe_content,
+                    layout.btn_swipe_report
+                )
             }
             NATIVE_AD_VIEW_TYPE -> {
-               AdViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.swipe_ad, parent, false) as UnifiedNativeAdView)
+                AdViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.swipe_ad, parent, false) as UnifiedNativeAdView)
             }
-            else->{
+            else -> {
                 AdViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.swipe_ad, parent, false) as UnifiedNativeAdView)
             }
         }
@@ -120,7 +128,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
             NATIVE_AD_VIEW_TYPE -> {
                 val adViewHolder = holder as AdViewHolder
                 mAdQueue.peek()?.let { setCardAdData(it, adViewHolder.view) }
-        }
+            }
         }
     }
 
@@ -137,13 +145,17 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
 
 
         //썸네일을 설정. pictures에는 하나의 사진밖에 없음.
-        if (card.pictures.isNotEmpty())
-            holder.swipImg.setImageBitmap(card.pictures.first().bitmap)
+        if (card.pictures.isNotEmpty()) {
+            if (card.pictures.first().bitmap == null)
+                Toast.makeText(mContext, "비트맵이 널!", Toast.LENGTH_LONG).show()
+            else
+                holder.swipImg.setImageBitmap(card.pictures.first().bitmap)
+        }
 
         holder.tv_swipe_title.text = card.title
         holder.tv_swipe_userName.text = card.nickname
         holder.tv_swipe_content.text = card.content
-        
+
         //신고버튼
         holder.btn_swipe_report.isEnabled = true
         val enabledColor = mContext?.resources?.getColor(R.color.Black)
@@ -153,7 +165,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
                 report_post(card.writer, card.postId);
                 holder.btn_swipe_report.isEnabled = false
                 val disabledColor = mContext?.resources?.getColor(R.color.disable)
-                holder.btn_swipe_report.backgroundTintList = disabledColor?.let {  ColorStateList.valueOf(it) }
+                holder.btn_swipe_report.backgroundTintList = disabledColor?.let { ColorStateList.valueOf(it) }
 
             })
         }
@@ -164,7 +176,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
     fun removeCardAtFront() {
         if (mDataset.isNotEmpty()) {
             //만약 광고면 파괴한다.
-            if(mDataset.first().isAd)
+            if (mDataset.first().isAd)
                 mAdQueue.poll()?.destroy()
 
             mDataset.removeFirst()
@@ -173,17 +185,14 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
         }
 
 
-        if(mSwipeAcc >= SPACE_BETWEEN_REQUEST_AD)
-        {
+        if (mSwipeAcc >= SPACE_BETWEEN_REQUEST_AD) {
             ShowAd()
             mSwipeAcc = 0
         }
 
-        if(mAdQueue.size <= AD_DATA_ABOUT_TO_EMPTY && !mCardAd.isLoading)
-        {
+        if (mAdQueue.size <= AD_DATA_ABOUT_TO_EMPTY && !mCardAd.isLoading) {
             loadAds()
         }
-
 
 
         //http 요청중이 아니고, 카드 데이터가 비려고 하면 더 받아온다.
@@ -191,8 +200,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
             onItemAboutToEmpty()
     }
 
-    fun refresh(onSuccess: (() -> Unit)? = null, onFailed: (() -> Unit)? = null)
-    {
+    fun refresh(onSuccess: (() -> Unit)? = null, onFailed: (() -> Unit)? = null) {
         mDataset.clear()
         notifyDataSetChanged()
         onItemAboutToEmpty(onSuccess, onFailed)
@@ -222,16 +230,13 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
     }
 
 
-    private  fun ShowAd()
-    {
-        if(mDataset.size >= 1)
-        {
+    private fun ShowAd() {
+        if (mDataset.size >= 1) {
             mDataset.add(1, Card(isAd = true))
             notifyItemInserted(1)
         }
 
     }
-
 
 
     fun requestAndAddCardData(postSize: Int, onSuccess: (() -> Unit)? = null, onFailed: (() -> Unit)? = null) {
@@ -243,7 +248,6 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
 
         if (mContext == null)
             return
-
 
 
         var url = mContext!!.getString(R.string.urlToServer) + "getRandomPost/" + postSize.toString() + "/" + mCardDataIndex.toString() +
@@ -272,73 +276,53 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
                         val filePath = obj.getString("path")
 
 
-                        //만약 게시물목록이 비었거나 전에 추가된 포스트의 id와 이번에 추가할
-                        //포스트의 id가 다르다면, 게시물목록에 항목추가
-                        if (cardList.isEmpty() || cardList.last().postId != postId) {
-                            val content = obj.getString("content")
-                            val writer = obj.getString("writer")
-                            val nickname = obj.getString("nickname")
-                            val picture = MyPicture(null, fileName, filePath, 0)
-                            cardList.add(Card(postId, title, content, writer, nickname, arrayListOf(picture)))
-                        }
+                        val content = obj.getString("content")
+                        val writer = obj.getString("writer")
+                        val nickname = obj.getString("nickname")
+                        val picture = MyPicture(null, fileName, filePath, 0)
+
+
+                        val getPictureUrl = mContext!!.getString(R.string.urlToServer) + "getImage/" +
+                                picture.file_name;
+
+                        val imgRequest = ImageRequest(getPictureUrl,
+                            { bitmap ->
+                                picture.bitmap = bitmap
+                                val newCard = Card(postId, title, content, writer, nickname, arrayListOf(picture))
+                                ///mDataset은 이전데이터도 함께 가지고있는반면
+                                //cardList는 현재 requestAndAddCardData 요청에서 가져온 데이터만 가지고 있음.
+                                cardList.add(newCard)
+
+                                //응답을 받은대로 바로바로 보여주자.
+                                addCardData(newCard)
+
+                                //마지막 응답이면 (마지막루프라고 마지막응답은 아님)
+                                if (cardList.size >= jsonArr.length()) {
+                                    mIsBusy = false
+
+                                    //만약에 20개보다 포스트가 적으면 반복해서 최대한 20개 채운다.
+                                    if (cardList.count() < postSize) {
+
+                                        //카드리스트를 mDataSet에 복사. 최대 20개까지 채움.
+                                        for (i in 0 until ((postSize / cardList.size) - 1).coerceAtLeast(0))
+                                            mDataset.addAll(cardList)
+
+                                        mCardDataIndex = 0
+
+                                        notifyDataSetChanged()
+
+                                    }
+                                }
+                            }, 300, 800, ImageView.ScaleType.CENTER_CROP, Bitmap.Config.ARGB_8888,
+                            { err ->
+                                Log.e("volley", err.message ?: "err ocurr!")
+                            })
+
+                        VolleyHelper.getInstance(mContext!!).addRequestQueue(imgRequest)
 
                     }
                 }
 
-
-                //카드에 쓸 이미지는 그냥 첫번째 이미지
-                //각 카드에 쓸 이미지 받아옴
-                for (card in cardList) {
-                    if (null == card)
-                        return@Listener
-
-                    val url = mContext!!.getString(R.string.urlToServer) + "getImage/" +
-                            card.pictures.first().file_name;
-
-                    val imgRequest = ImageRequest(url,
-                        { bitmap ->
-                            card.pictures.first().bitmap = bitmap
-                            //완성한 카드를 어레디어댑터에 추가
-                            addCardData(card)
-
-                          //  mCardDataIndex++
-
-                            //마지막 루프면
-                            if (card === cardList.last()) {
-                                mIsBusy = false
-
-                                //만약에 20개보다 포스트가 적으면 반복해서 20개 채운다.
-                                if(cardList.count() < 20)
-                                {
-
-                                    for(i in 0 until ((CARD_REQUEST_AT_ONECE / cardList.size) -1).coerceAtLeast(0))
-                                        cardList.forEach { mDataset.add(it) }
-
-                                   val remainderSize = CARD_REQUEST_AT_ONECE % cardList.size
-                                    for(i in 0 until remainderSize)
-                                        mDataset.add(cardList[i])
-
-                                    mCardDataIndex = remainderSize
-
-                                    notifyDataSetChanged()
-
-                                }
-
-
-//                                //만약 받았은 포스트의 수가 요청한 것보다 적으면 마지막 데이터셋이라는 뜻
-//                                //그때는 mCardDataIndex를 0으로 돌린다.
-//                                if (cardList.count() < postSize)
-//                                    mCardDataIndex = 0
-
-                            }
-
-                        }, 300, 800, ImageView.ScaleType.CENTER_CROP, Bitmap.Config.ARGB_8888,
-                        { err ->
-                            Log.e("volley", err.message ?: "err ocurr!")
-                        })
-                    VolleyHelper.getInstance(mContext!!).addRequestQueue(imgRequest)
-
-                }
             },
             Response.ErrorListener {
                 it.message?.let { it1 -> Log.d("volley", it1) }
@@ -378,11 +362,9 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
     }
 
 
-    private fun setCardAdData(nativeAd : UnifiedNativeAd, adView: UnifiedNativeAdView) {
+    private fun setCardAdData(nativeAd: UnifiedNativeAd, adView: UnifiedNativeAdView) {
         // You must call destroy on old ads when you are done with them,
         // otherwise you will have a memory leak.
-
-
 
 
         // The headline and media content are guaranteed to be in every UnifiedNativeAd.
@@ -450,8 +432,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
 
     }
 
-    private fun report_post(email : String, postId : Long)
-    {
+    private fun report_post(email: String, postId: Long) {
         val url = mContext?.getString(R.string.urlToServer) + "report_post/${email}/${postId}"
         val request = StringRequest(Request.Method.GET, url, {
             Toast.makeText(mContext, "신고가 완료되었습니다.", Toast.LENGTH_SHORT).show()
@@ -467,8 +448,6 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
         //불러온 광고 다 폐기
         mAdQueue.forEach { it.destroy() }
     }
-
-
 
 
 }

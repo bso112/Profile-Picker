@@ -63,7 +63,7 @@ class UploadImgActivity : AppCompatActivity() {
     private var mIsModify: Boolean = false
 
     /**
-     * 기존 게시글 정보
+     * 기존 게시글 정보. 게시글을 수정했는지 안했는지 확인하기 위함
      */
     private var mPostInfo: PostInfo = PostInfo()
 
@@ -86,6 +86,10 @@ class UploadImgActivity : AppCompatActivity() {
         //내 게시물 수정시, 내 게시물 정보를 불러와서 표시해줌.
         val postId = intent.getLongExtra(EXTRA_POSTID, -1)
         if (postId >= 0) {
+
+            val loadingDialog = LoadingDialogFragment()
+            loadingDialog.show(supportFragmentManager, null)
+
             mIsModify = true
 
             VolleyHelper.getInstance(this).getPostInfo(postId, mPostInfo)
@@ -97,6 +101,8 @@ class UploadImgActivity : AppCompatActivity() {
                     et_upload_content.setText(mPostInfo.content)
                     et_upload_title.setText(mPostInfo.title)
                     mUploadImgAdapter.notifyDataSetChanged()
+
+                    loadingDialog.dismiss()
                 }
 
         }
@@ -114,12 +120,14 @@ class UploadImgActivity : AppCompatActivity() {
 
         //앨범에서 사진추가
         btn_upload_addPicture.setOnClickListener {
+
             if (mPostInfo.myPictures.size >= 5) {
                 Toast.makeText(this, "사진은 5장까지만 등록할 수 있습니다.", Toast.LENGTH_LONG).show()
             } else
                 dispatchGalleryIntent()
         }
 
+        //제출
         tv_upload_save.setOnClickListener {
 
             if (mPostInfo.myPictures.isEmpty()) {

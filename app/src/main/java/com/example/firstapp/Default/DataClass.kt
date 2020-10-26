@@ -31,6 +31,10 @@ data class Card(
 
 
 class Post(var tumbnail: Bitmap?, var postInfo: PostInfo) {
+
+    var onTumbnailSet : (() -> Unit)? = null
+
+
     fun getTumbnailPictureName(): String {
         var result = ""
         var maxLikes = -1

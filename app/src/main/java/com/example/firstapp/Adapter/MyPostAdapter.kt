@@ -32,6 +32,7 @@ class MyPostAdapter(context: Context, resource: Int, val posts: ArrayList<Post>)
         view.tv_mypost_title.text = post?.postInfo?.title
         view.tv_mypost_like.text = stringLikes
         view.iv_mypost_tumbnail.setImageBitmap(post?.tumbnail)
+        post?.onTumbnailSet = { view.pb_mypost_loading.visibility = View.INVISIBLE }
 
 
         return view
