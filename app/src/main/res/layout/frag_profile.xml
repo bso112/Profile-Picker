@@ -73,7 +73,7 @@
         android:layout_width="match_parent"
         xmlns:ads="http://schemas.android.com/apk/res-auto"
         ads:adSize="BANNER"
-        ads:adUnitId="ca-app-pub-3940256099942544/6300978111"
+        ads:adUnitId="@string/banner_ad_id"
         android:layout_alignParentTop="true"
         >
     </com.google.android.gms.ads.AdView>

@@ -8,26 +8,18 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:111890520747:android:1a0f8080eaa25167fef5ee",
+        "mobilesdk_app_id": "1:111890520747:android:c333ba6734028b2afef5ee",
         "android_client_info": {
-          "package_name": "com.example.firstapp"
+          "package_name": "com.manta.firstapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "111890520747-gmnp80ks9ktften03p8ue9koc9deoepi.apps.googleusercontent.com",
+          "client_id": "111890520747-lnigvcrr9opsg2rn0g08jucq8p2n55bl.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.firstapp",
-            "certificate_hash": "03a6b08f13810d7e9b8d02bf7838d19e6b45b1c1"
-          }
-        },
-        {
-          "client_id": "111890520747-pk4tcp8l0v1c7ppta4oqrjgqeb8vidhk.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.firstapp",
-            "certificate_hash": "19fff41c7d90d4bd01fcd2d49eaffe48ebf72121"
+            "package_name": "com.manta.firstapp",
+            "certificate_hash": "3d9be32d200542a66cb340a65b678d7f3a037f13"
           }
         },
         {

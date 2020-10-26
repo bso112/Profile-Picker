@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.firstapp">
+    package="com.manta.firstapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -21,11 +21,11 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
-        <activity android:name=".Activity.PictureActivity"></activity>
+        <activity android:name="com.manta.firstapp.Activity.PictureActivity"></activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.example.firstapp.fileprovider"
+            android:authorities="com.manta.firstapp.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -33,15 +33,15 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".Activity.SettingActivity" /> <!-- <service android:name="yourpackage.SturkoPlayerService" /> -->
+        <activity android:name="com.manta.firstapp.Activity.SettingActivity" /> <!-- <service android:name="yourpackage.SturkoPlayerService" /> -->
         <!-- Sample AdMob App ID: ca-app-pub-3940256099942544~3347511713 -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-1414195121638464~4457423094" />
 
-        <activity android:name=".Activity.SignUpActivity" />
+        <activity android:name="com.manta.firstapp.Activity.SignUpActivity" />
         <activity
-            android:name=".Activity.LogoActivity"
+            android:name="com.manta.firstapp.Activity.LogoActivity"
             android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -50,14 +50,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Activity.StatisticActivity"
+            android:name="com.manta.firstapp.Activity.StatisticActivity"
             android:noHistory="true" />
         <activity
-            android:name=".Activity.PostActivity"
+            android:name="com.manta.firstapp.Activity.PostActivity"
             />
-        <activity android:name=".Activity.UploadImgActivity" />
-        <activity android:name=".Activity.LoginActivity" /> <!-- android:icon="@mipmap/ic_launcher" -->
-        <activity android:name=".Activity.MainActivity" />
+        <activity android:name="com.manta.firstapp.Activity.UploadImgActivity" />
+        <activity android:name="com.manta.firstapp.Activity.LoginActivity" /> <!-- android:icon="@mipmap/ic_launcher" -->
+        <activity android:name="com.manta.firstapp.Activity.MainActivity" />
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" />
