@@ -59,11 +59,9 @@ class NetworkManager {
 
         //캐싱
 
-        val fileContents = Gson().toJson(userInfo)
-        val file = File(context.cacheDir, "account_" + userInfo.email)
-        file.writeText(fileContents)
-
-
+        val fileContents = Gson().toJson(userInfo) //userInfo라는 객체를 json 형태로 바꾼다.
+        val file = File(context.cacheDir, "account_" + userInfo.email) //휴대폰의 내부저장소 중 캐시저장소에 파일을 만든다.
+        file.writeText(fileContents)  //파일에 준비한 json객체를 쓴다.
 
         mUserInfo = userInfo
     }

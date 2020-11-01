@@ -2,6 +2,7 @@
 <resources>
     <string name="swipe_ad_id">ca-app-pub-1414195121638464/4652648612</string>
     <string name="banner_ad_id">ca-app-pub-1414195121638464/6457071911</string>
+<!--    테스트 광고-->
 <!--    <string name="swipe_ad_id">ca-app-pub-3940256099942544/2247696110</string>-->
 <!--    <string name="banner_ad_id">ca-app-pub-3940256099942544/6300978111</string>-->
 </resources>

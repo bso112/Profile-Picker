@@ -27,7 +27,7 @@ object MyFileHelper {
         // 외부저장소의 앱별 디렉터리(보통 캐시를 저장함)를 말한다. 앱을 지우면 같이 삭제된다.
         // context.externalCacheDir과 다른점은 DIRECTORY_PICTURES 을 통해서 Picture라는 이미지 디렉토리를 추가하는 점이다.
         // 이미지 같은 미디어콘텐츠 저장시에는 이렇게 해야한다.
-        val storageDir: File? = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            val storageDir: File? = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
 
         //이렇게 만든 file은 mediaScanner에 자동으로 추가되지 않으므로 galleryAddPic 을 통해 수동으로 추가하라고한다...
         //는데 애초에 미디어스캐너는 외부저장소 공용디렉터리에 접근할때 쓰는거아님?

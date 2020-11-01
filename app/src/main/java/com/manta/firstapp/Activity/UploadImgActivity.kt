@@ -11,6 +11,7 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.util.Log
 import android.view.WindowManager
@@ -195,6 +196,8 @@ class UploadImgActivity : AppCompatActivity() {
         //픽쳐가 추가되었음을 알리고, 화면을 갱신하라고한다.
         mUploadImgAdapter.notifyDataSetChanged()
     }
+
+
 
     private fun uploadPostToServer(url: String) {
 
@@ -395,12 +398,12 @@ class UploadImgActivity : AppCompatActivity() {
                     //카메라앱이 쓰려면 콘텐츠스키마로 변경해야하는 것인가?
                     val photoURI: Uri = FileProvider.getUriForFile(
                         this,
-                        "com.example.firstapp.fileprovider",
+                        "com.manta.firstapp.fileprovider",
                         file
                     )
 
                     //절대경로
-                    //storage/emulated/0/Android/data/com.example.firstapp/files/Pictures/JPEG_20201021_184543_51779633417253985
+                    //storage/emulated/0/Android/data/com.example.firstapp/files/Pictures/JPEG_20201022_125001_910373070437525236.jpg
                     //photoURI
                     //content://com.example.firstapp.fileprovider/my_images/Pictures/JPEG_20201022_125001_910373070437525236.jpg
 
