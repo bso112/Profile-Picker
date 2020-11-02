@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "111890520747-upa1k9ml238kpiabm633ln6ofcgf86aj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.manta.firstapp",
+            "certificate_hash": "872d8c3ba0ce1e8954e9425c1b4e3178183ce014"
+          }
+        },
+        {
           "client_id": "111890520747-vebgj6gs5q8ndrghm4q90eoj1ssfnfbp.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
