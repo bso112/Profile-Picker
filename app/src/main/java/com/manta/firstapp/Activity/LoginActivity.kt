@@ -3,6 +3,7 @@ package com.manta.firstapp.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.text.util.Linkify
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -18,6 +19,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import kotlinx.android.synthetic.main.activity_login.*
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 
 /*
@@ -35,7 +38,7 @@ class LoginActivity : AppCompatActivity() {
 
     }
 
-    val RC_SIGN_IN: Int = 1234 //onActivityResult 에서 로그인 리퀘스트를 구별하기 위한 상수
+    val RC_SIGN_IN: Int = 1 //onActivityResult 에서 로그인 리퀘스트를 구별하기 위한 상수
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +58,12 @@ class LoginActivity : AppCompatActivity() {
         }
 
         sign_in_button.setOnClickListener { signIn() }
+
+        val mTransform = Linkify.TransformFilter { match, url -> ""; }
+
+        val pattern = Pattern.compile("여기");
+
+        Linkify.addLinks(tv_login_link, pattern, "https://blackmanta.tistory.com/1?category=818797", null, mTransform);
 
     }
 
