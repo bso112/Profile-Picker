@@ -24,9 +24,14 @@ class StatisticPictureAdapter(context: Context, resource: Int, myPictures: Array
                 LayoutInflater.from(context).inflate(R.layout.statistic_picture_item, parent, false)
 
 
-        view.iv_statistic_picture.setImageBitmap(picture?.bitmap)
 
         if (picture != null) {
+
+            if (picture.bitmap != null) {
+                view.iv_statistic_picture.setImageBitmap(picture.bitmap)
+               view.pb_statistic_img.visibility = View.INVISIBLE
+            }
+
             var likeSum = 0.0f
             for (i in 0 until count) {
                 val pic = getItem(i)
@@ -35,7 +40,7 @@ class StatisticPictureAdapter(context: Context, resource: Int, myPictures: Array
             val persent: Int = (picture.likes / likeSum.coerceAtLeast(1F) * 100).toInt()
             view.tv_statistic_likes_persent.text = "$persent%"
 
-            var stringLikes = if(picture.likes >= 1000) "${floor(picture.likes / 100.0F) / 10.0F}K" else picture.likes.toString()
+            var stringLikes = if (picture.likes >= 1000) "${floor(picture.likes / 100.0F) / 10.0F}K" else picture.likes.toString()
             view.tv_statistic_likes_absolute.text = "(${stringLikes}명)"
         }
 

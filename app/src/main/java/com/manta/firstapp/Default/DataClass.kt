@@ -71,8 +71,7 @@ class Post(var tumbnail: Bitmap?, var postInfo: PostInfo) {
 
 }
 
-data class MyPicture(var bitmap: Bitmap?, val file_name: String, val path: String, val likes: Int) :
-    Serializable
+data class MyPicture(var bitmap: Bitmap?, val file_name: String, val path: String, val likes: Int) : Serializable
 
 //Picture를 포함하니 Picture도 Serializable이여야한다.
 data class PostInfo(

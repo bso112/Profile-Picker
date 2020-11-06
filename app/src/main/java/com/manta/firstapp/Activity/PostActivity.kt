@@ -214,6 +214,7 @@ class PostActivity : AppCompatActivity() {
                     val imgRequest = ImageRequest(url,
                         { bitmap ->
                             picture.bitmap = bitmap
+
                             mPostImgAdapter.notifyDataSetChanged()
                             if (++cnt >= mCard.pictures.size)
                                 mIsBusy = false

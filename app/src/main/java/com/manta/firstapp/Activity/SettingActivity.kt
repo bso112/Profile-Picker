@@ -42,7 +42,7 @@ class SettingActivity : AppCompatActivity(),
         tv_setting_nickname.setText(mUserInfo.nickname)
         rg_setting_sex.check(if (mUserInfo.sex == 0) R.id.rb_setting_male else R.id.rb_setting_female)
 
-        val selectionForAge = (mUserInfo.age / 10) - 1
+        val selectionForAge = (mUserInfo.age / 10) - 2
         if (selectionForAge > 0)
             sp_setting_age.setSelection(selectionForAge)
 
@@ -75,11 +75,11 @@ class SettingActivity : AppCompatActivity(),
 
         }
         
-        //나이, 성별 못바꿈
-        rg_setting_sex.isEnabled = false;
-        rb_setting_male.isEnabled = false;
-        rb_setting_female.isEnabled = false;
-        sp_setting_age.isEnabled = false;
+//        //나이, 성별 못바꿈
+//        rg_setting_sex.isEnabled = false;
+//        rb_setting_male.isEnabled = false;
+//        rb_setting_female.isEnabled = false;
+//        sp_setting_age.isEnabled = false;
 
     }
 
@@ -92,7 +92,7 @@ class SettingActivity : AppCompatActivity(),
             val userInfo = UserInfo(
                 email, tv_setting_nickname.text.toString(),
                 rg_setting_sex.indexOfChild(findViewById<RadioButton>(rg_setting_sex.checkedRadioButtonId)),
-                (sp_setting_age.selectedItemPosition + 1) * 10, mCategorys,
+                (sp_setting_age.selectedItemPosition + 2) * 10, mCategorys,
                 switch_showSelfPost.isChecked
             )
 

@@ -26,8 +26,6 @@ import com.yuyakaido.android.cardstackview.*
 import kotlinx.android.synthetic.main.frag_swipe.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Default
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.collections.HashSet
@@ -46,6 +44,7 @@ class SwipeFragment : Fragment() {
     private lateinit var mSwipeLayoutManager: CardStackLayoutManager
 
     private var mOldCategory = HashSet<Int>()
+    private var mOldShowSelfPostOption = false;
 
     private val swipeCooldown: Long = 300 // 0.1초
     private var swipeTimeStamp: Long = 0
@@ -67,7 +66,11 @@ class SwipeFragment : Fragment() {
 
         readyFragementView()
 
-        NetworkManager.getInstance().mUserInfo?.categorys?.let { mOldCategory = it }
+        NetworkManager.getInstance().mUserInfo?.let {
+            mOldCategory = it.categorys
+            mOldShowSelfPostOption = it.isShowSelfPost
+        }
+
 
 
     }
@@ -76,15 +79,16 @@ class SwipeFragment : Fragment() {
     override fun onStart() {
         super.onStart()
 
-        //만약 카테고리가 바뀌었으면
-        val currCategory = NetworkManager.getInstance().mUserInfo?.categorys
-        currCategory?.let {
-            if (mOldCategory != it) {
-                //리프레쉬
+        //사용자 설정 변경사항 적용
+        NetworkManager.getInstance().mUserInfo?.let {
+            if(mOldCategory != it.categorys || mOldShowSelfPostOption != it.isShowSelfPost)
+            {
                 refresh()
-                mOldCategory = it
+                mOldCategory = it.categorys;
+                mOldShowSelfPostOption = it.isShowSelfPost;
             }
         }
+        
     }
 
     private fun refresh() {

@@ -48,6 +48,7 @@ class  StatisticActivity : AppCompatActivity() {
             val url = getString(R.string.urlToServer) + "getImage/" +
                     picture.file_name;
 
+
             val imgRequest = ImageRequest(url,
                 { bitmap ->
                     picture.bitmap = bitmap

@@ -115,16 +115,18 @@ class NetworkManager {
 
                     //카테고리를 내장메모리에서  얻는다.
                     val userInfoFromFile = getUserInfoFromFile(context, email)
+                    var isShowSelfPost = true;
                     if (userInfoFromFile != null) {
                         mUserInfo?.categorys?.clear();
                         category.addAll(userInfoFromFile.categorys)
+                        isShowSelfPost = userInfoFromFile.isShowSelfPost;
                     }
                     //만약 없으면 모든 카테고리를 추가한다.
                     else
                         GlobalHelper.getInstance(context).mCategory.forEachIndexed { index, s -> category.add(index) }
 
 
-                    mUserInfo = UserInfo(email, nickname, sex, age, category)
+                    mUserInfo = UserInfo(email, nickname, sex, age, category, isShowSelfPost)
 
                     onResponse?.let { it() }
                 }

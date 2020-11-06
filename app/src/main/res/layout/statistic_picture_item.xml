@@ -7,21 +7,29 @@
     android:layout_height="match_parent"
     android:paddingHorizontal="10dp">
 
+    <ProgressBar
+        android:id="@+id/pb_statistic_img"
+        android:elevation="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_statistic_picture"
+        app:layout_constraintEnd_toEndOf="@+id/iv_statistic_picture"
+        app:layout_constraintStart_toStartOf="@+id/iv_statistic_picture"
+        app:layout_constraintTop_toTopOf="@+id/iv_statistic_picture" />
+
     <ImageView
         android:id="@+id/iv_statistic_picture"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:foreground="@drawable/rounded_fg"
         android:scaleType="centerCrop"
-        android:src="@drawable/face"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="3:4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5"
-        />
+        app:layout_constraintVertical_bias="0.5" />
 
 
     <TextView
