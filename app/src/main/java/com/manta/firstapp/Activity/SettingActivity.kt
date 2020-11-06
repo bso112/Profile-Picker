@@ -67,6 +67,8 @@ class SettingActivity : AppCompatActivity(),
             }
         }
 
+        switch_showSelfPost.isChecked = NetworkManager.getInstance().mUserInfo?.isShowSelfPost ?: false;
+
         //뒤로가기버튼 눌렀을때 변경한정보 서버에 올리기
         btn_setting_back.setOnClickListener {
             overrideSettingAndExit()
@@ -90,7 +92,8 @@ class SettingActivity : AppCompatActivity(),
             val userInfo = UserInfo(
                 email, tv_setting_nickname.text.toString(),
                 rg_setting_sex.indexOfChild(findViewById<RadioButton>(rg_setting_sex.checkedRadioButtonId)),
-                (sp_setting_age.selectedItemPosition + 1) * 10, mCategorys
+                (sp_setting_age.selectedItemPosition + 1) * 10, mCategorys,
+                switch_showSelfPost.isChecked
             )
 
             //변경사항이 있으면 저장후 종료. 저장안해도 그냥 종료

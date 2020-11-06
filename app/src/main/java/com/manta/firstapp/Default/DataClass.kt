@@ -16,7 +16,10 @@ data class UserInfo(
     @SerializedName("age")
     val age : Int = 10,
     @SerializedName("categorys")
-    val categorys : HashSet<Int> = hashSetOf()) : Serializable
+    val categorys : HashSet<Int> = hashSetOf(),
+    @SerializedName("isShowSelfPost")
+    val isShowSelfPost : Boolean = true
+) : Serializable
 
 data class Card(
     var postId: Long = 0,

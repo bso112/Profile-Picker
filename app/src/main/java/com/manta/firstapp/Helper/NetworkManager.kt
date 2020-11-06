@@ -13,7 +13,7 @@ import com.google.gson.Gson
 import org.json.JSONObject
 import java.io.File
 
-//http 요청을 관리
+//http 요청을 관리. 네트워킹의 결과(유저정보)를 가지고있음.
 class NetworkManager {
 
     var mUserInfo: UserInfo? = null

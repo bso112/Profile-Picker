@@ -268,8 +268,30 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
                         onSuccess()
                     }
 
+                    var responseSize = 0;
                     for (i in 0 until jsonArr.length()) {
+
+                        ++responseSize;
+
                         val obj = jsonArr.getJSONObject(i);
+                        val email = obj.getString("email")
+
+                        //만약 사용자 옵션이 자기 게시물은 보지 않는다고 되어있으면
+                        var shouldSkip = false;
+                        NetworkManager.getInstance().mUserInfo?.isShowSelfPost?.let { isShowSelfPost ->
+                            if (!isShowSelfPost) {
+                                if (email == NetworkManager.getInstance().mUserInfo?.email)
+                                    shouldSkip = true;
+                            }
+                        }
+                        //자기 게시물은 스킵
+                        if(shouldSkip)
+                        {
+                            --responseSize;
+                            continue
+                        };
+
+
                         val postId = obj.getLong("postId")
                         val title = obj.getString("title")
                         val fileName = obj.getString("file_name")
@@ -297,7 +319,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
                                 addCardData(newCard)
 
                                 //마지막 응답이면 (마지막루프라고 마지막응답은 아님)
-                                if (cardList.size >= jsonArr.length()) {
+                                if (cardList.size >= responseSize) {
                                     mIsBusy = false
 
                                     //만약에 20개보다 포스트가 적으면 반복해서 최대한 20개 채운다.
