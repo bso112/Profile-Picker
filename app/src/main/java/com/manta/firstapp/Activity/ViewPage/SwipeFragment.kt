@@ -4,18 +4,22 @@ import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import com.manta.firstapp.Adapter.CardAdapter
 import com.manta.firstapp.Default.EXTRA_POSTID
 import com.manta.firstapp.Activity.PostActivity
+import com.manta.firstapp.Activity.StatisticActivity
 import com.manta.firstapp.Default.CARD_REQUEST_AT_ONECE
+import com.manta.firstapp.Default.EXTRA_POSTINFO
 import com.manta.firstapp.Helper.NetworkManager
 import com.manta.firstapp.R
 import com.yuyakaido.android.cardstackview.*
@@ -32,6 +36,7 @@ import kotlin.collections.HashSet
 class SwipeFragment : Fragment() {
 
     enum class SWIPE { LEFT, RIGHT, END }
+
     private var REQUEST_VOTE = 0
     private lateinit var mCardAdapter: CardAdapter
 
@@ -42,8 +47,8 @@ class SwipeFragment : Fragment() {
 
     private var mOldCategory = HashSet<Int>()
 
-    private val swipeCooldown : Long = 300 // 0.1초
-    private var swipeTimeStamp : Long = 0
+    private val swipeCooldown: Long = 300 // 0.1초
+    private var swipeTimeStamp: Long = 0
 
     private var mIsSwipeButtonPressing = false;
 
@@ -118,8 +123,8 @@ class SwipeFragment : Fragment() {
             if (mCardAdapter.isEmpty())
                 return@setOnClickListener
 
-            CoroutineScope(Default).launch{
-                while(mIsSwipeButtonPressing)
+            CoroutineScope(Default).launch {
+                while (mIsSwipeButtonPressing)
                     swipe(SWIPE.LEFT)
             }
 
@@ -128,8 +133,8 @@ class SwipeFragment : Fragment() {
             if (mCardAdapter.isEmpty())
                 return@setOnClickListener
 
-            CoroutineScope(Default).launch{
-                while(mIsSwipeButtonPressing)
+            CoroutineScope(Default).launch {
+                while (mIsSwipeButtonPressing)
                     swipe(SWIPE.RIGHT)
             }
         }
@@ -137,8 +142,8 @@ class SwipeFragment : Fragment() {
 
         // mIsSwipeButtonPressing로 버튼 누르고있는 이벤트를 구현
         btn_prv.setOnTouchListener { v, event ->
-            when(event.action){
-                MotionEvent.ACTION_DOWN ->{
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
                     mIsSwipeButtonPressing = true; v.performClick(); }
                 MotionEvent.ACTION_UP ->
                     mIsSwipeButtonPressing = false;
@@ -149,8 +154,8 @@ class SwipeFragment : Fragment() {
         }
 
         btn_next.setOnTouchListener { v, event ->
-            when(event.action){
-                MotionEvent.ACTION_DOWN ->{
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
                     mIsSwipeButtonPressing = true; v.performClick(); }
                 MotionEvent.ACTION_UP ->
                     mIsSwipeButtonPressing = false;
@@ -161,16 +166,11 @@ class SwipeFragment : Fragment() {
         }
 
 
-
-
-
-
     }
 
-    private fun swipe(direction : SWIPE)
-    {
-        var animSetting : SwipeAnimationSetting = mSwipeLeftSetting
-        if(direction == SWIPE.RIGHT)
+    private fun swipe(direction: SWIPE) {
+        var animSetting: SwipeAnimationSetting = mSwipeLeftSetting
+        if (direction == SWIPE.RIGHT)
             animSetting = mSwipeRightSetting
         if (System.currentTimeMillis() > swipeTimeStamp + swipeCooldown) {
             mSwipeLayoutManager.setSwipeAnimationSetting(animSetting)
@@ -186,8 +186,37 @@ class SwipeFragment : Fragment() {
         if (resultCode != RESULT_OK)
             return
 
-        if (requestCode == REQUEST_VOTE)
+        if (requestCode == REQUEST_VOTE) {
             sv_swipeView.swipe()
+
+            ///이전게시물 보기버튼 설정
+            val btnAnim = AnimationUtils.loadAnimation(context!!, R.anim.anim_show_down)
+            btn_show_statistic.setOnClickListener {
+                Intent(context, StatisticActivity::class.java).apply {
+                    putExtra(EXTRA_POSTINFO, data?.getSerializableExtra(EXTRA_POSTINFO))
+                    startActivity(this)
+                }
+            }
+            btn_show_statistic.visibility = View.VISIBLE;
+            btn_show_statistic.startAnimation(btnAnim);
+
+            Handler().postDelayed({
+                val btnAnim = AnimationUtils.loadAnimation(context!!, R.anim.anim_disappear_up)
+                btn_show_statistic.startAnimation(btnAnim)
+                btnAnim.setAnimationListener(object : Animation.AnimationListener{
+                    override fun onAnimationRepeat(animation: Animation?) {
+                    }
+
+                    override fun onAnimationEnd(animation: Animation?) {
+                        btn_show_statistic.visibility= View.INVISIBLE
+                    }
+
+                    override fun onAnimationStart(animation: Animation?) {
+                    }
+                })
+            }, 3000);
+            ///
+        }
     }
 
 

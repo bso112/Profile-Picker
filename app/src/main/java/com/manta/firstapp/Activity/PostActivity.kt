@@ -52,7 +52,9 @@ class PostActivity : AppCompatActivity() {
         //처음에 안보이다가 하나 클릭하면 쓱 올라오게 하고싶음
         btn_vote.setOnClickListener {
             vote()
-            setResult(Activity.RESULT_OK)
+            //비트맵은 인텐트로 못보냄
+            for(picture in mCard.pictures) picture.bitmap = null;
+            setResult(Activity.RESULT_OK, Intent().putExtra(EXTRA_POSTINFO, PostInfo(postId = mCard.postId, myPictures = mCard.pictures)))
             finish()
         }
 
@@ -190,10 +192,11 @@ class PostActivity : AppCompatActivity() {
                         val filePath = obj.getString("path")
                         val content = obj.getString("content")
                         val writer = obj.getString("writer")
+                        val likes = obj.getInt("likes");
                         mCard.postId = postId
                         mCard.content = content
                         mCard.writer = writer
-                        mCard.pictures.add(MyPicture(null, fileName, filePath, 0))
+                        mCard.pictures.add(MyPicture(null, fileName, filePath, likes))
                     }
 
                     for (i in 0 until mCard.pictures.size)
