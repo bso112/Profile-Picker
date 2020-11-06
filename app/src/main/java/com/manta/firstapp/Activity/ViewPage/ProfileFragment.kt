@@ -172,26 +172,32 @@ class ProfileFragment : Fragment() {
 
         //만약 oldPosts에 없으면 바로 리퀘스트
         if (oldPost == null) {
-            val newTumbnailName = mPosts.last().getTumbnailPictureName()
+            //왜인지 모르겠지만 스와이프에서 나오는 썸네일이랑 순서가 반대임.
+            val newTumbnailName = mPosts.last().postInfo.myPictures.last().file_name
             requestPostTumbnail(newTumbnailName, mPosts.last())
         }
 
-        //있으면 갱신해야되는지 확인후 갱신
+
         oldPost?.let {
-
-            //찾은 포스트의 썸네일
-            val oldTumbnailName = it.getTumbnailPictureName()
-            //현재 post의 썸네일
-            val newTumbnailName = mPosts.last().getTumbnailPictureName()
-
-            //만약 두 썸네일이 다르다면(like가 갱신됬다면) 새로운 썸네일을 서버로 요청
-            if (oldTumbnailName != newTumbnailName)
-                requestPostTumbnail(newTumbnailName, mPosts.last())
-            //같다면 예전꺼 그대로 씀
-            else
-                mPosts.last().tumbnail = it?.tumbnail
-
+            mPosts.last().tumbnail = it?.tumbnail
         }
+
+//        //있으면 갱신해야되는지 확인후 갱신
+//        oldPost?.let {
+//
+//            //찾은 포스트의 썸네일
+//            val oldTumbnailName = it.getTumbnailPictureName()
+//            //현재 post의 썸네일
+//            val newTumbnailName = mPosts.last().getTumbnailPictureName()
+//
+//            //만약 두 썸네일이 다르다면(like가 갱신됬다면) 새로운 썸네일을 서버로 요청
+//            if (oldTumbnailName != newTumbnailName)
+//                requestPostTumbnail(newTumbnailName, mPosts.last())
+//            //같다면 예전꺼 그대로 씀
+//            else
+//                mPosts.last().tumbnail = it?.tumbnail
+//
+//        }
 
 
     }

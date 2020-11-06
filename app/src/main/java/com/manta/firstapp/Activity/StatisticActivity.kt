@@ -27,6 +27,8 @@ class  StatisticActivity : AppCompatActivity() {
 
         mPost = intent.getSerializableExtra(EXTRA_POSTINFO) as? PostInfo ?: return
 
+        mPost.myPictures.reverse();
+
         //기본적으로 객체는 포인터로 표현되기 때문에 mPost.myPicture는 adpater에 셋팅한 다음에 참조가 바뀌면 안됨.
         statisticPictureAdapter = StatisticPictureAdapter(this, R.layout.statistic_picture_item, mPost.myPictures)
         gv_statistic_picture.adapter = statisticPictureAdapter
