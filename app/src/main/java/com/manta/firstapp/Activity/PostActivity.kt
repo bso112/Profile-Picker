@@ -144,11 +144,6 @@ class PostActivity : AppCompatActivity() {
     }
 
 
-//    @RequiresApi(Build.VERSION_CODES.KITKAT)
-//    override fun onStart() {
-//        super.onStart()
-//
-//    }
 
 
     private fun vote() {

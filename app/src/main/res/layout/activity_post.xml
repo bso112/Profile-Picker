@@ -103,6 +103,7 @@
 <!--        />-->
 
 
+
     <ListView
         android:id="@+id/lv_post_picture"
         android:layout_width="match_parent"

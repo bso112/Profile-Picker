@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
@@ -19,21 +20,32 @@ import com.manta.firstapp.Helper.NetworkManager
 import com.manta.firstapp.R
 import com.yuyakaido.android.cardstackview.*
 import kotlinx.android.synthetic.main.frag_swipe.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.collections.HashSet
 
 
 class SwipeFragment : Fragment() {
 
+    enum class SWIPE { LEFT, RIGHT, END }
     private var REQUEST_VOTE = 0
     private lateinit var mCardAdapter: CardAdapter
 
 
-//    private lateinit var mSwipeLeftSetting: SwipeAnimationSetting
-//    private lateinit var mSwipeRightSetting: SwipeAnimationSetting
+    private lateinit var mSwipeLeftSetting: SwipeAnimationSetting
+    private lateinit var mSwipeRightSetting: SwipeAnimationSetting
     private lateinit var mSwipeLayoutManager: CardStackLayoutManager
 
     private var mOldCategory = HashSet<Int>()
+
+    private val swipeCooldown : Long = 300 // 0.1초
+    private var swipeTimeStamp : Long = 0
+
+    private var mIsSwipeButtonPressing = false;
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -82,17 +94,17 @@ class SwipeFragment : Fragment() {
 
         val btnAnim = AnimationUtils.loadAnimation(context!!, R.anim.anim_flinch)
         //게시물보기 버튼 눌렀을때
-        btn_like.setOnClickListener {btn->
+        btn_like.setOnClickListener { btn ->
 
             if (mCardAdapter.isEmpty())
                 return@setOnClickListener
 
             mCardAdapter.getItemAt(0)?.let { card ->
-                if(!card.isAd)
-                {
+                if (!card.isAd) {
                     val intent = Intent(context, PostActivity::class.java).apply {
                         putExtra(EXTRA_POSTID, card.postId)
-                        startActivityForResult(this, REQUEST_VOTE) }
+                        startActivityForResult(this, REQUEST_VOTE)
+                    }
                 }
             }
 
@@ -100,25 +112,73 @@ class SwipeFragment : Fragment() {
         }
 
 
+        // 수동으로 swipe하면 버그생김.. 해결중
+        btn_prv.setOnClickListener {
 
-        // 수동으로 swipe하면 버그생김..
-//        btn_prv.setOnClickListener {
-//            if (mCardAdapter.isEmpty())
-//                return@setOnClickListener
-//
-//            mSwipeLayoutManager.setSwipeAnimationSetting(mSwipeLeftSetting)
-//            sv_swipeView.swipe()
-//        }
-//        btn_next.setOnClickListener {
-//            if (mCardAdapter.isEmpty())
-//                return@setOnClickListener
-//            mSwipeLayoutManager.setSwipeAnimationSetting(mSwipeRightSetting)
-//            sv_swipeView.swipe()
-//
-//        }
+            if (mCardAdapter.isEmpty())
+                return@setOnClickListener
+
+            CoroutineScope(Default).launch{
+                while(mIsSwipeButtonPressing)
+                    swipe(SWIPE.LEFT)
+            }
+
+        }
+        btn_next.setOnClickListener {
+            if (mCardAdapter.isEmpty())
+                return@setOnClickListener
+
+            CoroutineScope(Default).launch{
+                while(mIsSwipeButtonPressing)
+                    swipe(SWIPE.RIGHT)
+            }
+        }
+
+
+        // mIsSwipeButtonPressing로 버튼 누르고있는 이벤트를 구현
+        btn_prv.setOnTouchListener { v, event ->
+            when(event.action){
+                MotionEvent.ACTION_DOWN ->{
+                    mIsSwipeButtonPressing = true; v.performClick(); }
+                MotionEvent.ACTION_UP ->
+                    mIsSwipeButtonPressing = false;
+            }
+            //true를 하면 버튼의 디폴트 행동들을 막게된다.
+            //모든 이벤트를 comsume하지 않았다고 알림.
+            false;
+        }
+
+        btn_next.setOnTouchListener { v, event ->
+            when(event.action){
+                MotionEvent.ACTION_DOWN ->{
+                    mIsSwipeButtonPressing = true; v.performClick(); }
+                MotionEvent.ACTION_UP ->
+                    mIsSwipeButtonPressing = false;
+            }
+            //true를 하면 버튼의 디폴트 행동들을 막게된다.
+            //모든 이벤트를 comsume하지 않았다고 알림.
+            false;
+        }
+
+
+
+
 
 
     }
+
+    private fun swipe(direction : SWIPE)
+    {
+        var animSetting : SwipeAnimationSetting = mSwipeLeftSetting
+        if(direction == SWIPE.RIGHT)
+            animSetting = mSwipeRightSetting
+        if (System.currentTimeMillis() > swipeTimeStamp + swipeCooldown) {
+            mSwipeLayoutManager.setSwipeAnimationSetting(animSetting)
+            sv_swipeView.swipe()
+            swipeTimeStamp = System.currentTimeMillis();
+        }
+    }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -168,8 +228,8 @@ class SwipeFragment : Fragment() {
 
 
 
-//        mSwipeLeftSetting = SwipeAnimationSetting.Builder().setDirection(Direction.Left).build()
-//        mSwipeRightSetting = SwipeAnimationSetting.Builder().setDirection(Direction.Right).build()
+        mSwipeLeftSetting = SwipeAnimationSetting.Builder().setDirection(Direction.Left).build()
+        mSwipeRightSetting = SwipeAnimationSetting.Builder().setDirection(Direction.Right).build()
 
 
         mSwipeLayoutManager = CardStackLayoutManager(context, cardListener)

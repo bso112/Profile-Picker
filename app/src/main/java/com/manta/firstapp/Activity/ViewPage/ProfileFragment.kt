@@ -75,7 +75,10 @@ class ProfileFragment : Fragment() {
         av_profile_banner.loadAd(adRequest)
 
 
-
+        swipeRefresh.setOnRefreshListener {
+            refreshView();
+            swipeRefresh.isRefreshing = false;
+        }
     }
 
 

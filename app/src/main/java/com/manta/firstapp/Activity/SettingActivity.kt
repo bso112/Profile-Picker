@@ -69,32 +69,47 @@ class SettingActivity : AppCompatActivity(),
 
         //뒤로가기버튼 눌렀을때 변경한정보 서버에 올리기
         btn_setting_back.setOnClickListener {
+            overrideSettingAndExit()
 
-            val email = LoginActivity.mAccount?.email
-            if (email == null)
-                finish()
-            else {
-                val userInfo = UserInfo(
-                    email, tv_setting_nickname.text.toString(),
-                    rg_setting_sex.indexOfChild(findViewById<RadioButton>(rg_setting_sex.checkedRadioButtonId)),
-                    (sp_setting_age.selectedItemPosition + 1) * 10, mCategorys
-                )
-
-                //변경사항이 있으면 저장후 종료. 저장안해도 그냥 종료
-                if (userInfo != mUserInfo) {
-                    showSimpleAlert(this, null, "변경사항을 저장하시겠습니까?", {
-                        val url = getString(R.string.urlToServer) + "updateUserInfo/"
-                        NetworkManager.getInstance().sendUserInfoToDB(this, userInfo, url)
-                        finish()
-                    }, { finish() })
-                }
-                //변경사항 없으면 바로 종료
-                else
-                    finish()
-
-            }
         }
+        
+        //나이, 성별 못바꿈
+        rg_setting_sex.isEnabled = false;
+        rb_setting_male.isEnabled = false;
+        rb_setting_female.isEnabled = false;
+        sp_setting_age.isEnabled = false;
 
+    }
+
+    fun overrideSettingAndExit()
+    {
+        val email = LoginActivity.mAccount?.email
+        if (email == null)
+            finish()
+        else {
+            val userInfo = UserInfo(
+                email, tv_setting_nickname.text.toString(),
+                rg_setting_sex.indexOfChild(findViewById<RadioButton>(rg_setting_sex.checkedRadioButtonId)),
+                (sp_setting_age.selectedItemPosition + 1) * 10, mCategorys
+            )
+
+            //변경사항이 있으면 저장후 종료. 저장안해도 그냥 종료
+            if (userInfo != mUserInfo) {
+                showSimpleAlert(this, null, "변경사항을 저장하시겠습니까?", {
+                    val url = getString(R.string.urlToServer) + "updateUserInfo/"
+                    NetworkManager.getInstance().sendUserInfoToDB(this, userInfo, url)
+                    finish()
+                }, { finish() })
+            }
+            //변경사항 없으면 바로 종료
+            else
+                finish()
+
+        }
+    }
+
+    override fun onBackPressed() {
+        overrideSettingAndExit()
     }
 
 
