@@ -20,29 +20,29 @@
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
-            android:layout_width="150dp"
+            android:layout_width="179dp"
             android:layout_height="wrap_content"
-            app:tabIndicatorColor="@color/colorPrimary"
+            android:background="@drawable/rounded_corner_fg"
             app:tabIndicator="@drawable/rounded_corner_fg"
-            app:tabIndicatorHeight="40dp"
+            app:tabIndicatorColor="@color/colorPrimary"
             app:tabIndicatorGravity="center"
+            app:tabIndicatorHeight="40dp"
+            app:tabRippleColor="@color/Transparent"
             app:tabSelectedTextColor="@color/White"
             app:tabTextColor="@color/Black"
-            android:background="@drawable/rounded_corner_fg"
-            app:tabRippleColor="@color/Transparent"
 
             >
 
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="asdasd"
-                />
+                android:singleLine="true"
+                android:text="둘러보기" />
 
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="asdasd"/>
+                android:text="내 투표" />
 
         </com.google.android.material.tabs.TabLayout>
 
