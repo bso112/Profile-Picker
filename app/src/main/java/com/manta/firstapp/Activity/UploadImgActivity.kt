@@ -11,7 +11,6 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.util.Log
 import android.view.WindowManager
@@ -190,7 +189,9 @@ class UploadImgActivity : AppCompatActivity() {
             }
         } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             var result = CropImage.getActivityResult(data);
-            getBitmapFromUri(result.uri)?.let { mPostInfo.myPictures.add(MyPicture(it, "", "", 0)) }
+            getBitmapFromUri(result.uri)?.let {
+                mPostInfo.myPictures.add(MyPicture(it, "", "", 0))
+            }
         }
 
         //픽쳐가 추가되었음을 알리고, 화면을 갱신하라고한다.
@@ -353,19 +354,62 @@ class UploadImgActivity : AppCompatActivity() {
     }
 
     private fun getBitmapFromUri(uri: Uri): Bitmap? {
-        val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        var bitmap : Bitmap? = null;
+        //어차피 다운샘플링시에 1/4 처럼 비율로 줄이니까 비율은 유지됨.
+        //대충 이정도 크기로 줄여라라고 하면 됨.
+        val requestWidth : Int = 512;
+        val requestHeight : Int = 512;
+
+        //The new ImageDecoder api is much more powerful and supports a variety of different types.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             val source = ImageDecoder.createSource(contentResolver, uri)
-            ImageDecoder.decodeBitmap(source);
+            //크기를 줄여서 디코딩한다.
+            bitmap = ImageDecoder.decodeBitmap(source) { decoder, info, src ->
+                decoder.setTargetSampleSize(calculateInSampleSize(info.size.height, info.size.width,requestWidth, requestHeight))
+            };
         } else {
             contentResolver.openInputStream(uri)?.use { inputStream ->
-                BitmapFactory.decodeStream(inputStream)
+
+                val option = BitmapFactory.Options();
+
+                //먼저 비트맵을 조사한다.
+                option.inJustDecodeBounds = true
+                BitmapFactory.decodeStream(inputStream, null, option)
+
+                //비트맵의 크기를 토대로 샘플링할 사이즈를 구한다.
+                option.inSampleSize = calculateInSampleSize(option.outHeight, option.outWidth, requestWidth, requestHeight)
+
+                //크기를 줄여서 디코딩한다.
+                bitmap = BitmapFactory.decodeStream(inputStream, null, option)
             }
         }
 
-
-        return bitmap
+        return bitmap;
     }
 
+    //타겟 너비와 높이를 기준으로 2의 거듭제곱인 샘플 크기 값을 계산하는 메서드.
+    //왜 2의 거듭제곱인가? 2픽섹을 1.5픽셀로 줄일 수는 없으니까. 3같은 수를 넣어봤자 2로 바꾼단다.
+    //According to this inSampleSize just reduce the pixel count. It cant be used on whole numbers,
+    // you cant map 2 pixel to 1.5 pixels, thats way it`s power of 2.
+    //https://stackoverrun.com/ko/q/10820265
+    fun calculateInSampleSize(rawHeight : Int, rawWidth : Int, reqWidth: Int, reqHeight: Int): Int {
+
+        var inSampleSize = 1
+
+        if (rawHeight > reqHeight || rawWidth > reqWidth) {
+
+            val halfHeight: Int = rawHeight / 2
+            val halfWidth: Int = rawWidth / 2
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
+                inSampleSize *= 2
+            }
+        }
+
+        return inSampleSize
+    }
 
     private fun dispatchTakePictureIntent() {
 

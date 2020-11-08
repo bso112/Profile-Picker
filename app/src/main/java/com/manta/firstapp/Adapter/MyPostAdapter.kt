@@ -17,6 +17,7 @@ class MyPostAdapter(context: Context, resource: Int, val posts: ArrayList<Post>)
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
         var view: View
+
         val post = getItem(position)
 
         if (convertView != null)
