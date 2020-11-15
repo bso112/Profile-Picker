@@ -9,8 +9,15 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * by 변성욱
+ * 파일입출력을 도와주는 헬퍼클래스
+ */
 object MyFileHelper {
-    //외부저장소에 고유한 이름의 빈 임시파일을 생성한다. 저장된 파일은 jvm이 내려갈때 삭제된다.
+    /**
+     * by 변성욱
+     * 외부저장소에 고유한 이름의 빈 임시파일을 생성한다. 저장된 파일은 jvm이 내려갈때 삭제된다.
+     */
     @Throws(IOException::class)
     fun createImageTempFile(context: Context): File {
         // Create an image file name

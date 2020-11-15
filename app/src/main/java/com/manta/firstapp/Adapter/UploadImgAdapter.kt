@@ -13,7 +13,10 @@ import com.manta.firstapp.R
 import kotlinx.android.synthetic.main.upload_img_item.view.*
 import java.util.*
 
-//업로드 이미지 액티비티에서 리사이클러뷰에 연결할 어뎁터
+/**
+ * by 변성욱
+ * UploadImageActivity에서 리사이클러뷰에 연결할 어뎁터
+ */
 class UploadImgAdapter(private val mPictures: ArrayList<MyPicture>, private var context : Context?) :
    RecyclerView.Adapter<UploadImgAdapter.ViewHolder>() {
 

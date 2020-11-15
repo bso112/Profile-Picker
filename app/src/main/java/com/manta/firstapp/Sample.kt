@@ -1,120 +1,180 @@
 package com.manta.firstapp
 
+import kotlinx.coroutines.*
+import java.util.logging.Handler
+import kotlin.system.measureNanoTime
+
 data class CloneTest(var a: Int, var arr: ArrayList<Int>) {
     constructor(other: CloneTest) : this(other.a, ArrayList(other.arr))
 }
 
+class MyData(val index: Int, val value: String)
 
-class MyData(val index : Int, val value : String)
-fun main() {
-
-
-    val maptest = hashMapOf(Pair(11, 11))
-    maptest.put(11, 10) //덮어씀
-
-    println(maptest[11])
-
-
-    val set = hashSetOf<Int>()
-    println( set.toString())
-
-    val sdfsdf = arrayListOf("adsf", 22, "dasd")
-    println(sdfsdf.toString())
-
-
-    val arr = arrayOf("sad")
-    arr[0] = "asdfff" //가능
-
-    val list1 = listOf("asd", "ㄴㅁㅇ") //변경불가능한 arrayList를 만드는듯(추측)
-    //list1[0] = "asdasd" 불가, add도 없음
-
-    val list2 = arrayListOf("asd", ":sd")
-    list2[0] = "asd"
-    list2.add("asddd")
-
-    //문자열과 숫자 바인딩 (문자열로 숫자를 찾고, 숫자로 문자열를 찾는다)
-    //1. 배열 (배열이 크지 않은경우)
-    val category = arrayListOf("a","b","c")
-    category[0] // "a"
-    category.indexOf("a") // 0
-
-    //2. 객체
-    val category_selfy = MyData(0, "a")
-    category_selfy.index // 0
-    category_selfy.value // a
-
-
-
-
-
-//[(가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9)]{3,10}
-    val mathResult = Regex("""[(가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9)]+""").matchEntire("assdㅁㄴㄴㅇㄹㄴㅇㄹ")
-    System.out.println(mathResult?.value)
-
-
-
-    var likes = arrayListOf<Int>()
-    for(i in 0..5)
-        likes.add(i)
-
-    System.out.println(likes.toString())
-
-
-    //for문 순회순서 테스트
-    for (i in 0..10)
-    {
-        var msg = i.toString()
-        System.out.println(msg)
-    }
-    //복사생성자를 이용한 깊은복사
-    var origin = CloneTest(3, arrayListOf(3, 4))
-    var copy = CloneTest(origin)
-    copy.a = 5
-    copy.arr.clear()
-
-    //람다
-    // * 람다는 중괄호에 싸여있다. 인자로 넘길때도 소괄호에 싸는게 아니라 중괄호에 싸야함.
-    //인자로 람다받기
-    callbackTest { a -> a + 6 } //9
-    callbackTest { it + 6 } // 9. it은 인자가 하나일때 대신 쓸수있음.
-
-    //확장함수
-    //확장함수를 가진 함수객체 호출
-    val obj = TestClass()
-    obj.extendFunObj(3)
-
-    val str = "manta said "
-    println(str.pizzaisGreate()) // manta said pizza is greate
-    println(extendString(27, "manta")) //"my name is manta, and i'm 27"
-
-    //인자로 TestClass의 확장함수를 람다로 받기.
-    extendFun { a: Int -> a + 3 }; //6
-
-
-    /*
-    데이터클래스
-    데이터 보관용 클래스, 그 데이터를 처리하는 흔히 쓰이는 함수들의 집합(보일러플레이트)으로 이루어지는 클래스
-    */
-    val human = DataClass("manta", 0, 27)
-    // Copy 는 객체 복사시에 특정 프로퍼티만 수정해서 복사하고싶을때 씀
-    val olderMan = human.copy(age = 28);
-
-
-
-    println(human) // class 를 data class로 만들면 toString(), equals(), hashCode() 등을 만들어줌
-
-    //Object
-
-    //comanion object
-    println(printAge())
-
-    //익명객체, 익명클래스
-    createAnimal()
+//suspend는 지연된이라는 의미. 함수내부에 네트워크통신(볼리는 멀티스레드 쓰니까 제외), IO 같은
+//결과를 내는데에 오래걸리는 로직, 지연되는 로직이 있다면 사용한다.
+suspend fun someJob1(): Int {
+    delay(1000L);
+    println("job1 finished");
+    return 1
 
 }
 
+suspend fun someJob2(): Int {
+    delay(1000L);
+    println("job2 finished");
+    return 1
+
+}
+
+//코루틴스코프는 this가 코루틴 스코프인 것을 말한다.
+//launch는 확장함수를 이용해 {} 안의 this를 CoroutineScope로 만든다.
+// block: suspend CoroutineScope.() -> Unit
+// block은 CoroutineScope인터페이스의 확장함수다.
+fun processAsync() = GlobalScope.launch {
+    //코루틴 스코프에서는 async를 쓰지않는 한 동기적으로 동작한다.
+    val time = measureNanoTime {
+        val one = someJob1();
+        val two = someJob2();
+        println("The answer is ${one + two}")
+    }
+    println("Complete in $time ms")
+}
+
+//메인스레드를 top-level main coroutine 로 시작한다. ( job.join();을 쓰기위해 코루틴 스코프가 필요했다)
+// runBlocking 은 일반 전역함수로, 현재 스레드를 블로킹한다. CoroutineScope.launch 와 마찬가지로 {} 안을 코루틴스코프로 만든다.
+// 인자로 코루틴스코프의 확장함수를 받아서 실행한다.
+// 최상위코루틴 실행
+fun main() = runBlocking<Unit> {
+        delay(200L)
+        println("Task from runBlocking")
+
+
+    //coroutineScope는 suspand인 전역함수다. 인자로 코루틴스코프의 확장함수를 받아서 실행한다.
+    //이런식으로 코루틴스코프의 중첩도 가능하다.
+    //부모코루틴 실행
+    coroutineScope {
+        //여기서 자식코루틴을 실행한다.
+        //launch는 suspend가 아닌 일반함수이기 때문에 바로 다음으로 넘어감.
+        launch {
+            //딜레이를 안주면 println("Task from coroutine scope")가 먼저불림.
+            delay(500L)
+            println("Task from nested launch")
+        }
+
+        delay(100L)
+        println("Task from coroutine scope") // This line will be printed before the nested launch
+    }
+
+    println("Coroutine scope is over") // This line is not printed until the nested launch completes
+}
+
+// region TEST
+//    val maptest = hashMapOf(Pair(11, 11))
+//    maptest.put(11, 10) //덮어씀
+//
+//    println(maptest[11])
+//
+//
+//    val set = hashSetOf<Int>()
+//    println( set.toString())
+//
+//    val sdfsdf = arrayListOf("adsf", 22, "dasd")
+//    println(sdfsdf.toString())
+//
+//
+//    val arr = arrayOf("sad")
+//    arr[0] = "asdfff" //가능
+//
+//    val list1 = listOf("asd", "ㄴㅁㅇ") //변경불가능한 arrayList를 만드는듯(추측)
+//    //list1[0] = "asdasd" 불가, add도 없음
+//
+//    val list2 = arrayListOf("asd", ":sd")
+//    list2[0] = "asd"
+//    list2.add("asddd")
+//
+//    //문자열과 숫자 바인딩 (문자열로 숫자를 찾고, 숫자로 문자열를 찾는다)
+//    //1. 배열 (배열이 크지 않은경우)
+//    val category = arrayListOf("a","b","c")
+//    category[0] // "a"
+//    category.indexOf("a") // 0
+//
+//    //2. 객체
+//    val category_selfy = MyData(0, "a")
+//    category_selfy.index // 0
+//    category_selfy.value // a
+//
+//
+//
+//
+//
+////[(가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9)]{3,10}
+//    val mathResult = Regex("""[(가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9)]+""").matchEntire("assdㅁㄴㄴㅇㄹㄴㅇㄹ")
+//    System.out.println(mathResult?.value)
+//
+//
+//
+//    var likes = arrayListOf<Int>()
+//    for(i in 0..5)
+//        likes.add(i)
+//
+//    System.out.println(likes.toString())
+//
+//
+//    //for문 순회순서 테스트
+//    for (i in 0..10)
+//    {
+//        var msg = i.toString()
+//        System.out.println(msg)
+//    }
+//    //복사생성자를 이용한 깊은복사
+//    var origin = CloneTest(3, arrayListOf(3, 4))
+//    var copy = CloneTest(origin)
+//    copy.a = 5
+//    copy.arr.clear()
+//
+//    //람다
+//    // * 람다는 중괄호에 싸여있다. 인자로 넘길때도 소괄호에 싸는게 아니라 중괄호에 싸야함.
+//    //인자로 람다받기
+//    callbackTest { a -> a + 6 } //9
+//    callbackTest { it + 6 } // 9. it은 인자가 하나일때 대신 쓸수있음.
+//
+//    //확장함수
+//    //확장함수를 가진 함수객체 호출
+//    val obj = TestClass()
+//    obj.extendFunObj(3)
+//
+//    val str = "manta said "
+//    println(str.pizzaisGreate()) // manta said pizza is greate
+//    println(extendString(27, "manta")) //"my name is manta, and i'm 27"
+//
+//    //인자로 TestClass의 확장함수를 람다로 받기.
+//    extendFun { a: Int -> a + 3 }; //6
+//
+//
+//    /*
+//    데이터클래스
+//    데이터 보관용 클래스, 그 데이터를 처리하는 흔히 쓰이는 함수들의 집합(보일러플레이트)으로 이루어지는 클래스
+//    */
+//    val human = DataClass("manta", 0, 27)
+//    // Copy 는 객체 복사시에 특정 프로퍼티만 수정해서 복사하고싶을때 씀
+//    val olderMan = human.copy(age = 28);
+//
+//
+//
+//    println(human) // class 를 data class로 만들면 toString(), equals(), hashCode() 등을 만들어줌
+//
+//    //Object
+//
+//    //comanion object
+//    println(printAge())
+//
+//    //익명객체, 익명클래스
+//    createAnimal()
+// endregion
+
 //함수
 fun sum(a: Int, b: Int): Int {
+
     return a + b
 }
 

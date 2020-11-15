@@ -4,7 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.animation.AnimationUtils
-import com.manta.firstapp.Helper.NetworkManager
+import com.manta.firstapp.Helper.UserInfoManager
 import com.manta.firstapp.Helper.showAlertWithJustOkButton
 import com.manta.firstapp.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -12,16 +12,27 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import kotlinx.android.synthetic.main.activity_logo.*
 import java.util.*
 
+/**
+ * by 변성욱
+ * 스플래시 스크린을 위한 로고액티비티
+ */
 class LogoActivity : AppCompatActivity() {
 
+    /**
+     * by 변성욱
+     * 필요 최저한의 시간 동안 로고를 보여주었는가?
+     */
     private var isMinimumWaitPassed = false
 
+    /**
+     * by변성욱
+     * 기존에 로그인이 되어있는경우, 로고에서 바로 메인액티비로 넘어가기 때문에
+     * 여기서  LoginActivity.mGoogleSignInClient를 셋팅해준다.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_logo)
 
-        // Configure sign-in to request the user's ID, email address, and basic
-        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
             .build()
@@ -31,6 +42,11 @@ class LogoActivity : AppCompatActivity() {
 
     }
 
+    /**
+     * by변성욱
+     * 로그인한 적이 없다면 로그인액티비티로,
+     * 있다면 블랙리스트에 올라가있는지 확인한 후 메인액티비로 간다.
+     */
     override fun onStart() {
         super.onStart()
 
@@ -47,9 +63,9 @@ class LogoActivity : AppCompatActivity() {
             LoginActivity.mAccount?.email?.let { email ->
 
                 //블랙리스트에 있는지 확인
-                NetworkManager.getInstance().checkBlacklisted(this, email, {
+                UserInfoManager.getInstance().checkBlacklisted(this, email, {
                     //없으면 로그인처리
-                    NetworkManager.getInstance().requestUserInfo(
+                    UserInfoManager.getInstance().requestUserInfo(
                         this, email,
                         { intent = Intent(this, MainActivity::class.java); if (isMinimumWaitPassed) startActivity(intent) },
                         { intent = Intent(this, LoginActivity::class.java); if (isMinimumWaitPassed) startActivity(intent) })

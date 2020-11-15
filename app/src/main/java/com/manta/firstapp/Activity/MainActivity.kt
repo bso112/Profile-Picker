@@ -16,13 +16,18 @@ import com.android.volley.toolbox.StringRequest
 import com.manta.firstapp.Helper.VolleyHelper
 import com.manta.firstapp.Helper.showSimpleAlert
 import com.manta.firstapp.Adapter.ViewPageAdapter
-import com.manta.firstapp.Helper.NetworkManager
+import com.manta.firstapp.Helper.UserInfoManager
 import com.manta.firstapp.R
 import com.google.android.gms.ads.MobileAds
 import com.google.android.material.tabs.TabLayoutMediator
+import com.manta.firstapp.Helper.UtilityHelper
 import kotlinx.android.synthetic.main.activity_main.*
 
-
+/**
+ * by 변성욱
+ * 게시물과 내 투표 뷰페이지를 포함하는 메인 액티티비.
+ * 메뉴 아이콘을 누르면 로그아웃, 회원탈퇴가 가능하고 SettingActivity로 갈 수 있다.
+ */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var mViewPageAdapter: ViewPageAdapter
@@ -39,6 +44,10 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    /**
+     * by 변성욱
+     * 메뉴 아이콘을 누르면 로그아웃, 회원탈퇴, 설정의 옵션을 띄운다.
+     */
     fun showPopup(v: View) {
         val popup = PopupMenu(this, v)
         val inflater: MenuInflater = popup.menuInflater
@@ -90,7 +99,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    //회원탈퇴 후 로그인액티비티로 간다.
+    /**
+     * by 변성욱
+     * 회원탈퇴 후 로그인 액티비티로 간다.
+     */
     private fun withdrawAccount() {
         val loadingDialog = LoadingDialogFragment()
 
@@ -116,6 +128,10 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    /**
+     * by 변성욱
+     * 뷰페이지를 셋팅한다.
+     */
     private fun ready_UI() {
         mViewPageAdapter = ViewPageAdapter(supportFragmentManager, lifecycle)
         vp_mainPager.adapter = mViewPageAdapter
@@ -143,7 +159,7 @@ class MainActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onBackPressed() {
-        NetworkManager.getInstance().exitApp(this)
+        UtilityHelper.exitApp(this)
     }
 
 

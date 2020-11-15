@@ -9,11 +9,16 @@ import android.widget.*
 import androidx.core.widget.addTextChangedListener
 import com.manta.firstapp.Default.UserInfo
 import com.manta.firstapp.Helper.GlobalHelper
-import com.manta.firstapp.Helper.NetworkManager
+import com.manta.firstapp.Helper.UserInfoManager
 import com.manta.firstapp.Helper.UtilityHelper
 import com.manta.firstapp.R
 import kotlinx.android.synthetic.main.activity_sing_up.*
 
+/**
+ * by 변성욱
+ * 회원가입 액티비티
+ *
+ */
 class SignUpActivity : AppCompatActivity() {
 
 
@@ -43,7 +48,7 @@ class SignUpActivity : AppCompatActivity() {
 
                 val url = getString(R.string.urlToServer) + "writeUserInfo/"
                 //데이터베이스에 유저정보 저장
-                NetworkManager.getInstance().sendUserInfoToDB(this, userInfo, url)
+                UserInfoManager.getInstance().sendUserInfoToDB(this, userInfo, url)
 
                 Intent(this, MainActivity::class.java).apply {
                     startActivity(this)
@@ -91,7 +96,8 @@ class SignUpActivity : AppCompatActivity() {
 
 
     }
-    
+
+    // 닉네임 조건을 체크한다.
     private fun checkIfNicknameFilled() : Boolean
     {
         //일단 안보이게
@@ -138,6 +144,8 @@ class SignUpActivity : AppCompatActivity() {
     
 
 
+    //체크박스가 클릭되면 선택된 카테고리를 저장한다.
+    //만약 선택된 카테고리가 없으면 경고를 표시한다.
     private fun onCheckboxClicked(view: View) {
         if ((view as CheckBox).isChecked) {
             mCategorys.add(GlobalHelper.getInstance(this).mCategory.indexOf((view as CheckBox).text.toString()))
@@ -146,6 +154,7 @@ class SignUpActivity : AppCompatActivity() {
             tv_signup_warn_category.visibility = View.VISIBLE
     }
 
+    //회원가입을 위한 모든 조건이 채워졌는지 확인한다.
     private fun checkIfAllFilled(): Boolean {
 
         var result = true

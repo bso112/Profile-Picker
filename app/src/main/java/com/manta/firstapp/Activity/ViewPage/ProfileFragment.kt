@@ -21,19 +21,24 @@ import com.manta.firstapp.Activity.StatisticActivity
 import com.manta.firstapp.Activity.UploadImgActivity
 import com.manta.firstapp.Adapter.MyPostAdapter
 import com.manta.firstapp.Default.*
-import com.manta.firstapp.Helper.NetworkManager
+import com.manta.firstapp.Helper.UserInfoManager
 import com.manta.firstapp.R
 import com.google.android.gms.ads.AdRequest
 import kotlinx.android.synthetic.main.frag_profile.*
 
-
+/**
+ * by 변성욱
+ * 내가 올린 게시물을 볼 수 있는 프래그먼트.
+ * 하단의 + 버튼을 누르면 글쓰기를 위해 UploadImgActivity로 전환한다.
+ * 내 게시물 항목을 누르면 투표받은 통계를 보여주는 StatisticActivity로 전환한다.
+ * 내 게시물 항목을 길게 누르면 수정, 삭제가 있는 메뉴를 보여준다.
+ */
 class ProfileFragment : Fragment() {
 
     private lateinit var mPostAdapter: MyPostAdapter
     private val mPosts = ArrayList<Post>()
     private var mSelectedPost: Post? = null
 
-    //뷰를 생성할때
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -42,11 +47,11 @@ class ProfileFragment : Fragment() {
         return inflater.inflate(R.layout.frag_profile, container, false)
     }
 
-    //뷰가 생성되었을때
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //글쓰기 액티비티로
+        //하단의 + 버튼을 누르면 글쓰기 액티비티로
         ib_profile_create.setOnClickListener {
             val intent = Intent(context, UploadImgActivity::class.java)
             startActivity(intent)
@@ -68,13 +73,14 @@ class ProfileFragment : Fragment() {
 
 
         //lv_myPosts의 아이템을 길게누르면 메뉴가 생성되며 onCreateContextMenu가 불림.
+        //콘텍스트메뉴로서 lv_myPosts를 등록한다. 이래야 onCreateContextMenu와 onContextItemSelected가 불린다.
         registerForContextMenu(lv_myPosts)
 
-
+        //배너광고요청
         val adRequest = AdRequest.Builder().build()
         av_profile_banner.loadAd(adRequest)
 
-
+        //당겨서 새로고침
         swipeRefresh.setOnRefreshListener {
             refreshView();
             swipeRefresh.isRefreshing = false;
@@ -83,18 +89,21 @@ class ProfileFragment : Fragment() {
 
 
 
-
+    //lv_myPosts의 아이템을 길게 누르면 메뉴를 생성한다.
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
         super.onCreateContextMenu(menu, v, menuInfo)
 
         val info = menuInfo as? AdapterContextMenuInfo
+        //선택된 포스트를 저장
         mSelectedPost = lv_myPosts.getItemAtPosition(info?.position ?: 0) as? Post
 
+        //만약 선택된게 게시물을 표시하는 리스트뷰면, 메뉴를 띄운다.
         if(v.id == R.id.lv_myPosts)
             activity?.menuInflater?.let { it.inflate(R.menu.menu_post, menu) }
 
     }
 
+    //메뉴 아이템이 선택되었을때 불린다.
     override fun onContextItemSelected(item: MenuItem): Boolean {
 
         when(item.itemId)
@@ -206,7 +215,7 @@ class ProfileFragment : Fragment() {
     private fun refreshView() {
 
         //사용자정보
-        tv_profile_nickname.text = NetworkManager.getInstance().mUserInfo?.nickname
+        tv_profile_nickname.text = UserInfoManager.getInstance().mUserInfo?.nickname
 
         //갱신하기 전의 포스트들
         val oldPosts = ArrayList<Post>(mPosts)

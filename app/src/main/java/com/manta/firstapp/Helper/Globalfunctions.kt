@@ -4,6 +4,10 @@ import android.app.AlertDialog
 import android.content.Context
 import com.manta.firstapp.R
 
+/**
+ * by 변성욱
+ * 전역으로 관리할 변수와 함수를 모아둔 싱글톤클래스
+ */
 class GlobalHelper private constructor(val context: Context) {
 
     companion object {

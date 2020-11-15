@@ -8,7 +8,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import com.manta.firstapp.Helper.NetworkManager
+import com.manta.firstapp.Helper.UserInfoManager
 import com.manta.firstapp.Helper.showAlertWithJustOkButton
 
 import com.manta.firstapp.R
@@ -18,91 +18,98 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
+import com.manta.firstapp.Helper.UtilityHelper
 import kotlinx.android.synthetic.main.activity_login.*
-import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 
-/*
-OnCreate() : mGoogleSignInClient 객체를 만든다.
-sign_in_button.setOnClickListener( SingIn()) : mGoogleSignInClient을 이용해 구글 로그인 액티비티를 시작한다.
-onActivityResult : 구글 로그인 액티비티의 결과를 받아 그로부터 task(로그인 결과포함)를 얻어내고, handleSignInResult에서 task를 처리한다.
-*/
-
-
+/**
+ * by 변성욱
+ * 로그인을 담당하는 액티비티.
+ * 구글 로그인을 통해 로그인을 제공한다.
+ * 만약 전에 로그인했던 기록이 있다면, 자동로그인을 한다.
+ */
 class LoginActivity : AppCompatActivity() {
 
+    /**
+     * by 변성욱
+     * 사용자 로그인정보
+     */
     companion object {
         var mGoogleSignInClient: GoogleSignInClient? = null
         var mAccount: GoogleSignInAccount? = null
-
     }
 
-    val RC_SIGN_IN: Int = 1 //onActivityResult 에서 로그인 리퀘스트를 구별하기 위한 상수
+    private val RC_SIGN_IN: Int = 1 //onActivityResult 에서 로그인 리퀘스트를 구별하기 위한 상수
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+        //전에 로그인한 기록이 없다면, 구글로그인을 요청한다.
         if(mGoogleSignInClient == null)
         {
-            // Configure sign-in to request the user's ID, email address, and basic
-            // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+
             val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build()
 
-            // Build a GoogleSignInClient with the options specified by gso.
             mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
         }
 
+        //로그인버튼을 누르면 로그인한다.
         sign_in_button.setOnClickListener { signIn() }
 
+        //"여기" 텍스트를 누르면 개인정보이용약관으로 리다이렉트
         val mTransform = Linkify.TransformFilter { match, url -> ""; }
-
         val pattern = Pattern.compile("여기");
-
         Linkify.addLinks(tv_login_link, pattern, "https://blackmanta.tistory.com/1?category=818797", null, mTransform);
 
     }
 
 
+    //전에 로그인한 적이 있는지 확인한다.
     override fun onStart() {
         super.onStart()
         if(mAccount == null)
             mAccount = GoogleSignIn.getLastSignedInAccount(this)
     }
 
+
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onBackPressed() {
-        NetworkManager.getInstance().exitApp(this)
+        UtilityHelper.exitApp(this)
     }
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
-        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
+        //로그인 요청결과를 받아 처리한다.
         if (requestCode === RC_SIGN_IN) {
-            // The Task returned from this call is always completed, no need to attach
-            // a listener.
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             handleSignInResult(task)
         }
     }
 
-
+    /**
+     * by 변성욱
+     * 구글의 로그인 액티비티를 시작한다.
+     */
     private fun signIn() {
         startActivityForResult(mGoogleSignInClient?.signInIntent, RC_SIGN_IN)
     }
 
 
+    /**
+     * by 변성욱
+     * 로그인을 시도한 계정이 블랙리스트에 있는지 확인한다.
+     */
     private fun checkIfAccountExist(email: String) {
         //블랙리스트에 있는지 확인
-        NetworkManager.getInstance().checkBlacklisted(this, email, {
+        UserInfoManager.getInstance().checkBlacklisted(this, email, {
             //없으면 로그인
-            NetworkManager.getInstance().requestUserInfo(this, email,
+            UserInfoManager.getInstance().requestUserInfo(this, email,
                 { startActivity(Intent(this, MainActivity::class.java)) },
                 { startActivity(Intent(this, SignUpActivity::class.java)) })
         }, {
@@ -114,7 +121,11 @@ class LoginActivity : AppCompatActivity() {
 
     }
 
-    //유저가 이메일을 선택했을때
+    /**
+     * by 변성욱
+     * 로그인 결과를 처리한다.
+     * 로그인에 성공하면 블랙리스트에 있는지, 기존에 등록된 회원인지 확인한다.
+     */
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
 
         try {

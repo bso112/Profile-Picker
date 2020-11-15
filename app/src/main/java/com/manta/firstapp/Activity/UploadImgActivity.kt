@@ -43,7 +43,10 @@ import kotlin.collections.HashMap
 
 data class MyBitmap(val imgName: String, val bitmap: Bitmap)
 
-//업로드가 끝나면 액티비티도 끝낸다.
+/**
+ * 게시물을 수정, 작성하는 액티비티
+ * 갤러리에서 이미지를 가져오거나, 카메라로 사진을 찍을 수 있다.
+ */
 class UploadImgActivity : AppCompatActivity() {
 
     private val REQUEST_IMAGE_CAPTURE = 1
@@ -161,7 +164,11 @@ class UploadImgActivity : AppCompatActivity() {
 
     }
 
-
+    /**
+     * by 변성욱
+     * 갤러리에서 가져온 이미지 URI, 카메라로 찍은 이미지 URI를 처리해서
+     * 비트맵으로 변환한뒤 화면에 표시한다.
+     */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -199,7 +206,11 @@ class UploadImgActivity : AppCompatActivity() {
     }
 
 
-
+    /**
+     * by 변성욱
+     * 작성한 게시글을 서버에 업로드한다.
+     * 멀티파트리퀘스트를 통해 이미지와 게시글정보를 함께 서버로 보낸다.
+     */
     private fun uploadPostToServer(url: String) {
 
         //Loading Dialog
@@ -276,13 +287,14 @@ class UploadImgActivity : AppCompatActivity() {
 
     }
 
+    //네트워크로 비트맵을 보내기위해 byteArray로 변환한다.
     fun getFileDataFromDrawable(bitmap: Bitmap): ByteArray? {
         val byteArrayOutputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.WEBP, 60, byteArrayOutputStream)
         return byteArrayOutputStream.toByteArray()
     }
 
-
+    //외부저장소 쓰기, 읽기 권한을 요청한 결과를 받는다.
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
@@ -302,6 +314,7 @@ class UploadImgActivity : AppCompatActivity() {
 
     }
 
+    //이미지 크롭
     private fun launchImageCrop(uri: Uri?) {
         CropImage.activity(uri).setGuidelines(CropImageView.Guidelines.ON)
             .setCropShape(CropImageView.CropShape.RECTANGLE)
@@ -314,6 +327,7 @@ class UploadImgActivity : AppCompatActivity() {
             .start(this)
     }
 
+    //갤러리에서 이미지를 선택하는 액티비티로 전환한다.
     private fun pickPictureFromGallay() {
         //이미 퍼미션을 받았으면 바로 그냥 갤러리로
         Intent(ACTION_GET_CONTENT).let {
@@ -327,6 +341,12 @@ class UploadImgActivity : AppCompatActivity() {
 
 
     @RequiresApi(Build.VERSION_CODES.M)
+    /**
+     * by 변성욱
+     * 갤러리에서 사진을 선택하기 위해 권한을 요청하고,
+     * 이미 권한이 있으면 갤러리에서 이미지를 선택하기 위한 액티비티로 전환한다.
+     * 권한을 거부당하면 권한이 필요한 이유를 UI로 보여준다.
+     */
     private fun dispatchGalleryIntent() {
         //외부 스토리지 쓰기, 읽기 퍼미션이 있는지 먼저 확인한다.
         if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) &&
@@ -353,6 +373,12 @@ class UploadImgActivity : AppCompatActivity() {
 
     }
 
+    /**
+     * URI부터 비트맵을 뽑아낸다.
+     * 갤러리에서 고른 이미지나 카메라로 찍은 이미지들은
+     * 그대로 ImageView를 통해 보여주기에는 해상도가 너무 높은경우가 많으므로
+     * 적절히 해상도를 낮춰서 뽑는다.
+     */
     private fun getBitmapFromUri(uri: Uri): Bitmap? {
         var bitmap : Bitmap? = null;
         //어차피 다운샘플링시에 1/4 처럼 비율로 줄이니까 비율은 유지됨.
@@ -411,6 +437,10 @@ class UploadImgActivity : AppCompatActivity() {
         return inSampleSize
     }
 
+    /**
+     * by 변성욱
+     * 카메라로 사진을 찍는 액티비티를 실행한다.
+     */
     private fun dispatchTakePictureIntent() {
 
         if(!MyFileHelper.isExternalStorageWritable())
@@ -461,6 +491,10 @@ class UploadImgActivity : AppCompatActivity() {
     }
 
 
+    /**
+     * by 성욱
+     * onActivityResult의 data로 넘어온 intent를 풀어 이미지의 uri를 뽑아낸다.
+     */
     private fun getUrisFromData(data: Intent?): ArrayList<Uri> {
 
         //하나 이상을 선택할경우 clipData에 uri가  들어가고

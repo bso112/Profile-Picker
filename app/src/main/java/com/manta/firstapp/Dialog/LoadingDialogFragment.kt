@@ -6,6 +6,10 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
 import com.manta.firstapp.R
 
+/**
+ * by 변성욱
+ * 로딩 다이어로그를 표시하는 프래그먼트
+ */
 class LoadingDialogFragment : DialogFragment() {
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)

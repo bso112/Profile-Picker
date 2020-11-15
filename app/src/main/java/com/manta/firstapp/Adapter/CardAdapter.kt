@@ -18,7 +18,7 @@ import com.manta.firstapp.Activity.LoginActivity
 import com.manta.firstapp.Default.CARD_REQUEST_AT_ONECE
 import com.manta.firstapp.Default.Card
 import com.manta.firstapp.Default.MyPicture
-import com.manta.firstapp.Helper.NetworkManager
+import com.manta.firstapp.Helper.UserInfoManager
 import com.manta.firstapp.Helper.VolleyHelper
 import com.manta.firstapp.Helper.showSimpleAlert
 import com.manta.firstapp.R
@@ -32,7 +32,9 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 /**
- * mDataset : UnifiedNativeAd or Card
+ * by 변성욱
+ * SwipeFragment에 카드(게시물)를 보여주는 어댑터
+ * 뷰타입을 이용해 Native Ad를 표시하기도 한다.
  */
 class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -173,6 +175,13 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
 
     }
 
+    /**
+     * by 변성욱
+     * 스와이프시, 맨 위에서 카드를 하나 삭제한다.
+     * 삭제시마다 mSwipeAcc를 늘려 스와이프 횟수를 세고,
+     * 만약 스와이프횟수가 SPACE_BETWEEN_REQUEST_AD 를 넘어서면 광고를 보여주고
+     * 만약 광고 큐 사이즈가 AD_DATA_ABOUT_TO_EMPTY보다 적어지면 광고를 구글애드몹서버에 요청한다.
+     */
     fun removeCardAtFront() {
         if (mDataset.isNotEmpty()) {
             //만약 광고면 파괴한다.
@@ -200,16 +209,28 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
             onItemAboutToEmpty()
     }
 
+    /**
+     * by 변성욱
+     * 가지고 있는 게시글 정보를 비우고, 다시 받아온다.
+     */
     fun refresh(onSuccess: (() -> Unit)? = null, onFailed: (() -> Unit)? = null) {
         mDataset.clear()
         notifyDataSetChanged()
         onItemAboutToEmpty(onSuccess, onFailed)
     }
 
+    /**
+     * by 변성욱
+     * 가진 게시물정보가 다 떨어져가면 더 받아온다.
+     */
     private fun onItemAboutToEmpty(onSuccess: (() -> Unit)? = null, onFailed: (() -> Unit)? = null) {
         requestAndAddCardData(CARD_REQUEST_AT_ONECE, onSuccess, onFailed)
     }
 
+    /**
+     * by 변성욱
+     * 한번에 여러개의 광고를 요청한다.
+     */
     private fun loadAds() {
         //광고요청하고 올때까지 꽤걸리니까 한번에 요청한다.
         mCardAd.loadAds(AdRequest.Builder().build(), REQUEST_AD_AT_ONECE)
@@ -224,6 +245,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
         }
     }
 
+    //게시물을 삽입한다.
     private fun addCardData(card: Card) {
         mDataset.add(card)
         notifyItemInserted(mDataset.size - 1)
@@ -239,6 +261,13 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
     }
 
 
+    /**
+     * by 변성욱
+     * 서버에 게시물을 요청하고, mDataset에 넣는다.
+     * 한번에 postSize만큼 요청한다.
+     * 요청시 유저가 선택한 관심사에 해당하는 게시물만 요청한다.
+     * 받는 게시물의 순서는 랜덤이다. (DB에 들어간 순서가 아니다)
+     */
     fun requestAndAddCardData(postSize: Int, onSuccess: (() -> Unit)? = null, onFailed: (() -> Unit)? = null) {
 
         mIsBusy = true
@@ -251,9 +280,8 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
 
 
         var url = mContext!!.getString(R.string.urlToServer) + "getRandomPost/" + postSize.toString() + "/" + mCardDataIndex.toString() +
-                "/" + LoginActivity.mAccount?.email + "/" + NetworkManager.getInstance().mUserInfo?.categorys.toString()
-        //랜덤한 유저의 게시글을 얻는다.
-        //현재 로그인된 유저정보를 바탕으로
+                "/" + LoginActivity.mAccount?.email + "/" + UserInfoManager.getInstance().mUserInfo?.categorys.toString()
+
         val postInfoRequest = JsonArrayRequest(
             Request.Method.GET, url, null,
             Response.Listener { res ->
@@ -278,9 +306,9 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
 
                         //만약 사용자 옵션이 자기 게시물은 보지 않는다고 되어있으면
                         var shouldSkip = false;
-                        NetworkManager.getInstance().mUserInfo?.isShowSelfPost?.let { isShowSelfPost ->
+                        UserInfoManager.getInstance().mUserInfo?.isShowSelfPost?.let { isShowSelfPost ->
                             if (!isShowSelfPost) {
-                                if (email == NetworkManager.getInstance().mUserInfo?.email)
+                                if (email == UserInfoManager.getInstance().mUserInfo?.email)
                                     shouldSkip = true;
                             }
                         }
@@ -307,6 +335,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
                         val getPictureUrl = mContext!!.getString(R.string.urlToServer) + "getImage/" +
                                 picture.file_name;
 
+                        //게시물에 필요한 이미지들을 받아온다.
                         val imgRequest = ImageRequest(getPictureUrl,
                             { bitmap ->
                                 picture.bitmap = bitmap
@@ -454,6 +483,7 @@ class CardAdapter(var mContext: Context?, private val mDataset: LinkedList<Card>
 
     }
 
+    //게시물 신고
     private fun report_post(email: String, postId: Long) {
         val url = mContext?.getString(R.string.urlToServer) + "report_post/${email}/${postId}"
         val request = StringRequest(Request.Method.GET, url, {

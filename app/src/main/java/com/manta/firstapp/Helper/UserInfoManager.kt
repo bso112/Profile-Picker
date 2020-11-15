@@ -13,23 +13,24 @@ import com.google.gson.Gson
 import org.json.JSONObject
 import java.io.File
 
-//http 요청을 관리. 네트워킹의 결과(유저정보)를 가지고있음.
-class NetworkManager {
+/**
+ * by 변성욱
+ * http 요청을 관리. 네트워킹의 결과(유저정보)를 가지고있음.
+ */
+class UserInfoManager {
 
     var mUserInfo: UserInfo? = null
         private set;
-    private var backBtnTimeInMillis: Long = 0
-    private var backBtnTimeDelay: Long = 2000
 
 
     companion object {
 
-        private var INSTANCE: NetworkManager? = null
+        private var INSTANCE: UserInfoManager? = null
 
-        fun getInstance(): NetworkManager =
+        fun getInstance(): UserInfoManager =
             INSTANCE ?: synchronized(this) {
-                INSTANCE = NetworkManager()
-                return INSTANCE as NetworkManager
+                INSTANCE = UserInfoManager()
+                return INSTANCE as UserInfoManager
             }
     }
 
@@ -87,12 +88,11 @@ class NetworkManager {
         context?.let { VolleyHelper.getInstance(it).addRequestQueue(request) }
     }
 
+    /**
+     * by 변성욱
+     * email을 가진 유저에 대한 정보를 서버에 요청하고, mUserInfo에 셋팅한다.
+     */
     fun requestUserInfo(context: Context, email: String, onResponse: (() -> Unit)? = null, onFailed: (() -> Unit)? = null) {
-
-        //만약 로컬에 저장한 데이터로만 로그인 판단해버리면 데베에 유저정보가 없어도 로컬에 캐싱된 데이터가 있으면 접속되버림.
-        // 이메일만 조작하면 다른 계정으로도 접속됨
-        //그니까 카테고리만 쓰자.
-
 
         //없으면 서버에 요청
         val url = context.getString(R.string.urlToServer) + "getUserInfo/"
@@ -142,6 +142,10 @@ class NetworkManager {
 
     }
 
+    /**
+     * by 변성욱
+     * 기기내부저장소에 저장해둔 설정파일로부터 유저정보를 불러온다.
+     */
     private fun getUserInfoFromFile(context: Context, email: String): UserInfo? {
         val file = File(context.cacheDir, "account_" + email)
         if (file.exists())
@@ -151,14 +155,6 @@ class NetworkManager {
 
     }
 
-    fun exitApp(activity: Activity) {
-        if (System.currentTimeMillis() < backBtnTimeInMillis + backBtnTimeDelay) {
-            activity.finishAffinity();
-            return;
-        }
-        backBtnTimeInMillis = System.currentTimeMillis()
-        Toast.makeText(activity, "한번 더 누르면 종료됩니다", Toast.LENGTH_SHORT).show()
-    }
 
 
 }

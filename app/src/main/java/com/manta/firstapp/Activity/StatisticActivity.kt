@@ -15,6 +15,11 @@ import com.manta.firstapp.Default.PostInfo
 import com.manta.firstapp.R
 import kotlinx.android.synthetic.main.activity_statistic.*
 
+/**
+ * by 변성욱
+ * 게시물의 투표 통계를 보여주는 액티비티
+ * intent로 게시물id를 받아서 서버에 게시물정보를 요청한뒤, 가공해서 표시한다.
+ */
 class  StatisticActivity : AppCompatActivity() {
 
     private var mPost: PostInfo = PostInfo()

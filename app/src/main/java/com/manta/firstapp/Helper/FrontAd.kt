@@ -3,6 +3,7 @@ package com.manta.firstapp.Helper
 import android.content.Context
 import com.google.android.gms.ads.*
 
+//전면광고 (사용안함)
 class FrontAd {
 
     private lateinit var mFrontAd: InterstitialAd

@@ -9,6 +9,12 @@ import com.manta.firstapp.R
 import kotlinx.android.synthetic.main.activity_picture.*
 import java.io.File
 
+/**
+ * by 변성욱
+ * 게시물의 사진을 길게 눌렀을때, 사진의 원본을 보여주는 액티비티.
+ * 게시물에서 표시되는 사진은 어느정도 잘려서 보여지기 때문에 필요한 액티비티이다.
+ * 게시물 액티비에서 임시파일로 저장된 비트맵이미지를 불러와 화면에 표시한다.
+ */
 class PictureActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

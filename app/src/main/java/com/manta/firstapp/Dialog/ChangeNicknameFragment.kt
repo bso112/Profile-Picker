@@ -12,11 +12,18 @@ import com.manta.firstapp.Helper.UtilityHelper
 import com.manta.firstapp.R
 import kotlinx.android.synthetic.main.frag_change_nickname_dialog.*
 
-//이 프래그먼트는 다이어로그가 아니다. 다이어로그를 생성하고 컨트롤할 뿐.
+
+/**
+ * by 변성욱
+ * 닉네임을 변경하는 다이어로그를 띄우고 관리하는 프래그먼트
+ */
 class ChangeNicknameFragment : DialogFragment() {
 
-    //호출자에게 제공할 인터페이스
-    //호출자는 이 인터페이스를 구현함으로서 이 다이어로그를 인자로 받아볼 수 있다.
+    /**
+     * by 변성욱
+     * 호출자에게 제공할 인터페이스
+     * 호출자는 이 인터페이스를 구현함으로서 이 다이어로그를 인자로 받아볼 수 있다.
+     */
     interface NoticeDialogListener {
         fun onDialogPositiveClick(dialog: DialogFragment)
     }
@@ -37,8 +44,9 @@ class ChangeNicknameFragment : DialogFragment() {
         super.onStart()
 
         dialog?.apply {
+            //다이어로그 스코프
 
-            //제출
+            //제출버튼을 누르면 제출
             btn_change_submit.setOnClickListener {
                 //닉네임이 조건을 충족했으면 데이터베이스에 있는 닉네임들과 중복되는지 확인하고 제출
                 if(checkIfNicknameFilled())
@@ -54,11 +62,15 @@ class ChangeNicknameFragment : DialogFragment() {
     }
 
 
-    //닉네임이 조건을 충족했는가
+    /**
+     * by 변성욱
+     * 닉네임이 조건을 충족했는가?
+     * 금칙어가 포함되지 않고, 닉네임이 충분히 길어야함.
+     */
     private fun checkIfNicknameFilled() : Boolean
     {
         dialog?.apply {
-            //일단 안보이게
+            //경고는 일단 안보이게
             tv_change_nickname_warn.visibility = View.INVISIBLE
 
             //조건 충족여부 리턴
@@ -78,7 +90,11 @@ class ChangeNicknameFragment : DialogFragment() {
         return false
     }
 
-    //닉네임이 중복이 되었는지 확인
+    /**
+     * by 변성욱
+     * 현재 변경하려는 닉네임과 데이터베이스안에 있는 닉네임 중 중복된 것이 있는지 확인하고
+     * 없다면 변경된 닉네임을 데이터베이스에 적용한다.
+     */
     private fun sumitIfNicknameisNotDuplicated()
     {
         val loadingDialog = LoadingDialogFragment()
@@ -111,8 +127,9 @@ class ChangeNicknameFragment : DialogFragment() {
 
 
 
-
     // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
+    // context는 SettingActivty의 context를 의미한다. SettingActivity는 NoticeDialogListener를 구현했으므로
+    // NoticeDialogListener로 변환가능하다.
     override fun onAttach(context: Context) {
         super.onAttach(context)
         // Verify that the host activity implements the callback interface

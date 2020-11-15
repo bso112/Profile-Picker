@@ -1,6 +1,5 @@
 package com.manta.firstapp.Activity
 
-import LoadingDialogFragment
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
@@ -33,14 +32,23 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 
 
-//다른사람 게시물을 보여주는 액티비티
+/**
+ * by 변성욱
+ * SwipeFragement에서 하트버튼 클릭시, 게시물을 보여주는 액티비티.
+ * 게시물 정보를 네트워크를 통해 받아오고, 사용자의 투표를 처리한다.
+ */
 class PostActivity : AppCompatActivity() {
 
+    //게시물 정보
     private var mCard: Card =
         Card(-1, "", "", "", "", ArrayList())
+
+    //인덱스에 해당하는 이미지가 선택되어있는지 저장하는 변수
     private var mSelected = ArrayList<Boolean>()
 
+    //네트워크요청중인가?
     private var mIsBusy: Boolean = false
+    //게시물에 있는 이미지를 보여주는 어댑터
     private lateinit var mPostImgAdapter: PostImgAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,10 +57,10 @@ class PostActivity : AppCompatActivity() {
 
 
         val btnAnim = AnimationUtils.loadAnimation(this, R.anim.anim_show_up)
-        //처음에 안보이다가 하나 클릭하면 쓱 올라오게 하고싶음
+
+        //하트버튼 (투표버튼)을 클릭하면 이 게시물의 정보를 intent에 담아서 SwipeFragement로 돌려준다.
         btn_vote.setOnClickListener {
             vote()
-            //비트맵은 인텐트로 못보냄
             for(picture in mCard.pictures) picture.bitmap = null;
             setResult(Activity.RESULT_OK, Intent().putExtra(EXTRA_POSTINFO, PostInfo(postId = mCard.postId, myPictures = mCard.pictures)))
             finish()
@@ -67,19 +75,13 @@ class PostActivity : AppCompatActivity() {
         lv_post_picture.adapter = mPostImgAdapter
         lv_post_picture.choiceMode = AbsListView.CHOICE_MODE_SINGLE
 
+        //사진을 클릭하면 오른쪽 상단에 빨간 투표아이콘(iv_vote)를 표시한다.
         lv_post_picture.setOnItemClickListener { parent, view, position, id ->
-
-            //parent는 어댑터뷰. 어댑터뷰의 자식수는 화면에 보이는 아이템 수이다.
-            //view는 adapter의 getView에서 리턴한 뷰 중에서 선택된 뷰
-
 
             //false로 다 채움(초기화)
             mSelected.fill(false)
 
-            //view에 selected를 저장하면 안되고 이렇게 따로해야함.
-            //view는 화면을 벗어나면 없어지니까.(정확히는 convertView가 됨)
-            //만약 convertView의 selected에 의존하면 convertView가 가지고 있는건 converView가 되기 전의 상태이므로
-            //재활용되서 화면에 표시될때 뜬금없이 체크된채로 나옴
+            //선택된 이미지 표시
             if (position < mSelected.size)
                 mSelected[position] = true;
 
@@ -100,15 +102,9 @@ class PostActivity : AppCompatActivity() {
 
         }
 
+        //사진을 길게 눌렀을때 PictureActivity로 인텐트를 보내 원본사진을 보여준다.
         lv_post_picture.setOnItemLongClickListener { parent, view, position, id ->
 
-
-            val loadingDialog = LoadingDialogFragment()
-
-            //멀티스레드가 아니라서 안나오나?
-            loadingDialog.show(supportFragmentManager, "다이어로그")
-
-            //코루틴
             CoroutineScope(IO).launch {
                 //해당 아이템의 비트맵을 외부저장소의 개별디렉토리(캐시 디렉토리)에 저장한다.
 
@@ -125,7 +121,6 @@ class PostActivity : AppCompatActivity() {
 
                     //메인콘텍스트에서 처리한다
                     withContext(Main){
-                        loadingDialog.dismiss()
                         Intent(this@PostActivity, PictureActivity::class.java).apply {
                             putExtra(EXTRA_FILEPATH, file.absolutePath)
                             startActivity(this)
@@ -141,13 +136,15 @@ class PostActivity : AppCompatActivity() {
             true
         }
 
-        getPostInfo()
+        getPostsInfo()
 
     }
 
 
-
-
+    /**
+     * by 변성욱
+     * 투표하고 그 결과를 서버로 보낸다.
+     */
     private fun vote() {
         if (mCard.pictures.size <= lv_post_picture.checkedItemPosition || lv_post_picture.checkedItemPosition < 0)
             return;
@@ -165,8 +162,12 @@ class PostActivity : AppCompatActivity() {
     }
 
 
+    /**
+     * by 변성욱
+     * 현재 열람하려는 게시물을 정보를 서버에서 받아온다.
+     */
     @RequiresApi(Build.VERSION_CODES.KITKAT)
-    public fun getPostInfo() {
+    public fun getPostsInfo() {
 
         mCard.pictures.clear()
 
