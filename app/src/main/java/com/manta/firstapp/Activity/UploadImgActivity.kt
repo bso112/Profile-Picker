@@ -394,20 +394,25 @@ class UploadImgActivity : AppCompatActivity() {
                 decoder.setTargetSampleSize(calculateInSampleSize(info.size.height, info.size.width,requestWidth, requestHeight))
             };
         } else {
+            val option: BitmapFactory.Options = BitmapFactory.Options();
+
             contentResolver.openInputStream(uri)?.use { inputStream ->
-
-                val option = BitmapFactory.Options();
-
                 //먼저 비트맵을 조사한다.
                 option.inJustDecodeBounds = true
                 BitmapFactory.decodeStream(inputStream, null, option)
 
                 //비트맵의 크기를 토대로 샘플링할 사이즈를 구한다.
                 option.inSampleSize = calculateInSampleSize(option.outHeight, option.outWidth, requestWidth, requestHeight)
+            }
 
+            // BitmapFactory.decodeStream 하면 inputStream이 변형되므로, 옵션을 얻고난다음에는
+            // 다시 inputStream을 만들어야한다.
+            contentResolver.openInputStream(uri)?.use { inputStream ->
+                option.inJustDecodeBounds = false
                 //크기를 줄여서 디코딩한다.
                 bitmap = BitmapFactory.decodeStream(inputStream, null, option)
             }
+
         }
 
         return bitmap;

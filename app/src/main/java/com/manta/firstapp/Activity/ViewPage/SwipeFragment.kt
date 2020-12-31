@@ -90,6 +90,7 @@ class SwipeFragment : Fragment() {
     override fun onStart() {
         super.onStart()
 
+        refresh();
         //사용자 설정 변경사항 적용
         UserInfoManager.getInstance().mUserInfo?.let {
             if(mOldCategory != it.categorys || mOldShowSelfPostOption != it.isShowSelfPost)
