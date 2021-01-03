@@ -1,7 +1,10 @@
 package com.manta.firstapp.Activity.ViewPage
 
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -9,6 +12,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.android.volley.Request
 import com.android.volley.toolbox.ImageRequest
 import com.android.volley.toolbox.JsonArrayRequest
@@ -39,6 +43,7 @@ class ProfileFragment : Fragment() {
     private val mPosts = ArrayList<Post>()
     private var mSelectedPost: Post? = null
 
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -46,6 +51,7 @@ class ProfileFragment : Fragment() {
     ): View? {
         return inflater.inflate(R.layout.frag_profile, container, false)
     }
+
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -144,8 +150,12 @@ class ProfileFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         refreshView()
+
     }
 
+    override fun onPause() {
+        super.onPause()
+    }
 
     private fun requestPostTumbnail(tumbnailName: String, post: Post) {
 

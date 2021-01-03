@@ -22,6 +22,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.widget.addTextChangedListener
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.android.volley.Response
 import com.android.volley.toolbox.Volley
@@ -221,6 +222,9 @@ class UploadImgActivity : AppCompatActivity() {
             Response.Listener {
                 Toast.makeText(applicationContext, "게시물을 등록하였습니다.", Toast.LENGTH_LONG).show()
                 loadingDialog.dismiss();
+                LocalBroadcastManager.getInstance(this).sendBroadcast(Intent().apply {
+                    action = ACTION_NEED_REFRESH;
+                })
                 finish();
 
             },

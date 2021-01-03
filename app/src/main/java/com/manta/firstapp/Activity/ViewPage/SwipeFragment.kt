@@ -1,7 +1,10 @@
 package com.manta.firstapp.Activity.ViewPage
 
 import android.app.Activity.RESULT_OK
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -14,10 +17,12 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.manta.firstapp.Adapter.CardAdapter
 import com.manta.firstapp.Default.EXTRA_POSTID
 import com.manta.firstapp.Activity.PostActivity
 import com.manta.firstapp.Activity.StatisticActivity
+import com.manta.firstapp.Default.ACTION_NEED_REFRESH
 import com.manta.firstapp.Default.CARD_REQUEST_AT_ONECE
 import com.manta.firstapp.Default.EXTRA_POSTINFO
 import com.manta.firstapp.Helper.UserInfoManager
@@ -62,6 +67,13 @@ class SwipeFragment : Fragment() {
     //자동스와이프를 시작하기 위한 변수
     private var mIsSwipeButtonPressing = false;
 
+    private var mReceiver = object : BroadcastReceiver(){
+        override fun onReceive(context: Context?, intent: Intent?) {
+            refresh()
+        }
+
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -82,6 +94,7 @@ class SwipeFragment : Fragment() {
             mOldShowSelfPostOption = it.isShowSelfPost
         }
 
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(mReceiver, IntentFilter(ACTION_NEED_REFRESH))
 
 
     }
@@ -89,8 +102,6 @@ class SwipeFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-
-        refresh();
         //사용자 설정 변경사항 적용
         UserInfoManager.getInstance().mUserInfo?.let {
             if(mOldCategory != it.categorys || mOldShowSelfPostOption != it.isShowSelfPost)
@@ -101,6 +112,12 @@ class SwipeFragment : Fragment() {
             }
         }
         
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+
     }
 
     /**
@@ -318,6 +335,7 @@ class SwipeFragment : Fragment() {
 
     override fun onDestroy() {
         mCardAdapter.onDestroy()
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(mReceiver)
         super.onDestroy()
     }
 

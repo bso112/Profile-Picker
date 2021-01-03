@@ -11,8 +11,8 @@ android {
         applicationId "com.manta.firstapp"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 6
-        versionName "1.4"
+        versionCode 9
+        versionName "2"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
