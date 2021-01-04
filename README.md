@@ -5,6 +5,14 @@
 ## 사용기술
 Kotlin, Android Studio, MySQL, Node.js
 
+## 실행법
+```
+# 깃 허브에서 소스코드를 다운로드 받습니다.
+git clone https://github.com/bsw112/vote-vote.git
+
+# 안드로이드 스튜디오로 빌드합니다. 개발환경은 4.1 버전입니다.
+```
+
 ## 주요기능
 * 구글로그인
 * 게시물 CRUD
