@@ -1,9 +1,17 @@
-# 보트보트
+# [사진평가](https://play.google.com/store/apps/details?id=com.manta.firstapp)<br>
 다양한 주제의 일상속의 사진들을 업로드해 불특정 다수에게 투표를 받는 앱입니다.<br/>
 예를들어 쇼핑을 할때 A물건과 B물건이 고민된다면, 앱에 올려 투표를 받을 수 있습니다.
 
 ## 사용기술
 Kotlin, Android Studio, MySQL, Node.js
+
+## 실행법
+```
+# 깃 허브에서 소스코드를 다운로드 받습니다.
+git clone https://github.com/bsw112/vote-vote.git
+
+# 안드로이드 스튜디오로 빌드합니다. 개발환경은 4.1 버전입니다.
+```
 
 ## 주요기능
 * 구글로그인
