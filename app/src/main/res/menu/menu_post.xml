@@ -2,9 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/it_modify"
-        android:title="수정하기"
+        android:title="@string/modify"
         app:showAsAction="ifRoom"/>
     <item android:id="@+id/it_remove"
-        android:title="삭제하기"
+        android:title="@string/delete"
         app:showAsAction="ifRoom" />
 </menu>

@@ -63,7 +63,7 @@ class LoginActivity : AppCompatActivity() {
 
         //"여기" 텍스트를 누르면 개인정보이용약관으로 리다이렉트
         val mTransform = Linkify.TransformFilter { match, url -> ""; }
-        val pattern = Pattern.compile("여기");
+        val pattern = Pattern.compile(resources.getString(R.string.here));
         Linkify.addLinks(tv_login_link, pattern, "https://blackmanta.tistory.com/1?category=818797", null, mTransform);
 
     }

@@ -144,10 +144,10 @@ class MainActivity : AppCompatActivity() {
         TabLayoutMediator(tabLayout, vp_mainPager) { tab, position ->
             when (position) {
                 0 -> {
-                    tab.text = "둘러보기"
+                    tab.text = resources.getString(R.string.look_around)
                 }
                 1 -> {
-                    tab.text = "내 투표"
+                    tab.text = resources.getString(R.string.my_vote)
                 }
 
             }

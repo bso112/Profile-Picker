@@ -50,23 +50,24 @@
         app:layout_constraintTop_toTopOf="@+id/iv_statistic_picture"
         app:layout_constraintVertical_bias="0.717" />
 
-    <TextView
-        android:id="@+id/tv_statistic_likes_absolute"
-        style="@style/AudioFileInfoOverlayText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tv_statistic_likes_persent"
-        android:layout_gravity="center"
-        android:text="(123명)"
-        android:textAlignment="center"
-        android:textColor="@color/White"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/iv_statistic_picture"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/iv_statistic_picture"
-        app:layout_constraintTop_toBottomOf="@+id/tv_statistic_likes_persent"
-        app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:id="@+id/tv_statistic_likes_absolute"
+            style="@style/AudioFileInfoOverlayText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/people"
+            android:textAlignment="center"
+            android:textColor="@color/White"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_statistic_picture"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/iv_statistic_picture"
+            app:layout_constraintTop_toBottomOf="@+id/tv_statistic_likes_persent"
+            app:layout_constraintVertical_bias="0.0"/>
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

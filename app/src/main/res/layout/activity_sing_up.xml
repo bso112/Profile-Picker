@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="회원가입"
+        android:text="@string/sign_up"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -50,7 +50,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="닉네임"
+            android:text="@string/nickname"
             android:textSize="15sp"
             android:textColor="@color/Black"
             />
@@ -99,7 +99,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
-                android:text="중복확인" />
+                android:text="@string/check" />
 
 
 
@@ -143,7 +143,7 @@
             android:layout_marginTop="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="연령대"
+            android:text="@string/age"
             android:textSize="15sp"
             android:textColor="@color/Black"
             />
@@ -160,7 +160,7 @@
             android:layout_marginTop="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="관심사"
+            android:text="@string/interest"
             android:textColor="@color/Black"
             android:textSize="15sp"/>
 
@@ -194,7 +194,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/rounded_corner_fg"
         android:backgroundTint="@color/colorPrimary"
-        android:text="제출"
+        android:text="@string/submit"
         android:textColor="@color/White"
         android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"

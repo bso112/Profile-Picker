@@ -16,7 +16,7 @@
             android:visibility="invisible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="이전 게시물 결과보기"
+            android:text="@string/show_result"
             android:textSize="12sp"
             android:background="@drawable/rounded_corner_fg"
             app:layout_constraintBottom_toBottomOf="parent"

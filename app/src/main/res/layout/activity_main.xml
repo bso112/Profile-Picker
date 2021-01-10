@@ -37,12 +37,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
-                android:text="둘러보기" />
+                android:text="@string/look_around" />
 
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="내 투표" />
+                android:text="@string/my_vote" />
 
         </com.google.android.material.tabs.TabLayout>
 

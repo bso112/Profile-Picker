@@ -2,13 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/it_logout"
-        android:title="로그아웃"
+        android:title="@string/logout"
         app:showAsAction="ifRoom"/>
     <item android:id="@+id/it_withdraw"
-        android:title="회원탈퇴"
+        android:title="@string/withdrawal"
         app:showAsAction="ifRoom" />
     <item android:id="@+id/it_setting"
-        android:title="설정"
+        android:title="@string/setting"
         app:showAsAction="ifRoom"/>
 
 </menu>

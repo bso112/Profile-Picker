@@ -8,6 +8,6 @@ const val EXTRA_POSTID = "com.manta.myfirstapp.POSTID"
 const val EXTRA_POSTINFO = "com.manta.myfirstapp.POSTINFO"
 const val EXTRA_FILEPATH = "com.manta.myfirstapp.FILEPATH"
 const val EXTRA_BIPMAP = "com.manta.myfirstapp.BITMAP"
-const val TO_FILTER = """.*(관리자|섹스|시발|개새끼|병신|좆|보지|자지|봊).*"""
+const val TO_FILTER = """.*(관리자|섹스|시발|개새끼|병신).*"""
 const val ACTION_NEED_REFRESH = "com.manta.myfirstapp.ACTION_NEED_REFRESH"
 

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Photo Vote</string>
+    <string name="warn_nicknameLegnth">Nicknames must be at least 3 characters without special characters, spaces, and not more than 10 characters.</string>
+    <string name="warn_nickname_banned">A forbidden word is included.</string>
+    <string name="warn_category">You must select at least one interest.</string>
+    <string name="warn_nickname_duplicated">Duplicate nickname.</string>
+    <string name="warn_nickname_passed">You can use this nickname.</string>
+    <string name="category0">Selfie</string>
+    <string name="category1">Pet</string>
+    <string name="category2">Fashion</string>
+    <string name="category3">Shopping</string>
+    <string name="category4">Food</string>
+        <string name="category5">Scenery</string>
+    <string name="category_end">Etc</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="login_with_google">Sign in with google</string>
+    <string name="look_around">Photos</string>
+    <string name="my_vote">My vote</string>
+    <string name="setting">Setting</string>
+    <string name="Member_information">Profile</string>
+    <string name="nickname">Nickname</string>
+    <string name="sex">Sex</string>
+    <string name="age">Age</string>
+    <string name="show_my_post">Show my post</string>
+    <string name="sign_up">Sign up</string>
+    <string name="check">Check</string>
+    <string name="interest">Interest</string>
+    <string name="submit">Submit</string>
+    <string name="category">Category</string>
+    <string name="title">Title</string>
+    <string name="description">Content</string>
+    <string name="show_result">Show result</string>
+    <string name="logout">Sign Out</string>
+    <string name="withdrawal">Withdraw</string>
+    <string name="modify">Modify</string>
+    <string name="delete">Delete</string>
+    <string name="people">" People"</string>
+    <string name="here">here</string>
+    <string name="personal_information_notification">Upon login, you will be deemed to have agreed to collect your personal information. Privacy policies can be found here.</string>
+
+</resources>

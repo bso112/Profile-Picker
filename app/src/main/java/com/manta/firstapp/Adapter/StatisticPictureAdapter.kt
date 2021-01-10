@@ -41,7 +41,7 @@ class StatisticPictureAdapter(context: Context, resource: Int, myPictures: Array
             view.tv_statistic_likes_persent.text = "$persent%"
 
             var stringLikes = if (picture.likes >= 1000) "${floor(picture.likes / 100.0F) / 10.0F}K" else picture.likes.toString()
-            view.tv_statistic_likes_absolute.text = "(${stringLikes}명)"
+            view.tv_statistic_likes_absolute.text = "(${stringLikes}${view.resources.getString(R.string.people)})"
         }
 
 

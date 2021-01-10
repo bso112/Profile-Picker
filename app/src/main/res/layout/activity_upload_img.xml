@@ -41,7 +41,7 @@
                 android:id="@+id/tv_upload_category"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="카테고리"
+                android:text="@string/category"
                 android:textColor="@color/Black"
                 />
 
@@ -58,13 +58,15 @@
 
         <TextView
             android:id="@+id/tv_upload_save"
-            android:layout_width="60dp"
-            android:layout_height="40dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="5dp"
             android:layout_alignParentRight="true"
             android:background="@drawable/rounded_corner_fg"
             android:backgroundTint="@color/Black"
             android:gravity="center"
-            android:text="저장"
+            android:text="@string/submit"
             android:textColor="@color/White"
             android:textSize="20dp" />
 
@@ -75,7 +77,7 @@
             android:layout_below="@+id/ll_upload_category"
             android:layout_marginTop="5dp"
             android:backgroundTint="@color/Black"
-            android:hint="카드에 표시할 제목"
+            android:hint="@string/title"
             android:maxLength="25"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -108,7 +110,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="15dp"
-                android:hint="내용을 입력하세요"
+                android:hint="@string/description"
                 android:maxLength="77"
                 android:textColor="@color/Black"
                 android:textSize="15sp" />

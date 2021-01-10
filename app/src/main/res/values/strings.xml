@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">보트보트</string>
+    <string name="app_name">사진평가</string>
     <string name="urlToServer">http://profilepicker.cafe24app.com/</string>
     <string name="lorem">
         Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
@@ -20,6 +20,29 @@
     <string name="category_end">기타</string>
     <string name="male">남성</string>
     <string name="female">여성</string>
+    <string name="login_with_google">구글 계정으로 로그인</string>
+    <string name="look_around">둘러보기</string>
+    <string name="my_vote">내 투표</string>
+    <string name="setting">설정</string>
+    <string name="Member_information">회원정보</string>
+    <string name="nickname">닉네임</string>
+    <string name="sex">성별</string>
+    <string name="age">나이대</string>
+    <string name="show_my_post">내 게시물 표시</string>
+    <string name="sign_up">회원가입</string>
+    <string name="check">중복확인</string>
+    <string name="interest">관심사</string>
+    <string name="submit">제출</string>
+    <string name="category">카테고리</string>
+    <string name="title">카드에 표시할 제목</string>
+    <string name="description">내용을 입력하세요</string>
+    <string name="show_result">이전 게시물 결과보기</string>
+    <string name="logout">로그아웃</string>
+    <string name="withdrawal">회원탈퇴</string>
+    <string name="modify">수정하기</string>
+    <string name="delete">삭제하기</string>
+    <string name="here">여기</string>
+    <string name="people">명</string>
 
 
 </resources>
