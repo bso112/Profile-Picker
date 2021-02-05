@@ -22,13 +22,12 @@ git clone https://github.com/bsw112/vote-vote.git
 * 게시물 사이에 애드몹 네이티브 광고도입
 
 ## 실제화면
-![alt](readme/슬라이드14.PNG)
 ![alt](readme/슬라이드15.PNG)
 ![alt](readme/슬라이드16.PNG)
 ![alt](readme/슬라이드17.PNG)
 ![alt](readme/슬라이드18.PNG)
 ![alt](readme/슬라이드19.PNG)
-
+![alt](readme/슬라이드20.PNG)
 ## 시연
 [![시연](http://img.youtube.com/vi/kxFRko6wcPg/0.jpg)](https://www.youtube.com/watch?v=kxFRko6wcPg)
 
